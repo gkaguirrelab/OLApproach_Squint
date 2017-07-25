@@ -21,10 +21,10 @@ d = OLModulationParamsDictionary(protocolParams);
 modulationParams = d(modulationName);
 
 
-% I AM NOT SURE IF WE NEED THIS; THIS DEALS WITH MULTIPLE MODULATION CACHE FILES
+% I AM NOT SURE IF WE NEED THE SECTION BELOW; THIS DEALS WITH MULTIPLE MODULATION CACHE FILES
 % WOULD WE JUST LOAD MULTIPLE DICTIONARIES?
 
-%% Put together t{1he trial order
+%% Put together the trial order
 for i = 1:length(protocolParams.cacheFileName)
     % Construct the file name to load in age-specific file
     [~, fileName, fileSuffix] = fileparts(protocolParams.cacheFileName{i});
@@ -63,7 +63,7 @@ block(protocolParams.nTrials).describe = '';
 %params.nTrials = 5;
 
 
-% BUILDS THE BLOCKS
+% BUILDS THE BLOCKS -- THIS SHOULD BE SEPERATED INTO A PREP SCRIPT
 for i = 1:protocolParams.nTrials
     fprintf('- Preconfiguring trial %i/%i...', i, protocolParams.nTrials);
     
@@ -130,6 +130,8 @@ for i = 1:protocolParams.nTrials
     fprintf('Done\n');
 end
 
+
+%% EXPERIMENT STARTS HERE
 % DO WE WANT THIS?
 % Play a sound
 t = linspace(0, 1, 10000);
@@ -139,7 +141,7 @@ sound(y, 20000);
 % Get rid of modulationData struct
 clear modulationData;
 
-%% Create the OneLight object.
+% Create the OneLight object.
 % This makes sure we are talking to OneLight.
 ol = OneLight;
 
@@ -153,7 +155,7 @@ ol.setMirrors(block(1).data.startsBG,  block(1).data.stopsBG); % Use first trial
 fprintf('\n* Creating keyboard listener\n');
 mglListener('init');
 
-%% Run the trial loop.
+% Run the trial loop.
 Params = trialLoop(Params, exp);
 
 % Also save out the frequencies
@@ -164,7 +166,7 @@ Params.theContrastsPct = block(1).describe.theContrastRelMax;
 
 mglListener('quit');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%% SUBFUNCTIONS FOR PROGRAM LOGIC %%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Contains:
@@ -203,7 +205,7 @@ mglListener('quit');
     function params = trialLoop(params, exp)
         % [params, responseStruct] = trialLoop(params, cacheData, exp)
         %
-        % THE IS THE EXPERIMENT -- WE SHOULD 
+        % THE IS THE EXPERIMENT
         % This function runs the experiment loop
         
         %% Store out the primaries from the cacheData into a cell.  The length of
