@@ -1,6 +1,8 @@
-function protocolParams = ModulationTrialSequenceMR(protocolParams)
+function data = ModulationTrialSequenceMR(protocolParams)
 % params = MRITrialSequence(exp)
-
+%
+% return data -- returns everything that is set 
+%
 %% Setup basic parameters for the experiment
 % MB -- 
 % This takes in exp which appears to have to info to load the config file
@@ -17,14 +19,14 @@ function protocolParams = ModulationTrialSequenceMR(protocolParams)
 %NEEDS TO BE SET UP IN LOCAL HOOK
 modulationPath = getpref('OLApproach_TrialSequenceMR', 'ModulationConfigPath'); 
 
-d = OLModulationParamsDictionary(protocolParams);
+d = OLModulationParamsDictionary();
 modulationParams = d(modulationName);
 
 
 % I AM NOT SURE IF WE NEED THE SECTION BELOW; THIS DEALS WITH MULTIPLE MODULATION CACHE FILES
 % WOULD WE JUST LOAD MULTIPLE DICTIONARIES?
 
-%% Put together the trial order
+%% Read in starts stops for each modulation? 
 for i = 1:length(protocolParams.cacheFileName)
     % Construct the file name to load in age-specific file
     [~, fileName, fileSuffix] = fileparts(protocolParams.cacheFileName{i});
@@ -281,6 +283,7 @@ mglListener('quit');
         
     end
 
+% Could be replaced by OLFlicker
     function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(trial, frameDurationSecs, numIterations)
         % OLFlicker - Flickers the OneLight.
         %
