@@ -1,4 +1,4 @@
-function data = ModulationTrialSequenceMR(protocolParams)
+Modfunction data = ModulationTrialSequenceMR(protocolParams)
 % params = MRITrialSequence(exp)
 %
 % return data -- returns everything that is set 

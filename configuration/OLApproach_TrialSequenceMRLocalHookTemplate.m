@@ -18,9 +18,19 @@ function OLApproach_TrialSequenceMRLocalHook
 fprintf('Running OLApproach_TrialSequenceMR local hook\n');
 theApproach = 'OLApproach_TrialSequenceMR';
 
+%% Define protocols for this approach
+theProtocols = { ...
+    'MRContrastResponseFunction' ...
+    };
+
 %% Remove old preferences
 if (ispref(theApproach))
     rmpref(theApproach);
+end
+for pp = 1:length(theProtocols)
+    if (ispref(theProtocols{pp}))
+        rmpref(theProtocols{pp});
+    end
 end
 
 %% Specify base paths for materials and data
@@ -46,10 +56,10 @@ setpref(theApproach,'MaterialsPath',fullfile(materialsBasePath));
 setpref(theApproach,'DataPath',fullfile(dataBasePath));
    
 %% Set pref to point at the code for this approach
-setpref(theApproach, 'CodePath', fullfile(tbLocateProject(theApproach),'code'));
+setpref(theApproach,'CodePath', fullfile(tbLocateProject(theApproach),'code'));
 
 %% Set the calibration file path
-setpref(theApproach, 'OneLightCalDataPath', fullfile(getpref(theApproach, 'MaterialsPath'), 'OneLightCalData'));
+setpref(theApproach, 'OneLightCalDataPath', fullfile(getpref(theApproach, 'MaterialsPath'), 'Experiments', theApproach, 'OneLightCalData'));
 setpref('OneLightToolbox','OneLightCalData',getpref(theApproach,'OneLightCalDataPath'));
 
 %% Set the background nominal primaries path
@@ -58,20 +68,22 @@ setpref(theApproach,'BackgroundNominalPrimariesPath',fullfile(getpref(theApproac
 %% Set the direction nominal primaries path
 setpref(theApproach,'DirectionNominalPrimariesPath',fullfile(getpref(theApproach, 'MaterialsPath'),'Experiments',theApproach,'DirectionNominalPrimaries'));
 
-% Set the spectrum sought primaries base path
-setpref(theApproach,'DirectionCorrectedPrimariesBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,'MaxMelPulsePsychophysics','DirectionCorrectedPrimaries'));
-
-% Set the validation base path
-setpref(theApproach,'DirectionCorrectedValidationBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,'MaxMelPulsePsychophysics','DirectionValidationFiles'));
-
-% Modulation configuration files path
-setpref(theApproach,'ModulationConfigPath',fullfile(tbLocateProject(theApproach),'modulationconfig'));
-
-% Modulation starts/stops files base path
-setpref(theApproach,'ModulationStartsStopsBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,'MaxMelPulsePsychophysics','ModulationsStartsStops'));
-
-% Session Record base path
-setpref(theApproach,'SessionRecordsBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,'MaxMelPulsePsychophysics','SessionRecords'));
+%% Prefs for individual protocols
+for pp = 1:length(theProtocols)
+    setpref(theProtocols{pp},'DirectionCorrectedPrimariesBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,theProtocols{pp},'DirectionCorrectedPrimaries'));
+    
+    % Set the validation base path
+    setpref(theProtocols{pp},'DirectionCorrectedValidationBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,theProtocols{pp},'DirectionValidationFiles'));
+    
+    % Modulation starts/stops files base path
+    setpref(theProtocols{pp},'ModulationStartsStopsBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,theProtocols{pp},'ModulationsStartsStops'));
+    
+    % Session record base path
+    setpref(theProtocols{pp},'SessionRecordsBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,theProtocols{pp},'SessionRecords'));
+    
+    % Data files base path
+    setpref(theProtocols{pp},'DataFilesBasePath',fullfile(getpref(theApproach, 'DataPath'),'Experiments',theApproach,theProtocols{pp},'DataFiles'));
+end
 
 %% Set the default speak rate
 setpref(theApproach, 'SpeakRateDefault', 230);

@@ -1,18 +1,5 @@
 [
-	{
-		"flavor": "",
-		"hook": "",
-		"importance": "",
-		"localHookTemplate": "configuration/OLApproach_TrialSequenceMRLocalHookTemplate.m",
-		"name": "OLApproach_TrialSequenceMR",
-		"pathPlacement": "append",
-		"subfolder": "code",
-		"toolboxRoot": "",
-		"type": "git",
-		"update": "",
-		"url": ""
-	},
-    {
+   {
 		"flavor": "",
 		"hook": "",
 		"importance": "",
@@ -82,6 +69,19 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
+		"name": "mgl",
+		"pathPlacement": "append",
+		"subfolder": "",
+		"toolboxRoot": "",
+		"type": "git",
+		"update": "never",
+		"url": "https://github.com/justingardner/mgl"
+	},
+   {
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "",
 		"name": "PupilAnalysisToolbox",
 		"pathPlacement": "append",
 		"subfolder": "",
@@ -89,5 +89,18 @@
 		"type": "git",
 		"update": "",
 		"url": "https:\/\/github.com\/gkaguirrelab\/PupilAnalysisToolbox.git"
+	},
+   {
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "configuration/OLApproach_TrialSequenceMRLocalHookTemplate.m",
+		"name": "OLApproach_TrialSequenceMR",
+		"pathPlacement": "append",
+		"subfolder": "code",
+		"toolboxRoot": "",
+		"type": "git",
+		"update": "",
+		"url": ""
 	}
 ]
