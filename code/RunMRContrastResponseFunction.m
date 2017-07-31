@@ -48,6 +48,9 @@ protocolParams.directionsCorrect = [...
     true ...
     ];
 
+% Trial structure
+protocolParams.nTrials = 5;
+
 % Timing things
 protocolParams.demoAdaptTimeSecs = 1; 
 protocolParams.experimentAdaptTimeSecs = 1;
