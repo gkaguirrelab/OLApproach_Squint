@@ -30,26 +30,38 @@ protocolParams.simulate = true;
 % the Demo and Experimental programs, which are counting on this order.
 protocolParams.modulationNames = {'MaxContrast3sSegment' ...
                                   'MaxContrast3sSegment' ...
-                                  'MaxContrast3sSegment' ...
                                   };
 protocolParams.directionNames = {...
     'MaxMel_275_80_667' ...
     'MaxLMS_275_80_667' ...
-    'LightFlux_540_380_50' ...
     };
 protocolParams.directionTypes = {...
     'pulse' ...
     'pulse' ...
-    'lightfluxpulse' ...
     };
 protocolParams.directionsCorrect = [...
     true ...
     true ...
-    true ...
     ];
 
-% Trial structure
-protocolParams.nTrials = 5;
+% Trial structure.  These define what is shown on each trial of the MR
+% experiment.  
+
+% Modulation and direction indices match on each trial, so we just specify
+% them once in a single array.
+%
+% Need to add some checking that desired contrasts, frequencies and phases
+% are available in the ModulationStartsStops file.  Not sure where this
+% checking best happens.
+%
+% To make sense of all this, we need to understand OLModulationParamsDictionary fields,
+% OLReceptorIsolateMakeModulationStartsStops, and possibly some of the other modulation
+% routines.
+protocolParams.trialModulationAndDirection = [1 2 2 1 2];
+protocolParams.trialContrasts = [1 1 1 1 1];
+protocolParams.trialFrequencies = [1 1 1 1 1];
+protocolParams.trialPhases = [1 1 1 1 1];
+protocolParams.nTrials = size(protocolParams.trialDirections);
 
 % Timing things
 protocolParams.demoAdaptTimeSecs = 1; 
@@ -116,7 +128,7 @@ OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
 % OLAnalyzeValidationReceptorIsolate(validationPath, validationDescribe.postreceptoralCombinations);
 
 %% Run demo code
-ModulationTrialSequenceMR.Demo(ol,protocolParams);
+%ModulationTrialSequenceMR.Demo(ol,protocolParams);
 
 %% Run experiment
 ModulationTrialSequenceMR.Experiment(ol,protocolParams);
