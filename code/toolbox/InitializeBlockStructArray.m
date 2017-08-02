@@ -1,44 +1,43 @@
-function block = InitializeBlockStructArray(protocolParams)
-% InitializeBlockStructArray - Creates block struct that contiains information
-%                              related to the experiment and creates an optional
-%                              attentional task.
+function block = InitializeBlockStructArray(protocolParams,modulationData)
+% InitializeBlockStructArray  Sets up block data structure for each trial, including attention task info
 %
 % Usage:
-%     block = InitializeBlockStructArray(protocolParams)
+%     block = InitializeBlockStructArray(protocolParams,modulationData)
 %
 % Description:
-%     The block struct contains information about the experiemnt such as 
-%     start/stops.This function also adds an optional attention attentional 
-%     task by randomly assigning, within a trial, a low luminance pulse for 
-%     the lenght of protocolParams.attentionSegmentDuration.
+%     The block structure contains trial-by-trial information about the experiemnt such as 
+%     start/stops values.  One of the key jobs of this routine is (optionally) to 
+%     modify the starts/stops values to include an attention task stimulus, which is a 
+%     dimming of the full field.
+%
+%     It is possible that the attention task code should be yet further factorized into
+%     its own separate function.
 %     
 % Input:
-%     protocolParams - A struct that contain the starts/stops. Optional attentional 
-%                      task is set by protocolParams.attentionTask = true. 
+%     protocolParams (struct)            A struct that contain the starts/stops.  Some key fields:
+%                                        attentionTask - If true insert attention task.
+%                                        [DHB NOTE: IT WOULD BE NICE TO KNOW ABOUT MORE KEY FIELDS HERE.]                
 %
 % Output:
-%     block - Stuct containing starts/stops with optional attention trials. 
+%     block (struct)                     Contains trial-by-trial starts/stops and other info. 
 %
 % Optional key/value pairs.
 %    None.
 %
 % See also:
 
-% IT MIGHT BE BETTER TO HAVE THIS FUNCTION JUST HANDLE ADDING THE ATTENTION
-% TASK AND REMOVE OTHER STUFF. --mb 
-
 % 8/2/17  mab  Split from experiment and tried to add comments.
 
-% Initialize
+%% Initialize
 block = struct();
 block(protocolParams.nTrials).describe = '';
 
-
+%% Setup for each trial
 for i = 1:protocolParams.nTrials
     fprintf('- Preconfiguring trial %i/%i...', i, protocolParams.nTrials);
     
-    block(i).data = modulationData{Params.theDirections(i)}.modulationObj.modulation(Params.theFrequencyIndices(i), Params.thePhaseIndices(i), Params.theContrastRelMaxIndices(i));
-    block(i).describe = modulationData{Params.theDirections(i)}.modulationObj.describe;
+    block(i).data = modulationData{Params.theDirections(i)}.modulationData.modulation(Params.theFrequencyIndices(i), Params.thePhaseIndices(i), Params.theContrastRelMaxIndices(i));
+    block(i).describe = modulationData{Params.theDirections(i)}.modulationData.describe;
     
     % Check if the 'attentionTask' flag is set. If it is, set up the task
     % (brief stimulus offset).
@@ -94,6 +93,7 @@ for i = 1:protocolParams.nTrials
             
         end
     end
+    
     fprintf('Done\n');
 end
 end
