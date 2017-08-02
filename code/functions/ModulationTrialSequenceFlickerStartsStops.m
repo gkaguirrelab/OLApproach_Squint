@@ -1,7 +1,6 @@
-function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(trial, frameDurationSecs, numIterations)
+function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(ol, block, trial, frameDurationSecs, numIterations)
 % ModulationTrialSequenceFlickerStartsStops - Flickers the OneLight.
 %
-
 % This is the function that sends the starts and stops to the OL
 %
 % Syntax:
@@ -12,7 +11,7 @@ function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(tri
 % pressed or the number of iterations is reached.
 %
 % Input:
-% ol (OneLight) - The OneLight object.
+% ol (OneLight) - The OneLight object. 
 % stops (1024xN) - The normalized [0,1] mirror stops to loop through.
 % frameDurationSecs (scalar) - The duration to hold each setting until the
 %     next one is loaded.
@@ -24,7 +23,9 @@ function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(tri
 %     to end the script.  In regular mode, this will always be empty.
 %
 % WE SHOULD GET OLFLicker TO RETURN keyEvents, t, counter INSTEAD OF USE
-% THIS 
+% THIS NEEDS TO BE MODIFIED TO WORK AS IS 
+%
+% I WOULD LIKE TO WORK WITH DB ON THIS TO FIGURE OUT HOW REDUNDANT THIS IS 
 %
 
 %tic;

@@ -1,20 +1,18 @@
 function block = InitializeBlockStructArray(protocolParams)
 % InitializeBlockStructArray - Creates block struct that contiains information
-%                              related to the experiment and creates an optional
-%                              attentional task.
+%  related to the experiment and creates an optional attentional task.
 %
 % Usage:
 %     block = InitializeBlockStructArray(protocolParams)
 %
 % Description:
 %     The block struct contains information about the experiemnt such as 
-%     start/stops.This function also adds an optional attention attentional 
-%     task by randomly assigning, within a trial, a low luminance pulse for 
-%     the lenght of protocolParams.attentionSegmentDuration.
+%     start/stops.This function also adds the attention attentional task by
 %     
+%
 % Input:
 %     protocolParams - A struct that contain the starts/stops. Optional attentional 
-%                      task is set by protocolParams.attentionTask = true. 
+%                      task if protocolParams.attentionTask = true. 
 %
 % Output:
 %     block - Stuct containing starts/stops with optional attention trials. 
