@@ -35,15 +35,21 @@ protocolParams.directionNames = {...
     'MaxMel_275_80_667' ...
     'MaxLMS_275_80_667' ...
     };
-protocolParams.trialParams = {...
-    struct('frequency',-1,'phase',-1,'contrast',1) ...
-    struct('frequency',-1,'phase',-1,'contrast',1);
-    };
+protocolParams.trialTypeParams = [...
+    struct('contrast',1) ...
+    struct('contrast',1);
+    ];
 protocolParams.directionsCorrect = [...
     true ...
     true ...
     ];
 
+% Trial jitter parameters. Each trial's start time is
+% jittered by an amount in the min/max range specified
+% by these two parameters.
+protocolParams.minJitterTimeSec = 0;                  % Time before step
+protocolParams.maxJitterTimeSec = 0;                  % Phase shifts in seconds
+        
 % Trial structure.  These define what is shown on each trial of the MR
 % experiment. 
 
@@ -59,11 +65,8 @@ protocolParams.directionsCorrect = [...
 % To make sense of all this, we need to understand OLModulationParamsDictionary fields,
 % OLReceptorIsolateMakeModulationStartsStops, and possibly some of the other modulation
 % routines.
-protocolParams.trialModulationAndDirection = [1 2 2 1 2];
-protocolParams.trialContrasts = [1 1 1 1 1];
-protocolParams.trialFrequencies = [1 1 1 1 1];
-protocolParams.trialPhases = [1 1 1 1 1];
-protocolParams.nTrials = size(protocolParams.trialDirections);
+protocolParams.trialTypeOrder = [1 2];
+protocolParams.nTrials = size(protocolParams.trialTypeOrder);
 
 % Timing things
 protocolParams.demoAdaptTimeSecs = 1; 
