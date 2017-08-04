@@ -54,6 +54,23 @@ protocolParams.maxJitterTimeSec = 0;                  % Phase shifts in seconds
 % experiment. 
 
 % Attention task parameters.
+%
+% Currently, if you have an attention event then all trial types
+% must have the same duration, and the attention event duration
+% must match the trial duration.  These constraints could be relaxed
+% by making the attentionSegmentDuration part of the trialType parameter
+% set and by generalizing the way attention event information is generated
+% within routine InitializeBlockStructArray.
+%
+% Also note that we assume that the dimming is visible when presented at 
+% any moment within any trial, even if the contrast is zero on that trial
+% or it is a minimum contrast decrement, etc.  Would have to worry about how 
+% to handle this if that assumption is not valid.
+protocolParams.attentionTask = true;
+protocolParams.attentionSegmentDuration = 3;
+protocolParams.attentionEventDuration = 0.1;
+protocolParams.attentionMarginDuration = 0.2;
+protocolParams.attentionEventProb = 1/3;
 
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.

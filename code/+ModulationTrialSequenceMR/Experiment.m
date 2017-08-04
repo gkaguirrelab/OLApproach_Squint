@@ -30,7 +30,7 @@ end
 saveFileCSV = [protocolParams.observerID '-' protocolParams.protocolType '.csv'];
 saveFileMAT = [protocolParams.observerID '-' protocolParams.protocolType '.mat'];
 
-%% Get the modulation starts/stops
+%% Get the modulation starts/stops for each trial type
 %
 % Get path and filenames.  Check that someone has not
 % done something unexpected in the calling program.
@@ -47,9 +47,7 @@ end
 %% Put together the block struct array.
 %
 % This describes what happens on each trial of the session.
-block = InitializeBlockStructArray(protocolParams);
-
-
+block = InitializeBlockStructArray(protocolParams,modulationData);
 
 %% EXPERIMENT STARTS HERE
 % DO WE WANT THIS?
