@@ -56,12 +56,10 @@ t = linspace(0, 1, 10000);
 y = sin(330*2*pi*t);
 sound(y, 20000);
 
-% Get rid of modulationData struct
+%% Get rid of modulationData struct
+%
+% This is mainly to avoid confusion.
 clear modulationData;
-
-% Create the OneLight object.
-% This makes sure we are talking to OneLight.
-ol = OneLight;
 
 % Make sure our input and output pattern buffers are setup right.
 %ol.InputPatternBuffer = 0;

@@ -44,14 +44,15 @@ protocolParams.directionsCorrect = [...
     true ...
     ];
 
-% Trial jitter parameters. Each trial's start time is
-% jittered by an amount in the min/max range specified
-% by these two parameters.
-protocolParams.minJitterTimeSec = 0;                  % Time before step
-protocolParams.maxJitterTimeSec = 0;                  % Phase shifts in seconds
-        
-% Trial structure.  These define what is shown on each trial of the MR
-% experiment. 
+% Trial timing parameters.
+%
+% There is a minimum time at the start of each trial where
+% the background is presented.  Then the actual trial
+% start time is chosen based on a random draw from
+% the jitter parameters.
+protocolParams.trialBackgroundTimeSec = 1;
+protocolParams.trialMinJitterTimeSec = 0;                  % Time before step
+protocolParams.trialMaxJitterTimeSec = 0.5;                % Phase shifts in seconds
 
 % Attention task parameters.
 %
@@ -84,10 +85,6 @@ protocolParams.attentionEventProb = 1/3;
 % routines.
 protocolParams.trialTypeOrder = [1 2];
 protocolParams.nTrials = size(protocolParams.trialTypeOrder);
-
-% Timing things
-protocolParams.demoAdaptTimeSecs = 1; 
-protocolParams.experimentAdaptTimeSecs = 1;
       
 % OneLight parameters
 protocolParams.boxName = 'BoxB';  

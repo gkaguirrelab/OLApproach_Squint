@@ -91,7 +91,6 @@ for ii = 1:length(protocolParams.nTrials)
             % Flip a coin to decide whether we'll have a blank event or not.
             % If yes, then define what the start and stop indices are for this event in this segment
             theCoinFlip = binornd(1, protocolParams.attentionEventProb);
-            theCoinFlip = 1;
             if theCoinFlip
                 % Choose at random which allowable indices within the segments get dimmed.
                 theStartBlankIndex = randi([theStartSegmentIndex+(1/block(ii).modulationData.params.timeStep)*actualAttentionMarginDuration theStopSegmentIndex-(1/block(ii).modulationData.params.timeStep)*actualAttentionMarginDuration]);
