@@ -17,6 +17,9 @@ function Experiment(ol,protocolParams,varargin)
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
 
+%% Start Session Log
+protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start')
+
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
@@ -81,6 +84,10 @@ protocolParams = trialLoop(protocolParams,block,ol);
 % Params.theContrastsPct = block(1).describe.theContrastRelMax;
 
 mglListener('quit');
+
+%% Close Session Log
+protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','end')
+
 
 end
 
