@@ -42,7 +42,7 @@ function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(ol,
 iterationCount = 0;
 setCount = 0;
 
-numstops = size(block(trial).data.starts, 2);
+numstops = size(block(trial).modulationData.modulation.starts, 1);
 
 t = zeros(1, numstops);
 counter = zeros(1, numstops);
@@ -76,7 +76,7 @@ while iterationCount < numIterations
         % Send over the new stops.
         t(i) = mglGetSecs;
         counter(i) = setCount;
-        ol.setMirrors(block(trial).data.starts(:, setCount), block(trial).data.stops(:, setCount));
+        ol.setMirrors(block(trial).modulationData.modulation.starts(setCount,:), block(trial).modulationData.modulation.stops(setCount,:));
     end
     
 end

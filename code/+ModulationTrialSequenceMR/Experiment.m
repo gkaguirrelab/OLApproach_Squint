@@ -54,7 +54,7 @@ block = InitializeBlockStructArray(protocolParams,modulationData);
 % Play a sound
 t = linspace(0, 1, 10000);
 y = sin(330*2*pi*t);
-sound(y, 20000);
+%sound(y, 20000);
 
 %% Get rid of modulationData struct
 %
@@ -66,19 +66,19 @@ clear modulationData;
 %ol.OutputPatternBuffer = 0;
 
 % SET THE BACKGROUND
-ol.setMirrors(block(1).data.startsBG,  block(1).data.stopsBG); % Use first trial
+ol.setMirrors(block(1).modulationData.modulation.background.starts,  block(1).modulationData.modulation.background.stops); % Use first trial
 
 fprintf('\n* Creating keyboard listener\n');
 mglListener('init');
 
 % Run the trial loop.
-Params = trialLoop(Params, exp);
+protocolParams = trialLoop(protocolParams,block,ol);
 
 % Also save out the frequencies
-Params.theFrequenciesHz = block(1).describe.theFrequenciesHz;
-Params.thePhaseOffsetSec = block(1).describe.params.phaseRandSec;
-Params.theContrastMax = block(1).describe.params.maxContrast;
-Params.theContrastsPct = block(1).describe.theContrastRelMax;
+% Params.theFrequenciesHz = block(1).describe.theFrequenciesHz;
+% Params.thePhaseOffsetSec = block(1).describe.params.phaseRandSec;
+% Params.theContrastMax = block(1).describe.params.maxContrast;
+% Params.theContrastsPct = block(1).describe.theContrastRelMax;
 
 mglListener('quit');
 

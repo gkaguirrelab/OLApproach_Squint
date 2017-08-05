@@ -1,5 +1,5 @@
-function params = trialLoop(params, exp)
-% [params, responseStruct] = trialLoop(params, cacheData, exp)
+function protocolParams = trialLoop(protocolParams,block,ol)
+% [params, responseStruct] = trialLoop(params, cacheData)
 %
 % THE IS THE EXPERIMENT
 % This function runs the experiment loop
@@ -14,7 +14,7 @@ fprintf('- Setting mirrors to background, waiting for t.\n');
 
 % Initialize events variable
 events = struct();
-events(params.nTrials).buffer = '';
+%events(protocolParams.nTrials).buffer = '';
 
 % Suppress keypresses going to the Matlab window.
 ListenChar(2);
@@ -41,20 +41,19 @@ end
 fprintf('- Starting trials.\n');
 
 % Iterate over trials
-for trial = 1:params.nTrials
+for trial = 1:protocolParams.nTrials
     %if params.waitForKeyPress
     %    ListenChar(0);
     %    pause;
     %end
-    fprintf('* Start trial %i/%i - %s, %i Hz.\n', trial, params.nTrials, block(trial).direction, block(trial).carrierFrequencyHz);
+    fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.params.direction);
     % Launch into OLPDFlickerSettings.
     events(trial).tTrialStart = mglGetSecs;
     % this send the flicker starts stops to the OL
-    [events(trial).buffer, events(trial).t,  events(trial).counter] = ModulationTrialSequenceFlickerStartsStops(trial, params.timeStep, 1);
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = ModulationTrialSequenceFlickerStartsStops(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
     events(trial).tTrialEnd = mglGetSecs;
     events(trial).attentionTask = block(trial).attentionTask;
-    events(trial).describe = block(trial).describe;
-    events(trial).powerLevels = block(trial).data.powerLevels;
+    events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
 end
 tBlockEnd = mglGetSecs;
 
@@ -73,6 +72,6 @@ fprintf('Total duration: %f s\n', responseStruct.tBlockEnd-responseStruct.tBlock
 
 % Tack data that we want for later analysis onto params structure.  It then
 % gets passed back to the calling routine and saved in our standard place.
-params.responseStruct = responseStruct;
+protocolParams.responseStruct = responseStruct;
 
 end
