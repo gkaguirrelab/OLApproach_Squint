@@ -83,8 +83,8 @@ protocolParams.attentionEventProb = 1/3;
 % To make sense of all this, we need to understand OLModulationParamsDictionary fields,
 % OLReceptorIsolateMakeModulationStartsStops, and possibly some of the other modulation
 % routines.
-protocolParams.trialTypeOrder = [1 2];
-protocolParams.nTrials = size(protocolParams.trialTypeOrder);
+protocolParams.trialTypeOrder = [1 2 1 1 2];
+protocolParams.nTrials = length(protocolParams.trialTypeOrder);
       
 % OneLight parameters
 protocolParams.boxName = 'BoxB';  
