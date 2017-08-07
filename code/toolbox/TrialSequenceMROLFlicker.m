@@ -1,5 +1,5 @@
-function [keyEvents, t, counter] = ModulationTrialSequenceFlickerStartsStops(ol, block, trial, frameDurationSecs, numIterations)
-% ModulationTrialSequenceFlickerStartsStops - Flickers the OneLight.
+function [keyEvents, t, counter] = TrialSequenceMROLFlicker(ol, block, trial, frameDurationSecs, numIterations)
+%%TrialSequenceMROLFlicker  Flickers the OneLight.
 %
 % This is the function that sends the starts and stops to the OL
 %
@@ -80,6 +80,6 @@ while iterationCount < numIterations
     end
     
 end
-%toc;
+
 keyEvents = mglListener('getAllKeyEvents');
 end

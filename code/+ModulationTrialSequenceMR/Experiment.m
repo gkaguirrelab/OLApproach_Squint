@@ -1,5 +1,5 @@
 function Experiment(ol,protocolParams,varargin)
-%Experiment  Run a trial sequence MR protcol experiment.
+%%Experiment  Run a trial sequence MR protcol experiment.
 %
 % Usage:
 %    Experiment(ol,protocolParams)
@@ -16,6 +16,7 @@ function Experiment(ol,protocolParams,varargin)
 %
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
+%    playSound (logical)       false      Play a sound when the experiment is ready.
 
 %% Start Session Log
 protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start')
@@ -23,6 +24,7 @@ protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start')
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
+p.addParameter('playSound',false,@islogical);
 p.parse;
 
 %% Where the data goes
@@ -50,40 +52,44 @@ end
 %% Put together the block struct array.
 %
 % This describes what happens on each trial of the session.
+% Once this is done we don't need the modulation data and we
+% clear that just to make sure we don't use it by accident.
 block = InitializeBlockStructArray(protocolParams,modulationData);
-
-%% EXPERIMENT STARTS HERE
-% DO WE WANT THIS?
-% Play a sound
-t = linspace(0, 1, 10000);
-y = sin(330*2*pi*t);
-%sound(y, 20000);
-
-%% Get rid of modulationData struct
-%
-% This is mainly to avoid confusion.
 clear modulationData;
 
-% Make sure our input and output pattern buffers are setup right.
-%ol.InputPatternBuffer = 0;
-%ol.OutputPatternBuffer = 0;
+%% Begin the experiment
+%
+% Play a sound to say hello.
+if (p.Results.playSound)
+    t = linspace(0, 1, 10000);
+    y = sin(330*2*pi*t);
+    sound(y, 20000);
+end
 
-% SET THE BACKGROUND
-ol.setMirrors(block(1).modulationData.modulation.background.starts,  block(1).modulationData.modulation.background.stops); % Use first trial
+%% Set the background
+%
+% Use the background for the first trial as the background to set.
+ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops); 
 
-fprintf('\n* Creating keyboard listener\n');
+%% Adapt to background
+%
+% Could wait here for a specified adaptation time
+
+%% Set up for responses
+if (params.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
 mglListener('init');
 
-% Run the trial loop.
-protocolParams = trialLoop(protocolParams,block,ol);
+%% Run the trial loop.
+responseStruct = trialLoop(protocolParams,block,ol);
 
-% Also save out the frequencies
-% Params.theFrequenciesHz = block(1).describe.theFrequenciesHz;
-% Params.thePhaseOffsetSec = block(1).describe.params.phaseRandSec;
-% Params.theContrastMax = block(1).describe.params.maxContrast;
-% Params.theContrastsPct = block(1).describe.theContrastRelMax;
-
+%% Turn off key listener
 mglListener('quit');
+
+%% Save the data
+%
+% Save protocolParams, block, responseStruct;
+
+
 
 %% Close Session Log
 protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','end')

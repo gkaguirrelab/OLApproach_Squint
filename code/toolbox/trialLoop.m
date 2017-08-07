@@ -1,28 +1,24 @@
-function protocolParams = trialLoop(protocolParams,block,ol)
-% [params, responseStruct] = trialLoop(params, cacheData)
+function responseStruct = trialLoop(protocolParams,block,ol)
+% responseStruct = trialLoop(params, cacheData)
 %
-% THE IS THE EXPERIMENT
+% THE IS THE EXPERIMENT. MAB TO MAKE COMMENTS IN STANDARD FORMAT.
 % This function runs the experiment loop
 
-%% Store out the primaries from the cacheData into a cell.  The length of
-% cacheData corresponds to the number of different stimuli that are being
-% shown
+%% Initialize events variable
+events = struct;
 
-% Set the background to the 'idle' background appropriate for this
-% trial.
-fprintf('- Setting mirrors to background, waiting for t.\n');
-
-% Initialize events variable
-events = struct();
-%events(protocolParams.nTrials).buffer = '';
-
-% Suppress keypresses going to the Matlab window.
+%% Suppress keypresses going to the Matlab window and flush keyboard queue.
+%
+% This code is a curious mixture of PTB and mgl calls.  Not sure we need to
+% ListenChar(2), but not sure we don't
 ListenChar(2);
+while (~mglGetKeyEvent), end
 
-% Flush our keyboard queue.
-mglGetKeyEvent;
-
-%% Code to wait for 't' -- the go-signal from the scanner
+%% Wait for 't' -- the go-signal from the scanner
+%
+% This waits for a key, checks if it is a 't' and just
+% keeps waiting until it gets one.
+if (protocolParams.verbose), fprintf('- Waiting for t.\n'); end
 triggerReceived = false;
 while ~triggerReceived
     key = mglGetKeyEvent;
@@ -32,46 +28,52 @@ while ~triggerReceived
         if (strcmp(keyPress,'t'))
             tBlockStart = key.when;
             triggerReceived = true;
-            %fprintf('  * t received.\n');
+            if (protocolParams.verbose), fprintf('  * t received.\n'); end
         end
     end
 end
 
-% Stop receiving t
-fprintf('- Starting trials.\n');
-
-% Iterate over trials
+%% Do trials
+if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
 for trial = 1:protocolParams.nTrials
-    %if params.waitForKeyPress
-    %    ListenChar(0);
-    %    pause;
-    %end
-    fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.params.direction);
-    % Launch into OLPDFlickerSettings.
+    % Announce trial
+    if (protocolParams.verbose)
+        fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.params.direction);
+    end
+    
+    % Stick in background for this trial
+    
+    % Wait ISI which should be a parameter
+    
+    % Trial jitter is invoked here
+    
+    % Record trial start time
     events(trial).tTrialStart = mglGetSecs;
-    % this send the flicker starts stops to the OL
-    [events(trial).buffer, events(trial).t,  events(trial).counter] = ModulationTrialSequenceFlickerStartsStops(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
+    
+    % Show the trial and get any returned keys corresponding to the trial
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
+    
+    % Record trial finish time
     events(trial).tTrialEnd = mglGetSecs;
     events(trial).attentionTask = block(trial).attentionTask;
     events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
 end
-tBlockEnd = mglGetSecs;
 
-fprintf('- Done with block.\n');
+%% Wait for any last key presses and grab them
+%
+% Need to define a protocol param for how long to wait here.
+postTrialLoopKeyPresses = mglListener('getAllKeyEvents');
+
+%% Record when the block ended and undo key listening
+tBlockEnd = mglGetSecs;
+if (protocolParams.verbose), fprintf('- Done with block.\n'); end
 ListenChar(0);
 
-% Turn all mirrors off
-%ol.setAll(false);
-
-% Put the event information in the struct
+%% Put the trial information into the response struct
 responseStruct.events = events;
 responseStruct.tBlockStart = tBlockStart;
 responseStruct.tBlockEnd = tBlockEnd;
-
-fprintf('Total duration: %f s\n', responseStruct.tBlockEnd-responseStruct.tBlockStart);
-
-% Tack data that we want for later analysis onto params structure.  It then
-% gets passed back to the calling routine and saved in our standard place.
-protocolParams.responseStruct = responseStruct;
+responseStruct.postTrialLoopKeyPresses = postTrialLoopKeyPresses;
+if (protocolParams.verbose), fprintf('Total duration: %f s\n', responseStruct.tBlockEnd-responseStruct.tBlockStart); end
 
 end
