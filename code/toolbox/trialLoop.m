@@ -1,8 +1,22 @@
 function responseStruct = trialLoop(protocolParams,block,ol)
-% responseStruct = trialLoop(params, cacheData)
+%trialLoop - Set mirrors for each trial with optional timing parameters.
 %
-% THE IS THE EXPERIMENT. MAB TO MAKE COMMENTS IN STANDARD FORMAT.
-% This function runs the experiment loop
+% Usage:
+%    responseStruct = trialLoop(protocolParams,block,ol)
+%
+% Description:
+%    Master program for running sequences of OneLight pulses/modulations in the scanner.
+%
+% Input:
+%    ol (object)              An open OneLight object.
+%    protocolParams (struct)  The protocol parameters structure.
+%    block (struct)           Contains trial-by-trial starts/stops and other info.
+%
+% Output:
+%    responseStruct (struct)   
+%
+% Optional key/value pairs:   Contains trial key responses and timing info.
+%    none.
 
 %% Initialize events variable
 events = struct;
