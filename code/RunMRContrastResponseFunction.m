@@ -19,7 +19,7 @@ protocolParams.approach = 'OLApproach_TrialSequenceMR';
 protocolParams.protocol = 'MRContrastResponseFunction';
 protocolParams.protocolType = 'CRF';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
-protocolParams.verbose = false;
+protocolParams.verbose = true;
 protocolParams.simulate = true;
 
 % Modulations used in this experiment
@@ -75,6 +75,7 @@ protocolParams.attentionSegmentDuration = 3;
 protocolParams.attentionEventDuration = 0.1;
 protocolParams.attentionMarginDuration = 0.2;
 protocolParams.attentionEventProb = 1/3;
+protocolParams.postAllTrialsWaitForKeysTime = 1;
 
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.
@@ -153,7 +154,7 @@ OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
 %ModulationTrialSequenceMR.Demo(ol,protocolParams);
 
 %% Run experiment
-ModulationTrialSequenceMR.Experiment(ol,protocolParams);
+ModulationTrialSequenceMR.Experiment(ol,protocolParams,'verbose',protocolParams.verbose);
 
 %% Let user get the radiometer set up
 ol.setAll(true);

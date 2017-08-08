@@ -1,22 +1,30 @@
-function responseStruct = trialLoop(protocolParams,block,ol)
-%trialLoop - Set mirrors for each trial with optional timing parameters.
+function responseStruct = TrialSequenceMRTrialLoop(protocolParams,block,ol,varargin)
+%%TrialSequenceMRTrialLoop  Loop over trials, show stimuli and get responses.
 %
 % Usage:
 %    responseStruct = trialLoop(protocolParams,block,ol)
 %
 % Description:
-%    Master program for running sequences of OneLight pulses/modulations in the scanner.
+%    The routine runs the trials for an MR expriment.  It waits for the intial 't'
+%    and then sets background, shows trial, and collects up key presses.
+%
+%    The returned responseStruct says what happened on each trial.
 %
 % Input:
-%    ol (object)              An open OneLight object.
 %    protocolParams (struct)  The protocol parameters structure.
 %    block (struct)           Contains trial-by-trial starts/stops and other info.
+%    ol (object)              An open OneLight object.
 %
 % Output:
-%    responseStruct (struct)   
+%    responseStruct (struct)  Structure containing information about what happened on each trial 
 %
-% Optional key/value pairs:   Contains trial key responses and timing info.
-%    none.
+% Optional key/value pairs:
+%    verbose (logical)         true       Be chatty?
+
+%% Parse input
+p = inputParser;
+p.addParameter('verbose',true,@islogical);
+p.parse(varargin{:});
 
 %% Initialize events variable
 events = struct;
@@ -24,15 +32,15 @@ events = struct;
 %% Suppress keypresses going to the Matlab window and flush keyboard queue.
 %
 % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
-% ListenChar(2), but not sure we don't
+% ListenChar(2), but not sure we don't.
 ListenChar(2);
-while (~mglGetKeyEvent), end
+while (~isempty(mglGetKeyEvent)), end
 
 %% Wait for 't' -- the go-signal from the scanner
 %
 % This waits for a key, checks if it is a 't' and just
 % keeps waiting until it gets one.
-if (protocolParams.verbose), fprintf('- Waiting for t.\n'); end
+if (p.Results.verbose), fprintf('- Waiting for t.\n'); end
 triggerReceived = false;
 while ~triggerReceived
     key = mglGetKeyEvent;
@@ -56,45 +64,41 @@ for trial = 1:protocolParams.nTrials
     end
     
     % Stick in background for this trial
-    ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops); 
+    ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops); 
 
-    % Trial jitter and ISI is invoked here
-    
-    % Randomly assign a jitter time between protocolParams.trialMinJitterTimeSec and protocolParams.trialMaxJitterTimeSec
+    % Set up and wait for ISI, including random jitter.
+    %
+    % First, randomly assign a jitter time between
+    % protocolParams.trialMinJitterTimeSec and
+    % protocolParams.trialMaxJitterTimeSec. Then, add the jitter time to
+    % get the total wait time and record it for this trial Then wait.
     jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
-    
-    % Set the total time to wait equal to the ISI time plus the jitter time
-    totalWaitTime =  protocolParams.isiTime + jitterTime; 
-    
-    % Save out the totalWaitTime for each trial
+    totalWaitTime =  protocolParams.isiTime + jitterTime;
     events(trial).trialWaitTime = totalWaitTime;
+    mglWaitSecs(totalWaitTime);
     
-    % Reference start time
-    startTime = mglGetSecs;
-    
-    % Initalize currentTime to zero
-    currentTime = 0;
-    
-    % Wait untill totalWaitTime has elaplsed.
-    while currentTime < totalWaitTime
-        currentTime = mglGetSecs - startTime;
-    end
-    
-    % Record trial start time
-    events(trial).tTrialStart = mglGetSecs;
-    
-    % Show the trial and get any returned keys corresponding to the trial
+    % Show the trial and get any returned keys corresponding to the trial.
+    %
+    % Record start/finish time as well as other informatoin as we go.
+    events(trial).tTrialStart = mglGetSecs; 
     [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
-    
-    % Record trial finish time
     events(trial).tTrialEnd = mglGetSecs;
     events(trial).attentionTask = block(trial).attentionTask;
     events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
+    
+    % At end of trial, put background to be that trial's background.
+    %
+    % Most modulations will end at their background, so this probably won't have
+    % any visible effect.
+    ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops); 
+    
+    % Do we want to pad here, so that total length of time taken by this loop for each trial is a constant?
+    % If we don't, do we want to pad when we finish the loop, so that the total expected time for the experiment is always the
+    % same?
 end
 
 %% Wait for any last key presses and grab them
-%
-% Need to define a protocol param for how long to wait here.
+mglWaitSecs(protocolParams.postAllTrialsWaitForKeysTime)
 postTrialLoopKeyPresses = mglListener('getAllKeyEvents');
 
 %% Record when the block ended and undo key listening

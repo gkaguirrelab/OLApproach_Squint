@@ -19,13 +19,13 @@ function Experiment(ol,protocolParams,varargin)
 %    playSound (logical)       false      Play a sound when the experiment is ready.
 
 %% Start Session Log
-protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start')
+protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
 
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
 p.addParameter('playSound',false,@islogical);
-p.parse;
+p.parse(varargin{:});
 
 %% Where the data goes
 savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
@@ -76,11 +76,11 @@ ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).mod
 % Could wait here for a specified adaptation time
 
 %% Set up for responses
-if (params.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
+if (p.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
 mglListener('init');
 
 %% Run the trial loop.
-responseStruct = trialLoop(protocolParams,block,ol);
+responseStruct = TrialSequenceMRTrialLoop(protocolParams,block,ol,'verbose',p.Results.verbose);
 
 %% Turn off key listener
 mglListener('quit');
@@ -89,10 +89,8 @@ mglListener('quit');
 %
 % Save protocolParams, block, responseStruct;
 
-
-
 %% Close Session Log
-protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','end')
+OLSessionLog(protocolParams,'Experiment','StartEnd','end');
 
 
 end
