@@ -42,8 +42,14 @@ for trial = 1:protocolParams.nTrials
     end
     
     % Stick in background for this trial
-    
+    ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops); 
+
     % Wait ISI which should be a parameter
+    isiStart = mglGetSecs;
+    isiCurrTime = 0;
+    while isiCurrTime < protocolParams.isiTime
+        isiCurrTime = mglGetSecs - isiStart;
+    end
     
     % Trial jitter is invoked here
     

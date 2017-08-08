@@ -54,6 +54,9 @@ protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialMinJitterTimeSec = 0;                  % Time before step
 protocolParams.trialMaxJitterTimeSec = 0.5;                % Phase shifts in seconds
 
+% set ISI time 
+protocolParams.isiTime = 0.5; %seconds
+
 % Attention task parameters.
 %
 % Currently, if you have an attention event then all trial types
