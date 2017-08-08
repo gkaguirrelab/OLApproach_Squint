@@ -45,17 +45,23 @@ for trial = 1:protocolParams.nTrials
     ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops); 
 
     % Trial jitter and ISI is invoked here
-    %
+    
     % Randomly assign a jitter time between protocolParams.trialMinJitterTimeSec and protocolParams.trialMaxJitterTimeSec
     jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
     
-    currentTime = 0;
-    
     % Set the total time to wait equal to the ISI time plus the jitter time
     totalWaitTime =  protocolParams.isiTime + jitterTime; 
+    
+    % Save out the totalWaitTime for each trial
     events(trial).trialWaitTime = totalWaitTime;
     
+    % Reference start time
     startTime = mglGetSecs;
+    
+    % Initalize currentTime to zero
+    currentTime = 0;
+    
+    % Wait untill totalWaitTime has elaplsed.
     while currentTime < totalWaitTime
         currentTime = mglGetSecs - startTime;
     end
