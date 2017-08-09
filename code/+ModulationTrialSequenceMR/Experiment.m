@@ -31,8 +31,6 @@ savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protoc
 if ~exist(savePath,'dir')
     mkdir(savePath);
 end
-saveFileCSV = [protocolParams.observerID '-' protocolParams.protocolType '.csv'];
-saveFileMAT = [protocolParams.observerID '-' protocolParams.protocolType '.mat'];
 
 %% Get scan number if not set
 if (isempty(p.Results.scanNumber))
@@ -105,8 +103,8 @@ while (exist(outputFile,'file'))
     scanNumber = input(sprintf('Output file %s exists, enter correct scan number: \n',outputFile));
     outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_scan%d.mat',scanNumber)]);
 end
-save(outputfile,'protocolParams', 'block', 'responseStruct',scanNumber);
-
+responseStruct.scanNumber = scanNumber;
+save(outputFile,'protocolParams', 'block', 'responseStruct');
 
 %% Close Session Log
 OLSessionLog(protocolParams,'Experiment','StartEnd','end');
