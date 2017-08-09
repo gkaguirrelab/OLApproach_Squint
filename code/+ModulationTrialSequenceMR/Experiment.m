@@ -88,6 +88,7 @@ mglListener('quit');
 %% Save the data
 %
 % Save protocolParams, block, responseStruct;
+save(fullfile(savePath,[protocolParams.sessionName '_data.mat']) ,'protocolParams', 'block', 'responseStruct');
 
 %% Close Session Log
 OLSessionLog(protocolParams,'Experiment','StartEnd','end');
