@@ -17,14 +17,13 @@ function Experiment(ol,protocolParams,varargin)
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
 %    playSound (logical)       false      Play a sound when the experiment is ready.
-
-%% Start Session Log
-protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
+%    scanNumber (value)        []         Scan number for output name
 
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
 p.addParameter('playSound',false,@islogical);
+p.addParameter('scanNumber',[],@isnumeric);
 p.parse(varargin{:});
 
 %% Where the data goes
@@ -34,6 +33,18 @@ if ~exist(savePath,'dir')
 end
 saveFileCSV = [protocolParams.observerID '-' protocolParams.protocolType '.csv'];
 saveFileMAT = [protocolParams.observerID '-' protocolParams.protocolType '.mat'];
+
+%% Get scan number if not set
+if (isempty(p.Results.scanNumber))
+    scanNumber = input('Enter scan number: ');
+else
+    scanNumber = p.Results.scanNumber;
+end
+    
+%% Start session log
+%
+% Add protocol output name and scan number
+protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
 
 %% Get the modulation starts/stops for each trial type
 %
@@ -87,8 +98,15 @@ mglListener('quit');
 
 %% Save the data
 %
-% Save protocolParams, block, responseStruct;
-save(fullfile(savePath,[protocolParams.sessionName '_data.mat']) ,'protocolParams', 'block', 'responseStruct');
+% Save protocolParams, block, responseStruct.
+% Make sure not to overwrite an existing file.
+outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_scan%d.mat',scanNumber)]);
+while (exist(outputFile,'file'))
+    scanNumber = input(sprintf('Output file %s exists, enter correct scan number: \n',outputFile));
+    outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_scan%d.mat',scanNumber)]);
+end
+save(outputfile,'protocolParams', 'block', 'responseStruct',scanNumber);
+
 
 %% Close Session Log
 OLSessionLog(protocolParams,'Experiment','StartEnd','end');

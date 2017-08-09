@@ -17,7 +17,7 @@ clear; close all;
 % Who we are and what we're doing today
 protocolParams.approach = 'OLApproach_TrialSequenceMR';
 protocolParams.protocol = 'MRContrastResponseFunction';
-protocolParams.protocolType = 'CRF';
+protocolParams.protocolOutputName = 'CRF';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate = true;
@@ -154,7 +154,10 @@ OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
 %ModulationTrialSequenceMR.Demo(ol,protocolParams);
 
 %% Run experiment
-ModulationTrialSequenceMR.Experiment(ol,protocolParams,'verbose',protocolParams.verbose);
+%
+% Part of a protocol is the desired number of scans.  Calling the Experiment routine
+% is for one scan.
+ModulationTrialSequenceMR.Experiment(ol,protocolParams,'scanNumber',1,'verbose',protocolParams.verbose);
 
 %% Let user get the radiometer set up
 ol.setAll(true);
