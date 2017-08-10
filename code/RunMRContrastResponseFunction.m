@@ -59,10 +59,10 @@ protocolParams.trialDuration = 12;
 % the jitter parameters.
 protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialMinJitterTimeSec = 0;                  % Time before step
-protocolParams.trialMaxJitterTimeSec = 0.5;                % Phase shifts in seconds
+protocolParams.trialMaxJitterTimeSec = 3;                % Phase shifts in seconds
 
 % set ISI time 
-protocolParams.isiTime = 0.5; %seconds
+protocolParams.isiTime = 3; %seconds
 
 % Attention task parameters.
 %
