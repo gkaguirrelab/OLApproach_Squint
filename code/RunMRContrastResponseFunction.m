@@ -50,6 +50,9 @@ protocolParams.directionsCorrect = [...
 
 % Trial timing parameters.
 %
+% Trial duration - total time for each trial. 
+protocolParams.trialDuration = 12;
+
 % There is a minimum time at the start of each trial where
 % the background is presented.  Then the actual trial
 % start time is chosen based on a random draw from
@@ -80,6 +83,11 @@ protocolParams.attentionEventDuration = 0.1;
 protocolParams.attentionMarginDuration = 0.2;
 protocolParams.attentionEventProb = 1/3;
 protocolParams.postAllTrialsWaitForKeysTime = 1;
+
+% Check that the timing checks out
+assert(protocolParams.attentionSegmentDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
+       < protocolParams.trialDuration, 'Pulse time + max jitter + ISI time is greater than trial durration');
+    
 
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.

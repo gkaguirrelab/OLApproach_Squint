@@ -75,6 +75,7 @@ for trial = 1:protocolParams.nTrials
     jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
     totalWaitTime =  protocolParams.isiTime + jitterTime;
     events(trial).trialWaitTime = totalWaitTime;
+    startTime = mglGetSecs;
     mglWaitSecs(totalWaitTime);
     
     % Show the trial and get any returned keys corresponding to the trial.
@@ -91,6 +92,11 @@ for trial = 1:protocolParams.nTrials
     % Most modulations will end at their background, so this probably won't have
     % any visible effect.
     ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops); 
+    
+    % Wait for the remaining time for protocolParams.trialDuration to have
+    % passed since the start time. 
+    trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - startTime);
+    mglWaitSecs(trialTimeRemaining);
     
     % Do we want to pad here, so that total length of time taken by this loop for each trial is a constant?
     % If we don't, do we want to pad when we finish the loop, so that the total expected time for the experiment is always the
