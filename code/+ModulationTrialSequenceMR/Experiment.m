@@ -34,9 +34,9 @@ end
 
 %% Get scan number if not set
 if (isempty(p.Results.scanNumber))
-    scanNumber = input('Enter scan number: ');
+    protocolParams.scanNumber = input('Enter scan number: ');
 else
-    scanNumber = p.Results.scanNumber;
+    protocolParams.scanNumber = p.Results.scanNumber;
 end
     
 %% Start session log
@@ -98,12 +98,12 @@ mglListener('quit');
 %
 % Save protocolParams, block, responseStruct.
 % Make sure not to overwrite an existing file.
-outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_scan%d.mat',scanNumber)]);
+outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_scan%d.mat',protocolParams.scanNumber)]);
 while (exist(outputFile,'file'))
-    scanNumber = input(sprintf('Output file %s exists, enter correct scan number: \n',outputFile));
-    outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_scan%d.mat',scanNumber)]);
+    protocolParams.scanNumber = input(sprintf('Output file %s exists, enter correct scan number: \n',outputFile));
+    outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_scan%d.mat',protocolParams.scanNumber)]);
 end
-responseStruct.scanNumber = scanNumber;
+responseStruct.scanNumber = protocolParams.scanNumber;
 save(outputFile,'protocolParams', 'block', 'responseStruct');
 
 %% Close Session Log
