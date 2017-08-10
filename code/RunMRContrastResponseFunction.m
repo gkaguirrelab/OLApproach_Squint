@@ -61,7 +61,7 @@ protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialMinJitterTimeSec = 0;                  % Time before step
 protocolParams.trialMaxJitterTimeSec = 0.5;                % Phase shifts in seconds
 
-% set ISI time 
+% Set ISI time 
 protocolParams.isiTime = 0.5; %seconds
 
 % Attention task parameters.
@@ -83,11 +83,6 @@ protocolParams.attentionEventDuration = 0.1;
 protocolParams.attentionMarginDuration = 0.2;
 protocolParams.attentionEventProb = 1/3;
 protocolParams.postAllTrialsWaitForKeysTime = 1;
-
-% Check that the timing checks out
-assert(protocolParams.attentionSegmentDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
-       < protocolParams.trialDuration, 'Pulse time + max jitter + ISI time is greater than trial durration');
-    
 
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.
