@@ -51,6 +51,7 @@ protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
 modulationDir = fullfile(getpref(protocolParams.protocol, 'ModulationStartsStopsBasePath'), protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
 for mm = 1:length(protocolParams.modulationNames)
     fullModulationNames = sprintf('ModulationStartsStops_%s_%s', protocolParams.modulationNames{mm}, protocolParams.directionNames{mm});
+    fullModulationNames = strcat(fullModulationNames, sprintf('_trialType_%s',num2str(mm)));
     pathToModFile = [fullModulationNames '.mat'];
     modulationRead = load(fullfile(modulationDir, pathToModFile));
     modulationData(mm)= modulationRead.modulationData;
