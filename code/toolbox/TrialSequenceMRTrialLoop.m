@@ -67,10 +67,11 @@ for trial = 1:protocolParams.nTrials
     assert(block(trial).modulationData.params.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
        < protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
     
-    % Stick in background for this trial
+    % Start trial.  Stick in background
+    events(trial).tTrialStart = mglGetSecs;
     ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops); 
 
-    % Set up and wait for ISI, including random jitter.
+    % Wait for ISI, including random jitter.
     %
     % First, randomly assign a jitter time between
     % protocolParams.trialMinJitterTimeSec and
@@ -84,22 +85,26 @@ for trial = 1:protocolParams.nTrials
     % Show the trial and get any returned keys corresponding to the trial.
     %
     % Record start/finish time as well as other informatoin as we go.
-    events(trial).tTrialStart = mglGetSecs; 
-    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
-    events(trial).tTrialEnd = mglGetSecs;
-    events(trial).attentionTask = block(trial).attentionTask;
+    events(trial).tStimulusStart = mglGetSecs;
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);\
+    
+    % Put background back up and record times and keypresses.
+    ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
+    events(trial).tStimulusEnd = mglGetSecs;
+    
+    % This just makes it easier for us to plot the waveform we think showed on this trial later on.
     events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
     
     % At end of trial, put background to be that trial's background.
     %
     % Most modulations will end at their background, so this probably won't have
     % any visible effect.
-    ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops); 
     
     % Wait for the remaining time for protocolParams.trialDuration to have
     % passed since the start time. 
     trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
     mglWaitSecs(trialTimeRemaining);
+    events(trial).tTrialEnd;
 end
 
 %% Wait for any last key presses and grab them
