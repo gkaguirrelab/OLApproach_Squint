@@ -1,5 +1,5 @@
 function [] = PlotStimulationTime(responseStruct,block,varargin)
-%%PlotStimulationTime - plot the trial timing within an experiment run 
+%%PlotStimulationTime - plot the trial timing within an experiment run
 %
 % Usage:
 %    PlotStimulationTime(responseStruct,block,varargin)
@@ -9,7 +9,7 @@ function [] = PlotStimulationTime(responseStruct,block,varargin)
 %    TrialSequenceMRTrialLoop.m and plot the timeing information and pulses
 %
 % Input:
-%    responseStruct (struct)  Structure containing information about what happened on each trial 
+%    responseStruct (struct)  Structure containing information about what happened on each trial
 %
 % Output:
 %    none as of now
@@ -26,12 +26,12 @@ p.parse(varargin{:});
 if p.Results.verbose == true
     display(sprintf('Scan Number: %s',num2str(responseStruct.scanNumber)))
     display(sprintf('Number of events found: %s', num2str(length(responseStruct.events))))
-    display(sprintf('Total scan time length: %s (sec)',num2str(responseStruct.tBlockEnd-responseStruct.tBlockStart)))   
+    display(sprintf('Total scan time length: %s (sec)',num2str(responseStruct.tBlockEnd-responseStruct.tBlockStart)))
 end
 
 
 %% Plotting the power levels and trial starts, trial stops, and trial wait times.
-for i = 1:length(responseStruct.events)  
+for i = 1:length(responseStruct.events)
     % set up trial start and stop time markers
     trialStartTime(i) = responseStruct.events(i).tTrialStart - responseStruct.tBlockStart;
     trialEndTime(i) = responseStruct.events(i).tTrialEnd - responseStruct.tBlockStart;
@@ -53,7 +53,7 @@ for j = 1:length(responseStruct.events)
     end
 end
 
-% plot the trial timing and  
+% plot the trial timing and
 figure;subplot(3,1,1); hold on;
 for ii = 1:length(responseStruct.events)
     plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
@@ -67,15 +67,29 @@ for jj = 1:length(bgTimes)
 end
 xlabel('Time (seconds)')
 ylabel('Contrast Level')
+legend('Trial Start Time','Trial End Time', 'Trial Wait Time', 'Power Level')
 
 %% Plotting the attention events
 subplot(3,1,2); hold on
 clear ii i j jj
-xlabel('Time (seconds)')
-for ii = 1:length(responseStruct.events)
-    plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
-    plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
-    
-    
+for i = 1:length(block)
+    if block(i).attentionTask.segmentFlag == 1
+        attentionTaskStart{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+        attentionTaskStop{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+    else
+        attentionTaskStart{i} = [];
+        attentionTaskStop{i}  = [];
+    end
 end
+
+for ii = 1:length(block)
+    p1 = plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
+    p2 = plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
+    if ~isempty(attentionTaskStart{ii})
+        p3 =  plot([attentionTaskStart{ii} attentionTaskStart{ii}], [-1 1],'g--','LineWidth',1);
+    end
+end
+
+xlabel('Time (seconds)')
+legend([p1 p2 p3],'Trial Start Time','Trial End Time','Attention Event')
 

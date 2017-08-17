@@ -99,7 +99,7 @@ protocolParams.attentionTask = true;
 protocolParams.attentionSegmentDuration = 3;
 protocolParams.attentionEventDuration = 0.1;
 protocolParams.attentionMarginDuration = 0.2;
-protocolParams.attentionEventProb = 1/3;
+protocolParams.attentionEventProb = 2/3;
 protocolParams.postAllTrialsWaitForKeysTime = 1;
 
 % Modulation and direction indices match on each trial, so we just specify
