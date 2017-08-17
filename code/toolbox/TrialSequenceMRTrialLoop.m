@@ -104,7 +104,7 @@ for trial = 1:protocolParams.nTrials
     % passed since the start time. 
     trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
     mglWaitSecs(trialTimeRemaining);
-    events(trial).tTrialEnd;
+    events(trial).tTrialEnd = mglGetSecs;
 end
 
 %% Wait for any last key presses and grab them
