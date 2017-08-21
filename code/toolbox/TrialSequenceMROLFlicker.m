@@ -1,5 +1,5 @@
 function [keyEvents, t, counter] = TrialSequenceMROLFlicker(ol, block, trial, frameDurationSecs, numIterations)
-%%TrialSequenceMROLFlicker  Flickers the OneLight.
+%%TrialSequenceMROLFlicker  Flickers the OneLight for MR experiments.
 %
 % This is the function that sends the starts and stops to the OL
 %
@@ -21,21 +21,6 @@ function [keyEvents, t, counter] = TrialSequenceMROLFlicker(ol, block, trial, fr
 % Output:
 % keyPress (char|empty) - If in continuous mode, the key the user pressed
 %     to end the script.  In regular mode, this will always be empty.
-%
-% WE SHOULD GET OLFLicker TO RETURN keyEvents, t, counter INSTEAD OF USE
-% THIS NEEDS TO BE MODIFIED TO WORK AS IS 
-%
-% I WOULD LIKE TO WORK WITH DB ON THIS TO FIGURE OUT HOW REDUNDANT THIS IS 
-%
-
-%tic;
-%starts = block(trial).data.starts';
-%stops = block(trial).data.stops';
-
-%keyPress = [];
-
-% Flag whether we're checking the keyboard during the flicker loop.
-%checkKB = isinf(numIterations);
 
 % Counters to keep track of which of the stops to display and which
 % iteration we're on.
@@ -54,7 +39,6 @@ mileStone = mglGetSecs + frameDurationSecs;
 
 
 keyEvents = [];
-
 while iterationCount < numIterations
     if mglGetSecs >= mileStone;
         i = i + 1;
@@ -78,8 +62,8 @@ while iterationCount < numIterations
         counter(i) = setCount;
         ol.setMirrors(block(trial).modulationData.modulation.starts(setCount,:), block(trial).modulationData.modulation.stops(setCount,:));
     end
-    
 end
 
+%% Pick up all the key events since the last time we got them
 keyEvents = mglListener('getAllKeyEvents');
 end
