@@ -86,7 +86,7 @@ for trial = 1:protocolParams.nTrials
     %
     % Record start/finish time as well as other informatoin as we go.
     events(trial).tStimulusStart = mglGetSecs;
-    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);\
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
     
     % Put background back up and record times and keypresses.
     ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
@@ -104,7 +104,7 @@ for trial = 1:protocolParams.nTrials
     % passed since the start time. 
     trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
     mglWaitSecs(trialTimeRemaining);
-    events(trial).tTrialEnd;
+    events(trial).tTrialEnd = mglGetSecs;
 end
 
 %% Wait for any last key presses and grab them
