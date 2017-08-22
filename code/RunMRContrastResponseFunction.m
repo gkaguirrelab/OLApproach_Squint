@@ -129,7 +129,7 @@ protocolParams.nTrials = length(protocolParams.trialTypeOrder);
       
 % OneLight parameters
 protocolParams.boxName = 'BoxB';  
-protocolParams.calibrationType = 'BoxBRandomizedLongCableBEyePiece1_ND03';
+protocolParams.calibrationType = 'BoxBRandomizedLongCableDStubby1_ND03';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = true;
 
@@ -141,6 +141,17 @@ commandwindow;
 protocolParams.observerID = GetWithDefault('>> Enter <strong>user name</strong>', 'HERO_xxxx');
 protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+
+%% Use these to test reporting on validation and spectrum seeking
+%
+% Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
+% Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
+protocolParams.observerID = 'michael';
+protocolParams.observerAgeInYrs = 32;
+protocolParams.todayDate = '082117';
+protocolParams.sessionName = 'session_1';
+protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/082117/session_1';
+protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/082117/session_1/michael_session_1.log';
 
 %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
 if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
