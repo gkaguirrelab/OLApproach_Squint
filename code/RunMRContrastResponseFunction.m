@@ -66,6 +66,18 @@ protocolParams.directionsCorrect = [...
     true ...
     ];
 
+% Field size and pupil size.
+%
+% These are used to construct photoreceptors for validation for directions
+% (e.g. light flux) where they are not available in the direction file.
+% They can also be used to check for consistency.  
+%
+% If we ever want to run with more than one field size and pupil size in a single 
+% run, this will need a little rethinking.
+% [DHB NOTE: Set this to the actual diameter of the MR eyepiece field size.]
+protocolParams.fieldSizeDegrees = 60;
+protocolParams.pupilDiameterMm = 8;
+
 % Trial timing parameters.
 %
 % Trial duration - total time for each trial. 
@@ -128,7 +140,18 @@ protocolParams.nValidationsPerDirection = 2;
 commandwindow;
 protocolParams.observerID = GetWithDefault('>> Enter <strong>user name</strong>', 'HERO_xxxx');
 protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
-protocolParams.todayDate = datestr(now, 'mmddyy');
+protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+
+%% Use these to test reporting on validation and spectrum seeking
+%
+% Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
+% Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
+protocolParams.observerID = 'michael';
+protocolParams.observerAgeInYrs = 32;
+protocolParams.todayDate = '082117';
+protocolParams.sessionName = 'session_1';
+protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/082117/session_1';
+protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/082117/session_1/michael_session_1.log';
 
 %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
 if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
@@ -160,20 +183,13 @@ protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
 
 %% Make the corrected modulation primaries
 OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
-% OLAnalyzeValidationReceptorIsolate(validationPath, 'short');
-% % Compute and print out information about the quality of
-% % the current measurement, in contrast terms.
-% theCanonicalPhotoreceptors = cacheData.data(correctionDescribe.observerAgeInYrs).describe.photoreceptors;
-% T_receptors = cacheData.data(correctionDescribe.observerAgeInYrs).describe.T_receptors;
-% [contrasts(:,iter) postreceptoralContrasts(:,iter)] = ComputeAndReportContrastsFromSpds(['Iteration ' num2str(iter, '%02.0f')] ,theCanonicalPhotoreceptors,T_receptors,...
-%     backgroundSpdMeasured,modulationSpdMeasured,correctionDescribe.postreceptoralCombinations,true);
 
 %% Make the modulation starts and stops
 OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
 
 %% Validate direction corrected primaries prior to experiemnt
 OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
-% OLAnalyzeValidationReceptorIsolate(validationPath, validationDescribe.postreceptoralCombinations);
+OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 
 %% Run demo code
 %ModulationTrialSequenceMR.Demo(ol,protocolParams);
@@ -194,4 +210,4 @@ pause(radiometerPauseDuration);
 
 %% Validate direction corrected primaries post experiment
 OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Post');
-% OLAnalyzeValidationReceptorIsolate(validationPath, validationDescribe.postreceptoralCombinations);
+OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
