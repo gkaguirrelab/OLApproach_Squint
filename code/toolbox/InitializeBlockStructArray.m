@@ -50,11 +50,11 @@ for trial = 1:protocolParams.nTrials
     % st up independently for each segment.
     if block(trial).attentionTask.flag
         % Figure out how many segments there are per trial
-        nSegments = block(trial).modulationData.params.stimulusDuration/protocolParams.attentionSegmentDuration;
+        nSegments = block(trial).modulationData.modulationParams.stimulusDuration/protocolParams.attentionSegmentDuration;
         if (nSegments ~= round(nSegments))
             error('attentionSegmentDuration must evenly divide trial duration');
         end     
-        segmentDuration = block(trial).modulationData.params.stimulusDuration/nSegments;
+        segmentDuration = block(trial).modulationData.modulationParams.stimulusDuration/nSegments;
         
         % As far as we can tell, the code below was not written to handle the case where there was
         % more than one segment per trial.  One would have to think through indexing from the segment
@@ -67,8 +67,8 @@ for trial = 1:protocolParams.nTrials
         end
         
         % Need the attention event and attention margin durations to be integer multiples of the frame time.  Enforce that here.
-        actualAttentionEventDuration = block(trial).modulationData.params.timeStep*ceil((1/block(trial).modulationData.params.timeStep)*protocolParams.attentionEventDuration);
-        actualAttentionMarginDuration = block(trial).modulationData.params.timeStep*ceil((1/block(trial).modulationData.params.timeStep)*protocolParams.attentionMarginDuration);
+        actualAttentionEventDuration = block(trial).modulationData.modulationParams.timeStep*ceil((1/block(trial).modulationData.modulationParams.timeStep)*protocolParams.attentionEventDuration);
+        actualAttentionMarginDuration = block(trial).modulationData.modulationParams.timeStep*ceil((1/block(trial).modulationData.modulationParams.timeStep)*protocolParams.attentionMarginDuration);
         
         % Some checks that attention parameters are consistent, after adjustment just above.
         if (actualAttentionEventDuration >= actualAttentionMarginDuration)
@@ -82,8 +82,8 @@ for trial = 1:protocolParams.nTrials
         for s = 1:nSegments
             % Define the beginning and end of each segment within the trial as in index into the starts/stops arrays
             % relative to the start of the segment.
-            theStartSegmentIndex = (1/block(trial).modulationData.params.timeStep)*protocolParams.attentionSegmentDuration*(s-1)+1;
-            theStopSegmentIndex = (1/block(trial).modulationData.params.timeStep)*protocolParams.attentionSegmentDuration*s;
+            theStartSegmentIndex = (1/block(trial).modulationData.modulationParams.timeStep)*protocolParams.attentionSegmentDuration*(s-1)+1;
+            theStopSegmentIndex = (1/block(trial).modulationData.modulationParams.timeStep)*protocolParams.attentionSegmentDuration*s;
             if (theStartSegmentIndex >= theStopSegmentIndex)
                 error('Logic error in defining segment indices for attention event');
             end
@@ -93,8 +93,8 @@ for trial = 1:protocolParams.nTrials
             theCoinFlip = binornd(1, protocolParams.attentionEventProb);
             if theCoinFlip
                 % Choose at random which allowable indices within the segments get dimmed.
-                theStartBlankIndex = randi([theStartSegmentIndex+(1/block(trial).modulationData.params.timeStep)*actualAttentionMarginDuration theStopSegmentIndex-(1/block(trial).modulationData.params.timeStep)*actualAttentionMarginDuration]);
-                theStopBlankIndex = theStartBlankIndex+(1/block(trial).modulationData.params.timeStep)*actualAttentionEventDuration-1;
+                theStartBlankIndex = randi([theStartSegmentIndex+(1/block(trial).modulationData.modulationParams.timeStep)*actualAttentionMarginDuration theStopSegmentIndex-(1/block(trial).modulationData.modulationParams.timeStep)*actualAttentionMarginDuration]);
+                theStopBlankIndex = theStartBlankIndex+(1/block(trial).modulationData.modulationParams.timeStep)*actualAttentionEventDuration-1;
                 
                 % Blank out the starts/stops for the trial so that the stimulus gets quite dim during the
                 % attention event.
