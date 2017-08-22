@@ -13,13 +13,13 @@
 approachParams.approach = 'OLApproach_TrialSequenceMR';
 
 % List of all calibrations used in this approach
-approachParams.calibrationTypes = {'BoxBRandomizedLongCableBEyePiece1_ND03'};
+approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND03'};
 
 % List of all backgrounds used in this approach
-approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_330_330_20'};
+approachParams.backgroundNames = {'LightFlux_330_330_20'};
 
 % List of all directions used in this approach
-approachParams.directionNames = {'MaxMel_275_80_667', 'MaxLMS_275_80_667', 'LightFlux_330_330_20'};
+approachParams.directionNames = {'LightFlux_330_330_20'};
 
 %%  Make the backgrounds
 for cc = 1:length(approachParams.calibrationTypes)
