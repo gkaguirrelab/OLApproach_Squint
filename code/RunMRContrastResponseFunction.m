@@ -20,11 +20,11 @@ protocolParams.protocol = 'MRContrastResponseFunction';
 protocolParams.protocolOutputName = 'CRF';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
-protocolParams.simulate = true;
+protocolParams.simulate = false;
 
 % Modulations used in this experiment
 % 
-% Thee four arrays below should have the same length, the entries get paired.
+% The four arrays below should have the same length, the entries get paired.
 %
 % Do not change the order of these directions without also fixing up
 % the Demo and Experimental programs, which are counting on this order.
@@ -49,6 +49,17 @@ protocolParams.directionNames = {...
     'LightFlux_330_330_20'...
     'LightFlux_330_330_20'...
     };
+
+%Flag to only validate the unique directions (saves a lot of time) 
+protocolParams.doCorrectionFlag = {...
+    true, ...
+    false, ...
+    false,...
+    false, ...
+    false, ...
+    false, ...
+    };
+
 protocolParams.trialTypeParams = [...
     struct('contrast',0.8) ...
     struct('contrast',0.4) ...
@@ -129,9 +140,9 @@ protocolParams.nTrials = length(protocolParams.trialTypeOrder);
       
 % OneLight parameters
 protocolParams.boxName = 'BoxB';  
-protocolParams.calibrationType = 'BoxBRandomizedLongCableDStubby1_ND03';
+protocolParams.calibrationType = 'BoxBRandomizedLongCableDStubby1_ND00';
 protocolParams.takeCalStateMeasurements = true;
-protocolParams.takeTemperatureMeasurements = true;
+protocolParams.takeTemperatureMeasurements = false;
 
 % Validation parameters
 protocolParams.nValidationsPerDirection = 2;
