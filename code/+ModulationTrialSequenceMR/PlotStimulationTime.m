@@ -93,3 +93,27 @@ end
 xlabel('Time (seconds)')
 legend([p1 p2 p3],'Trial Start Time','Trial End Time','Attention Event')
 
+%% Plotting TR locked 't' pulses 
+subplot(3,1,3); hold on
+clear ii i j jj
+for i = 1:length(block)
+    if block(i).attentionTask.segmentFlag == 1
+        attentionTaskStart{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+        attentionTaskStop{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+    else
+        attentionTaskStart{i} = [];
+        attentionTaskStop{i}  = [];
+    end
+end
+
+for ii = 1:length(block)
+    p1 = plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
+    p2 = plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
+    tPulseTimes = responseStruct.events(ii).keyEvents.when(responseStruct.events(ii).keyEvents.keyCode == 18)- responseStruct.tBlockStart;
+    for k = length(tPulseTimes) 
+        p3 = plot([tPulseTimes(k) tPulseTimes(k)], [-1 1],'y--','LineWidth',2)
+    end
+end
+
+xlabel('Time (seconds)')
+legend([p1 p2 p3],'Trial Start Time','Trial End Time','t pluse')
