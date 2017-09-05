@@ -56,7 +56,7 @@ for mm = 1:length(protocolParams.modulationNames)
     modulationRead = load(fullfile(modulationDir, pathToModFile));
     modulationData(mm)= modulationRead.modulationData;
     modulation{mm} = modulationData(mm).modulation;
-    frameDuration(mm) = modulationData(mm).params.timeStep;
+    frameDuration(mm) = modulationData(mm).modulationParams.timeStep;
 end
 
 %% Put together the block struct array.

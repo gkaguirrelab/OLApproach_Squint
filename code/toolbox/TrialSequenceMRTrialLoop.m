@@ -60,11 +60,11 @@ if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
 for trial = 1:protocolParams.nTrials
     % Announce trial
     if (protocolParams.verbose)
-        fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.params.direction);
+        fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
     end
     
     % Check that the timing checks out
-    assert(block(trial).modulationData.params.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
+    assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
        < protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
     
     % Start trial.  Stick in background
@@ -86,7 +86,7 @@ for trial = 1:protocolParams.nTrials
     %
     % Record start/finish time as well as other informatoin as we go.
     events(trial).tStimulusStart = mglGetSecs;
-    [events(trial).keyEvents, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.params.timeStep, 1);
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
     
     % Put background back up and record times and keypresses.
     ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);

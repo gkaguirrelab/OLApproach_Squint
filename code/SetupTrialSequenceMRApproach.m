@@ -13,7 +13,7 @@
 approachParams.approach = 'OLApproach_TrialSequenceMR';
 
 % List of all calibrations used in this approach
-approachParams.calibrationTypes = {'BoxBRandomizedLongCableBEyePiece1_ND03'};
+approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00'};
 
 % List of all backgrounds used in this approach
 approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_330_330_20'};
