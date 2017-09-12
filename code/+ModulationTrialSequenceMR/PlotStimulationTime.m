@@ -38,8 +38,8 @@ for i = 1:length(responseStruct.events)
     trialWaitTime(i) = trialStartTime(i) + responseStruct.events(i).trialWaitTime;
     
     % set up power level plot relevent vars.
-    timeStep = block(i).modulationData.params.timeStep;
-    stimulusDuration = block(i).modulationData.params.stimulusDuration;
+    timeStep = block(i).modulationData.modulationParams.timeStep;
+    stimulusDuration = block(i).modulationData.modulationParams.stimulusDuration;
     sampleBasePowerLevel{i} =  (trialStartTime(i) + responseStruct.events(i).trialWaitTime):timeStep:(trialStartTime(i) + responseStruct.events(i).trialWaitTime+ stimulusDuration -timeStep);
 end
 
@@ -109,7 +109,7 @@ end
 for ii = 1:length(block)
     p1 = plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
     p2 = plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
-    tPulseTimes = responseStruct.events(ii).keyEvents.when(responseStruct.events(ii).keyEvents.keyCode == 18)- responseStruct.tBlockStart;
+    tPulseTimes = responseStruct.events(ii).buffer.when(responseStruct.events(ii).buffer.keyCode == 18)- responseStruct.tBlockStart;
     for k = length(tPulseTimes) 
         p3 = plot([tPulseTimes(k) tPulseTimes(k)], [-1 1],'y--','LineWidth',2)
     end
