@@ -55,6 +55,7 @@ end
 
 % plot the trial timing and
 figure;subplot(3,1,1); hold on;
+title('Power Level Modulations') 
 for ii = 1:length(responseStruct.events)
     plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
     plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
@@ -71,14 +72,17 @@ legend('Trial Start Time','Trial End Time', 'Trial Wait Time', 'Power Level')
 
 %% Plotting the attention events
 subplot(3,1,2); hold on
+title('Attention Events and Subject Responses')
 clear ii i j jj
 for i = 1:length(block)
     if block(i).attentionTask.segmentFlag == 1
         attentionTaskStart{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
-        attentionTaskStop{i} = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+        attentionTaskStop{i}  = block(i).attentionTask.theStartBlankIndex.*timeStep + trialWaitTime(i);
+        responceTimes{i}      = responseStruct.events(i).buffer.when(responseStruct.events(i).buffer.keyCode ~= 18)- responseStruct.tBlockStart;
     else
         attentionTaskStart{i} = [];
         attentionTaskStop{i}  = [];
+        responceTimes{i}      = [];
     end
 end
 
@@ -87,14 +91,16 @@ for ii = 1:length(block)
     p2 = plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
     if ~isempty(attentionTaskStart{ii})
         p3 =  plot([attentionTaskStart{ii} attentionTaskStart{ii}], [-1 1],'g--','LineWidth',1);
+        p4 =  plot([responceTimes{ii} responceTimes{ii}], [-1 1],'k--','LineWidth',1);
     end
 end
 
 xlabel('Time (seconds)')
-legend([p1 p2 p3],'Trial Start Time','Trial End Time','Attention Event')
+legend([p1 p2 p3 p4],'Trial Start Time','Trial End Time','Attention Event','Responses')
 
-%% Plotting TR locked 't' pulses 
+%% Plotting TR locked 't' pulses
 subplot(3,1,3); hold on
+title('"t" Pluses')
 clear ii i j jj
 for i = 1:length(block)
     if block(i).attentionTask.segmentFlag == 1
@@ -110,10 +116,10 @@ for ii = 1:length(block)
     p1 = plot([trialStartTime(ii) trialStartTime(ii)]-0.1, [-1 1],'r','LineWidth',2);
     p2 = plot([trialEndTime(ii) trialEndTime(ii)], [-1 1],'b','LineWidth',2);
     tPulseTimes = responseStruct.events(ii).buffer.when(responseStruct.events(ii).buffer.keyCode == 18)- responseStruct.tBlockStart;
-    for k = length(tPulseTimes) 
-        p3 = plot([tPulseTimes(k) tPulseTimes(k)], [-1 1],'y--','LineWidth',2)
+    for k = length(tPulseTimes)
+        p3 = plot([tPulseTimes(k) tPulseTimes(k)], [-1 1],'k--','LineWidth',2)
     end
 end
 
 xlabel('Time (seconds)')
-legend([p1 p2 p3],'Trial Start Time','Trial End Time','t pluse')
+legend([p1 p2 p3],'Trial Start Time','Trial End Time','"t" pluse')

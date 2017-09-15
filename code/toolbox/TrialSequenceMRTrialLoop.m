@@ -65,7 +65,7 @@ for trial = 1:protocolParams.nTrials
     
     % Check that the timing checks out
     assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
-       < protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
+       <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
     
     % Start trial.  Stick in background
     events(trial).tTrialStart = mglGetSecs;
