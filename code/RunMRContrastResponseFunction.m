@@ -34,12 +34,12 @@ protocolParams.simulate = true;
 % THINK ABOUT THIS A LITTLE.  PROBABLY JUST WANT TO DO UNIQUE DIRECTIONS IN
 % THE VALIDATION ROUTINE.  OR PASS A SEPARATE LIST OF DIRECTIONS TO VALIDATE
 % TO THAT ROUTINE.]
-protocolParams.modulationNames = {'MaxContrast3sSinusoid' ...
-                                  'MaxContrast3sSinusoid' ...
-                                  'MaxContrast3sSinusoid' ...
-                                  'MaxContrast3sSinusoid' ...
-                                  'MaxContrast3sSinusoid' ...
-                                  'MaxContrast3sSinusoid' ...
+protocolParams.modulationNames = {'MaxContrast12sSinusoid' ...
+                                  'MaxContrast12sSinusoid' ...
+                                  'MaxContrast12sSinusoid' ...
+                                  'MaxContrast12sSinusoid' ...
+                                  'MaxContrast12sSinusoid' ...
+                                  'MaxContrast12sSinusoid' ...
                                   };
 protocolParams.directionNames = {...
     'LightFlux_330_330_20'...
@@ -109,12 +109,12 @@ protocolParams.trialDuration = 12;
 % the background is presented.  Then the actual trial
 % start time is chosen based on a random draw from
 % the jitter parameters.
-protocolParams.trialBackgroundTimeSec = 1;
+protocolParams.trialBackgroundTimeSec = 0;
 protocolParams.trialMinJitterTimeSec = 0;                  % Time before step
-protocolParams.trialMaxJitterTimeSec = 3;                % Phase shifts in seconds
+protocolParams.trialMaxJitterTimeSec = 0;                % Phase shifts in seconds
 
 % Set ISI time in seconds
-protocolParams.isiTime = 4.5;                             
+protocolParams.isiTime = 0;                             
 
 % Attention task parameters.
 %
@@ -130,9 +130,9 @@ protocolParams.isiTime = 4.5;
 % or it is a minimum contrast decrement, etc.  Would have to worry about how 
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = true;
-protocolParams.attentionSegmentDuration = 3;
-protocolParams.attentionEventDuration = 0.1;
-protocolParams.attentionMarginDuration = 0.2;
+protocolParams.attentionSegmentDuration = 12;
+protocolParams.attentionEventDuration = 0.5;
+protocolParams.attentionMarginDuration = 2;
 protocolParams.attentionEventProb = 2/3;
 protocolParams.postAllTrialsWaitForKeysTime = 1;
 
