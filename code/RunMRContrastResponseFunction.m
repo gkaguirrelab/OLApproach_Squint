@@ -146,7 +146,7 @@ protocolParams.postAllTrialsWaitForKeysTime = 1;
 % To make sense of all this, we need to understand OLModulationParamsDictionary fields,
 % OLReceptorIsolateMakeModulationStartsStops, and possibly some of the other modulation
 % routines.
-protocolParams.trialTypeOrder = [1 2 3 4 5 6];
+protocolParams.trialTypeOrder = [randperm(6),randperm(6),randperm(6),randperm(6)];
 protocolParams.nTrials = length(protocolParams.trialTypeOrder);
       
 % OneLight parameters
