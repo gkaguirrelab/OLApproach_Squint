@@ -3,7 +3,7 @@
 % Description:
 %   Do the protocol indpendent steps required to run a protocol.  
 %   These are:
-%     Do the calibration
+%     Do the calibration (well, that doesn't happen here but you need to do it.)
 %     Make the nominal background primaries.
 %     Make the nominal direction primaries.
 
@@ -13,13 +13,13 @@
 approachParams.approach = 'OLApproach_TrialSequenceMR';
 
 % List of all calibrations used in this approach
-approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00'};
+approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00', 'BoxBRandomizedLongCableDStubby1_ND03'};
 
 % List of all backgrounds used in this approach
-approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_330_330_20'};
+approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_540_380_50', 'LightFlux_330_330_20'};
 
 % List of all directions used in this approach
-approachParams.directionNames = {'MaxMel_275_80_667', 'MaxLMS_275_80_667', 'LightFlux_330_330_20'};
+approachParams.directionNames = {'MaxMel_275_80_667', 'MaxLMS_275_80_667', 'LightFlux_540_380_50', 'LightFlux_330_330_20'};
 
 %%  Make the backgrounds
 for cc = 1:length(approachParams.calibrationTypes)
