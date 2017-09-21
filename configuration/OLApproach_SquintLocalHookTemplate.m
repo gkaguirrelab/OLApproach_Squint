@@ -1,4 +1,4 @@
-function OLApproach_TrialSequenceMRLocalHook
+function OLApproach_SquintLocalHook
 % OLApproach_PsychophysicsLocalHook - Configure things for working on OneLight projects.
 %
 % For use with the ToolboxToolbox.  If you copy this into your
@@ -15,12 +15,12 @@ function OLApproach_TrialSequenceMRLocalHook
 % to match what is true on your computer.
 
 %% Say hello
-fprintf('Running OLApproach_TrialSequenceMR local hook\n');
-theApproach = 'OLApproach_TrialSequenceMR';
+fprintf('Running OLApproach_Squint local hook\n');
+theApproach = 'OLApproach_Squint';
 
 %% Define protocols for this approach
 theProtocols = { ...
-    'MRContrastResponseFunction' ...
+    'PulseStimulation' ...
     };
 
 %% Remove old preferences

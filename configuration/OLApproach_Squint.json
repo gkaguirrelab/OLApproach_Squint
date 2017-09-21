@@ -94,7 +94,7 @@
 		"flavor": "",
 		"hook": "",
 		"importance": "",
-		"localHookTemplate": "configuration/OLApproach_TrialSequenceMRLocalHookTemplate.m",
+		"localHookTemplate": "configuration/OLApproach_SquintLocalHookTemplate.m",
 		"name": "OLApproach_TrialSequenceMR",
 		"pathPlacement": "append",
 		"subfolder": "code",
