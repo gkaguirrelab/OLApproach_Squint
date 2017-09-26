@@ -95,7 +95,7 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "configuration/OLApproach_SquintLocalHookTemplate.m",
-		"name": "OLApproach_TrialSequenceMR",
+		"name": "OLApproach_Squint",
 		"pathPlacement": "append",
 		"subfolder": "code",
 		"toolboxRoot": "",
