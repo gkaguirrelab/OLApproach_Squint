@@ -1,5 +1,5 @@
 function Experiment(ol,protocolParams,varargin)
-%%Experiment  Run a trial sequence MR protcol experiment.
+%%Experiment  Run a squint protcol experiment.
 %
 % Usage:
 %    Experiment(ol,protocolParams)
@@ -91,7 +91,7 @@ mglListener('init');
 
 %% Run the trial loop.
 tic
-responseStruct = TrialSequenceMRTrialLoop(protocolParams,block,ol,'verbose',p.Results.verbose);
+responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',p.Results.verbose);
 toc
 %% Turn off key listener
 mglListener('quit');

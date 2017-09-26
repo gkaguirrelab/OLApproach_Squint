@@ -1,4 +1,4 @@
-function [keyEvents, t, counter] = TrialSequenceMROLFlicker(ol, block, trial, frameDurationSecs, numIterations)
+function [keyEvents, t, counter] = SquintOLFlicker(ol, block, trial, frameDurationSecs, numIterations)
 %%TrialSequenceMROLFlicker  Flickers the OneLight for MR experiments.
 %
 % This is the function that sends the starts and stops to the OL

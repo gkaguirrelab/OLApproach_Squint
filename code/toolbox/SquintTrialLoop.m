@@ -1,4 +1,4 @@
-function responseStruct = TrialSequenceMRTrialLoop(protocolParams,block,ol,varargin)
+function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 %%TrialSequenceMRTrialLoop  Loop over trials, show stimuli and get responses.
 %
 % Usage:
@@ -86,7 +86,7 @@ for trial = 1:protocolParams.nTrials
     %
     % Record start/finish time as well as other informatoin as we go.
     events(trial).tStimulusStart = mglGetSecs;
-    [events(trial).buffer, events(trial).t,  events(trial).counter] = TrialSequenceMROLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
+    [events(trial).buffer, events(trial).t,  events(trial).counter] = SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
     
     % Put background back up and record times and keypresses.
     ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);

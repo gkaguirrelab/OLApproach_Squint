@@ -1,14 +1,16 @@
-% RunMRMaxMelPulse
+% RunPulseStimulation
 %
 % Description:
-%   Define the parameters for the MRMaxMelPulse protocol of the
-%   OLApproach_TrialSequenceMR approach, and then invoke each of the
+%   Define the parameters for the RunPulseStimulation protocol of the
+%   OLApproach_Squint approach, and then invoke each of the
 %   steps required to set up and run a session of the experiment.
 
 % 6/28/17  dhb  Added first history comment.
 %          dhb  Move params.photoreceptorClasses into the dictionaries.
 %          dhb  Move params.useAmbient into the dictionaries.
 % 09/20/17 dhb, gka, hmm  Copy over the CRF version and start editing.
+% Late September - brought from OLApproach_MRTrialSequence over to Squint.
+% Relying upon github version and comments from here on out.
 
 %% Clear
 clear; close all;
@@ -16,30 +18,30 @@ clear; close all;
 %% Set the parameter structure here
 %
 % Who we are and what we're doing today
-protocolParams.approach = 'OLApproach_TrialSequenceMR';
-protocolParams.protocol = 'MRMaxMelPulse';
-protocolParams.protocolOutputName = 'MMP';
+protocolParams.approach = 'OLApproach_Squint';
+protocolParams.protocol = 'SquintToPulse';
+protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate = true;
+protocolParams.plotWhenSimulating = true;
 
-% Modulations used in this experiment
+%% Modulations used in this experiment
 % 
-% The set of arrays below should have the same length, the entries get paired.
+% The set of arrays in this cell should have the same length, the entries get paired.
 %
 % Do not change the order of these directions without also fixing up
 % the Demo and Experimental programs, which are counting on this order.
 %
 % The first trial type has its contrast set to 0 below, and is a blank
 % trial, despite the fact that you might think it involved a modulation.
-protocolParams.modulationNames = {'MaxContrast3sSegment' ...
-    'MaxContrast3sSegment' ...
-    'MaxContrast3sSegment' ...
-    'MaxContrast3sSegment' ...
+protocolParams.modulationNames = { ...
+    'MaxContrast3sPulse' ...
+    'MaxContrast3sPulse' ...
+    'MaxContrast3sPulse' ...
     };
                               
 protocolParams.directionNames = {...
-    'MaxMel_275_80_667'...
     'MaxMel_275_80_667'...
     'MaxLMS_275_80_667'...
     'LightFlux_540_380_50'...
@@ -48,47 +50,53 @@ protocolParams.directionNames = {...
 % Flag as to whether to run the correction/validation at all for each direction.
 % You set to true here entries for the unique directions, so as not
 % to re-correct the same file more than once. This saves time.
-protocolParams.doCorrectionFlag = {...
-    false, ...
+%
+% Note that, for obscure and boring reasons, the first entry in this cell array
+% needs to be true.  That should never be a problem, because we always want to
+% validate each direction once and only once, and it is as easy to validate the
+% first occurrance of a direction as a subsequent one.
+protocolParams.doCorrectionAndValidationFlag = {...
     true, ...
     true, ...
     true, ...
     };
 
-% This is also related to directions.  This determines whether the 
-% correction gets done using the radiometer (set to true) or just by
-% simulation (just uses nominal spectra on each iteration of the correction.)
-% Usually you will want all of these to be true, unless you've determined
-% that for the particular box and directions you're working with you don't need
-% the extra precision provided by spectrum correction.
-protocolParams.directionsCorrect = [...
-    false ...
+% This is also related to directions.  This determines whether the
+% correction gets done using the radiometer (set to false) or just by
+% simulation (set to true, just uses nominal spectra on each iteration of
+% the correction.) Usually you will want all of these to be false, unless
+% you've determined that for the particular box and directions you're
+% working with you don't need the extra precision provided by spectrum
+% correction.
+protocolParams.correctBySimulation = [...
     false ...
     false ...
     false ...
     ];
+
+% Could add a validate by simulation flag here, if we ever get to a point
+% where we want to trust the nominal spectra.
 
 % Contrasts to use, relative to the powerLevel = 1 modulation in the
 % directions file.
+%
+% Setting a contrast to 0 provides a blank trial type.
 protocolParams.trialTypeParams = [...
-    struct('contrast',0) ...
     struct('contrast',1) ...
     struct('contrast',1) ...
     struct('contrast',1) ...
     ];
 
-% Field size and pupil size.
+%% Field size and pupil size.
 %
 % These are used to construct photoreceptors for validation for directions
 % (e.g. light flux) where they are not available in the direction file.
-% They can also be used to check for consistency.  
-%
-% If we ever want to run with more than one field size and pupil size in a single 
-% run, this will need a little rethinking.
+% They are checked for consistency with direction parameters that specify
+% these fields in OLAnalyzeDirectionCorrectedPrimaries.
 protocolParams.fieldSizeDegrees = 60;
 protocolParams.pupilDiameterMm = 8;
 
-% Trial timing parameters.
+%% Trial timing parameters.
 %
 % Trial duration - total time for each trial. 
 protocolParams.trialDuration = 16;
@@ -104,7 +112,7 @@ protocolParams.trialMaxJitterTimeSec = 3;                  % Phase shifts in sec
 % Set ISI time in seconds
 protocolParams.isiTime = 0;                             
 
-% Attention task parameters.
+%% Attention task parameters
 %
 % Currently, if you have an attention event then all trial types
 % must have the same duration, and the attention event duration
@@ -117,28 +125,16 @@ protocolParams.isiTime = 0;
 % any moment within any trial, even if the contrast is zero on that trial
 % or it is a minimum contrast decrement, etc.  Would have to worry about how 
 % to handle this if that assumption is not valid.
-protocolParams.attentionTask = true;
-protocolParams.attentionSegmentDuration = 16;
-protocolParams.attentionEventDuration = 0.5;
-protocolParams.attentionMarginDuration = 2;
-protocolParams.attentionEventProb = 1;
-protocolParams.postAllTrialsWaitForKeysTime = 1;
-protocolParams.attentionEligibleTrialTypes = [1];
+protocolParams.attentionTask = false;
 
+%% Set trial sequence
+%
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.
-%
-% Need to add some checking that desired contrasts, frequencies and phases
-% are available in the ModulationStartsStops file.  Not sure where this
-% checking best happens.
-%
-% To make sense of all this, we need to understand OLModulationParamsDictionary fields,
-% OLReceptorIsolateMakeModulationStartsStops, and possibly some of the other modulation
-% routines.
-protocolParams.trialTypeOrder = [randperm(6),randperm(6),randperm(6),randperm(6)];
+protocolParams.trialTypeOrder = [1 1 1 1 1 1 1];
 protocolParams.nTrials = length(protocolParams.trialTypeOrder);
       
-% OneLight parameters
+%% OneLight parameters
 protocolParams.boxName = 'BoxB';  
 protocolParams.calibrationType = 'BoxBRandomizedLongCableDStubby1_ND00';
 protocolParams.takeCalStateMeasurements = true;
@@ -175,7 +171,7 @@ if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNam
 end
 
 %% Open the OneLight
-ol = OneLight('simulate',protocolParams.simulate); drawnow;
+ol = OneLight('simulate',protocolParams.simulate,'plotWhenSimulating',protocolParams.plotWhenSimulating); drawnow;
 
 %% Let user get the radiometer set up
 radiometerPauseDuration = 0;
@@ -193,8 +189,17 @@ pause(radiometerPauseDuration);
 protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
 
 %% Make the corrected modulation primaries
+%
+% Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
+% in the direction parameters and as specified in protocol params here, if the former
+% are part of the direction. Might have to pass protocol params down into the called
+% routine. Could also do this in other routines below, I think.
 OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
-OLCheckPrimaryCorrection(protocolParams);
+
+% This routine is mainly to debug the correction procedure, not particularly
+% useful once things are humming along.  One would use it if the validations
+% are coming out badly and it was necessary to track things down.
+% OLCheckPrimaryCorrection(protocolParams);
 
 %% Make the modulation starts and stops
 OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
@@ -203,14 +208,11 @@ OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.direct
 OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
 OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 
-%% Run demo code
-%ModulationTrialSequenceMR.Demo(ol,protocolParams);
-
 %% Run experiment
 %
 % Part of a protocol is the desired number of scans.  Calling the Experiment routine
 % is for one scan.
-ModulationTrialSequenceMR.Experiment(ol,protocolParams,'scanNumber',1,'verbose',protocolParams.verbose);
+ModulationSquint.Experiment(ol,protocolParams,'scanNumber',[],'verbose',protocolParams.verbose);
 
 %% Let user get the radiometer set up
 ol.setAll(true);

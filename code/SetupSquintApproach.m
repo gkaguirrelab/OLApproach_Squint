@@ -1,4 +1,4 @@
-%%SetupTrialSequenceMRAppraoch  Do the protocol indpendent steps required to run a trial sequence MR protocol.
+%%SetupSquintAppraoch  Do the protocol indpendent steps required to run a squint protocol.
 %
 % Description:
 %   Do the protocol indpendent steps required to run a protocol.  
@@ -10,16 +10,16 @@
 %% Parameters
 %
 % Who we are
-approachParams.approach = 'OLApproach_TrialSequenceMR';
+approachParams.approach = 'OLApproach_Squint';
 
 % List of all calibrations used in this approach
-approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00', 'BoxBRandomizedLongCableDStubby1_ND03'};
+approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00'};
 
 % List of all backgrounds used in this approach
-approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_540_380_50', 'LightFlux_330_330_20'};
+approachParams.backgroundNames = {'MelanopsinDirected_275_80_667', 'LMSDirected_275_80_667', 'LightFlux_540_380_50'};
 
 % List of all directions used in this approach
-approachParams.directionNames = {'MaxMel_275_80_667', 'MaxLMS_275_80_667', 'LightFlux_540_380_50', 'LightFlux_330_330_20'};
+approachParams.directionNames = {'MaxMel_275_80_667', 'MaxLMS_275_80_667', 'LightFlux_540_380_50'};
 
 %%  Make the backgrounds
 for cc = 1:length(approachParams.calibrationTypes)
