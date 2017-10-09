@@ -93,7 +93,7 @@ protocolParams.trialTypeParams = [...
 % (e.g. light flux) where they are not available in the direction file.
 % They are checked for consistency with direction parameters that specify
 % these fields in OLAnalyzeDirectionCorrectedPrimaries.
-protocolParams.fieldSizeDegrees = 60;
+protocolParams.fieldSizeDegrees = 27.5;
 protocolParams.pupilDiameterMm = 8;
 
 %% Trial timing parameters.

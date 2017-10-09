@@ -34,7 +34,7 @@ end
 
 %% Get scan number if not set
 if (isempty(p.Results.scanNumber))
-    protocolParams.scanNumber = input('Enter scan number: ');
+    protocolParams.scanNumber = input('Enter acquisition number: ');
 else
     protocolParams.scanNumber = p.Results.scanNumber;
 end
