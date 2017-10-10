@@ -22,52 +22,130 @@ function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 
 %% Parse input
 p = inputParser;
-p.addParameter('verbose',true,@islogical);
 p.parse(varargin{:});
 
-%% Speaking rate
+%% Set some local variables with values from the protocolParams
 speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
+
+% Force these to have a value while we are developing. Ultimately these
+% should be passed by the calling function
+protocolParams.hostNames = {'gka06', 'monkfish'};
+protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
+protocolParams.hostRoles = {'master', 'EMG_peripheral'};
 
 %% Initialize events variable
 events = struct;
 
-%% Suppress keypresses going to the Matlab window and flush keyboard queue.
-%
-% This code is a curious mixture of PTB and mgl calls.  Not sure we need to
-% ListenChar(2), but not sure we don't.
-%ListenChar(2);
-%while (~isempty(mglGetKeyEvent)), end
 
-%% If simulating, make a window to show the simulated EMG signal
-if protocolParams.simulate
-    responseStructFigHandle = figure();
-    responseStructPlotHandle=gca(responseStructFigHandle);
+%% Establish myRole
+% Get local computer name
+localHostName = UDPcommunicator2.getLocalHostName();
+% Find which hostName is contained within my computer name
+idxWhichHostAmI = cellfun(@(x) contains(localHostName, x), protocolParams.hostNames);
+if sum(idxWhichHostAmI) ~= 1
+    error(['My local host name (' localHostName ') does not match an available host name']);
+end
+% Assign me the role corresponding to my host name
+myRole = protocolParams.hostRoles(idxWhichHostAmI);
+
+
+%% Pre trial loop actions
+
+% Instantiate our UDPcommunicator object
+UDPobj = UDPcommunicator2.instantiateObject(localHostName, protocolParams.hostNames, protocolParams.hostIPs, 'beVerbose', protocolParams.verbose);
+% Establish the communication
+triggerMessage = 'Go!';
+UDPobj.initiateCommunication(localHostName, protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, 'beVerbose', protocolParams.verbose);
+% Report success
+if protocolParams.verbose
+    fprintf('UDP communication established\n');
+end
+% Construct the basic communication packet for the master and peripheral
+masterHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'master'), protocolParams.hostRoles)};
+emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'EMG_peripheral'), protocolParams.hostRoles)};
+trialPacketRootFromMaster = UDPcommunicator2.makePacket(hostNames,...
+        [masterHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from master', ...
+        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        'withData', struct('action','trial') ...
+        );
+trialPacketForPeripheral = UDPcommunicator2.makePacket(hostNames,...
+        [masterHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from master', ...
+        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        );
+
+% Role dependent actions    
+switch myRole    
+    case 'EMG_peripheral'
+        if protocolParams.verbose
+            fprintf('EMG computer ready to start trials\n');
+        end
+        % If simulating, make a window to show the simulated EMG signal if I am the
+        % EMG_peripheral
+        if protocolParams.simulate && strcmp(myRole,'EMG_peripheral')
+            responseStructFigHandle = figure();
+            responseStructPlotHandle=gca(responseStructFigHandle);
+        end
+    case 'master'
+        % Suppress keypresses going to the Matlab window and flush keyboard queue.
+        %
+        % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
+        % ListenChar(2), but not sure we don't.
+        ListenChar(2);
+        while (~isempty(mglGetKeyEvent)), end
+        
+        Speak('Press key to start experiment', [], speakRateDefault);
+        if (~protocolParams.simulate), WaitForKeyPress; end
+        fprintf('* <strong>Experiment started</strong>\n');
+        if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
+    otherwise
+        error('This is not a known identity role for the experiment');
 end
 
-%% Wait for key press
-Speak('Press key to start experiment', [], speakRateDefault);
-if (~protocolParams.simulate), WaitForKeyPress; end
-fprintf('* <strong>Experiment started</strong>\n');
 
-%% Do trials
-if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
+%% Trial loop actions
 for trial = 1:protocolParams.nTrials
     
-    myIdentity = 'EMG_peripheral';
-    %% AT THIS STAGE THE MASTER AND PERIPHERAL TAKE DIFFERENT ACTIONS
-    switch myIdentity
+    % Take the appropriate action
+    switch myRole
         case 'EMG_peripheral'
-            % LISTEN FOR SIGNAL FROM MASTER THAT IT IS TIME TO RECORD
+            % Wait for the trial packet from the master
+            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+                UDPobj.communicate(...
+                localHostName, trial, trialPacketForPeripheral, ...
+                'beVerbose', protocolParams.verbose, ...
+                'displayPackets', protocolParams.verbose...
+                );
+
+            durationForThisTrial = theMessageReceived.withData.duration;
+            
+            % Announce that we are proceeding with the trial
+            if (protocolParams.verbose)
+                fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
+            end
+
             [emgDataStruct] = SquintRecordEMG(...
-                'recordingDurationSecs', block(trial).modulationData.protocolParams.trialDuration, ...
+                'recordingDurationSecs', durationForThisTrial, ...
                 'simulate', protocolParams.simulate,...
                 'verbose', protocolParams.verbose);
             if protocolParams.simulate
                 plot(responseStructPlotHandle,emgDataStruct.timebase,emgDataStruct.response);
+                drawnow
             end
+            
             % REPORT SUCCESS BACK TO THE MASTER
             
+            % Add a pause here for debugging purposes
+            mglWaitSecs(1);
+            
         case 'master'
+            
+            % Build the UDP communication packet for this trial
+            trialPacketFromMaster = trialPacketRootFromMaster;
+            trialPacketFromMaster.withData.duration = ...
+                block(trial).modulationData.modulationParams.stimulusDuration;
             
             % Announce trial
             if (protocolParams.verbose)
@@ -85,7 +163,7 @@ for trial = 1:protocolParams.nTrials
             assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
                 <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
             
-            % Start trial.  Stick in background
+            % Start trial.  Present the background spectrum
             events(trial).tTrialStart = mglGetSecs;
             ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
             
@@ -105,18 +183,24 @@ for trial = 1:protocolParams.nTrials
             % Record start/finish time as well as other information as we go.
             events(trial).tStimulusStart = mglGetSecs;
             
-            % ALERT THE PERIPHERAL THAT IT IS TIME TO RECORD
-            
+            % Inform the peripheral that it is time to record
+            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+                UDPobj.communicate(...
+                localHostName, trial, trialPacketFromMaster, ...
+                'beVerbose', protocolParams.verbose, ...
+                'displayPackets', protocolParams.verbose...
+                );
+         
             % Present the modulation
             [events(trial).buffer, events(trial).t,  events(trial).counter] = SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
-
-
+            
+            
             % Put background back up and record times and keypresses.
             ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
             events(trial).tStimulusEnd = mglGetSecs;
-
+            
             % CHECK IF THE PERIPHERAL REPORTS EVERYTHING WENT OK
-
+            
             % This just makes it easier for us to plot the waveform we think showed on this trial later on.
             events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
             
@@ -134,13 +218,24 @@ for trial = 1:protocolParams.nTrials
     end % switch identity
 end
 
-%% Record when the block ended and undo key listening
+
+%% Post trial loop actions
+
+% Record when the block ended
 tBlockEnd = mglGetSecs;
 if (protocolParams.verbose), fprintf('- Done with block.\n'); end
-ListenChar(0);
 
-%% Put the trial information into the response struct
-responseStruct.events = events;
-
-
+switch myRole
+    case 'EMG_peripheral'
+        responseStruct = [];
+    case 'master'
+        %  undo key listening
+        ListenChar(0);
+        % Put the trial information into the response struct
+        responseStruct.events = events;
 end
+
+
+
+
+end % SquintTrialLoop function
