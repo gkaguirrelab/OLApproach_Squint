@@ -91,7 +91,7 @@ mglListener('init');
 
 %% Run the trial loop.
 tic
-responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',p.Results.verbose);
+responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',protocolParams.verbose);
 toc
 %% Turn off key listener
 mglListener('quit');

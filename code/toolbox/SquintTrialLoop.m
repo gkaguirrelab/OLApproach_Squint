@@ -20,10 +20,6 @@ function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
 
-%% Parse input
-p = inputParser;
-p.parse(varargin{:});
-
 %% Set some local variables with values from the protocolParams
 speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 
@@ -31,7 +27,7 @@ speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 % should be passed by the calling function
 protocolParams.hostNames = {'gka06', 'monkfish'};
 protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
-protocolParams.hostRoles = {'master', 'EMG_peripheral'};
+protocolParams.hostRoles = {'master', 'slave'};
 
 %% Initialize events variable
 events = struct;
