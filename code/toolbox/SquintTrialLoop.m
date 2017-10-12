@@ -27,7 +27,7 @@ speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 % should be passed by the calling function
 protocolParams.hostNames = {'gka06', 'monkfish'};
 protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
-protocolParams.hostRoles = {'master', 'slave'};
+protocolParams.hostRoles = {'base', 'satellite'};
 
 %% Initialize events variable
 events = struct;
