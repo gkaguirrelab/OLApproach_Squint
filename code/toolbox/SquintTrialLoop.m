@@ -110,7 +110,7 @@ for trial = 1:protocolParams.nTrials
                 'displayPackets', protocolParams.verbose...
                 );
 
-            durationForThisTrial = theMessageReceived.withData.duration;
+            durationForThisTrial = theMessageReceived.messageData.duration;
             
             % Announce that we are proceeding with the trial
             if (protocolParams.verbose)
