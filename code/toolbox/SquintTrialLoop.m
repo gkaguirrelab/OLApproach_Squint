@@ -74,8 +74,8 @@ switch myRole
             fprintf('EMG computer ready to start trials\n');
         end
         % If simulating, make a window to show the simulated EMG signal if I am the
-        % EMG_peripheral
-        if protocolParams.simulate && strcmp(myRole,'EMG_peripheral')
+        % satellite
+        if protocolParams.simulate && strcmp(myRole,'satellite')
             responseStructFigHandle = figure();
             responseStructPlotHandle=gca(responseStructFigHandle);
         end
@@ -122,6 +122,7 @@ for trial = 1:protocolParams.nTrials
                 'recordingDurationSecs', durationForThisTrial, ...
                 'simulate', protocolParams.simulate,...
                 'verbose', protocolParams.verbose);
+
             if protocolParams.simulate
                 plot(responseStructPlotHandle,emgDataStruct.timebase,emgDataStruct.response);
                 drawnow
