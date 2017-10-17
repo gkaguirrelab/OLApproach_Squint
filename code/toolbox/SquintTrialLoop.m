@@ -69,7 +69,7 @@ trialPacketForPeripheral = UDPcommunicator2.makePacket(protocolParams.hostNames,
 
 % Role dependent actions    
 switch myRole    
-    case 'EMG_peripheral'
+    case 'satellite'
         if protocolParams.verbose
             fprintf('EMG computer ready to start trials\n');
         end
@@ -79,7 +79,7 @@ switch myRole
             responseStructFigHandle = figure();
             responseStructPlotHandle=gca(responseStructFigHandle);
         end
-    case 'master'
+    case 'base'
         % Suppress keypresses going to the Matlab window and flush keyboard queue.
         %
         % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
@@ -101,7 +101,7 @@ for trial = 1:protocolParams.nTrials
     
     % Take the appropriate action
     switch myRole
-        case 'EMG_peripheral'
+        case 'satellite'
             % Wait for the trial packet from the master
             [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
                 UDPobj.communicate(...
@@ -131,7 +131,7 @@ for trial = 1:protocolParams.nTrials
             % Add a pause here for debugging purposes
             mglWaitSecs(1);
             
-        case 'master'
+        case 'base'
             
             % Build the UDP communication packet for this trial
             trialPacketFromMaster = trialPacketRootFromMaster;
@@ -217,9 +217,9 @@ tBlockEnd = mglGetSecs;
 if (protocolParams.verbose), fprintf('- Done with block.\n'); end
 
 switch myRole
-    case 'EMG_peripheral'
+    case 'satellite'
         responseStruct = [];
-    case 'master'
+    case 'base'
         %  undo key listening
         ListenChar(0);
         % Put the trial information into the response struct
