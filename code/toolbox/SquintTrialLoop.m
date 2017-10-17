@@ -51,17 +51,17 @@ UDPobj.initiateCommunication(localHostName, protocolParams.hostRoles,  protocolP
 if protocolParams.verbose
     fprintf('UDP communication established\n');
 end
-% Construct the basic communication packet for the master and peripheral
-masterHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+% Construct the basic communication packet for the base and peripheral
+baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
 emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
 trialPacketRootFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [masterHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from master', ...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from base', ...
         'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
         'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
         'withData', struct('action','trial','duration',0) ...
         );
 trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [masterHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from master', ...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from base', ...
         'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
         'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
          'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
@@ -102,7 +102,7 @@ for trial = 1:protocolParams.nTrials
     % Take the appropriate action
     switch myRole
         case 'satellite'
-            % Wait for the trial packet from the master
+            % Wait for the trial packet from the base
             [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
                 UDPobj.communicate(...
                 localHostName, trial, trialPacketForSatellite, ...
@@ -126,7 +126,7 @@ for trial = 1:protocolParams.nTrials
                 drawnow
             end
             
-            % REPORT SUCCESS BACK TO THE MASTER
+            % REPORT SUCCESS BACK TO THE base
             
             % Add a pause here for debugging purposes
             mglWaitSecs(1);
@@ -134,8 +134,8 @@ for trial = 1:protocolParams.nTrials
         case 'base'
             
             % Build the UDP communication packet for this trial
-            trialPacketFromMaster = trialPacketRootFromBase;
-            trialPacketFromMaster.withData.duration = ...
+            trialPacketFromBase = trialPacketRootFromBase;
+            trialPacketFromBase.messageData.duration = ...
                 block(trial).modulationData.modulationParams.stimulusDuration;
             
             % Announce trial
@@ -177,7 +177,7 @@ for trial = 1:protocolParams.nTrials
             % Inform the peripheral that it is time to record
             [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
                 UDPobj.communicate(...
-                localHostName, trial, trialPacketFromMaster, ...
+                localHostName, trial, trialPacketFromBase, ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
