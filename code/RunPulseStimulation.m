@@ -37,12 +37,12 @@ protocolParams.hostRoles = {'base', 'satellite'};
 % Get local computer name
 localHostName = UDPcommunicator2.getLocalHostName();
 % Find which hostName is contained within my computer name
-idxWhichHostAmI = cellfun(@(x) contains(localHostName, x), protocolParams.hostNames);
-if sum(idxWhichHostAmI) ~= 1
+idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+if isempty(idxWhichHostAmI)
     error(['My local host name (' localHostName ') does not match an available host name']);
 end
 % Assign me the role corresponding to my host name
-myRole = protocolParams.hostRoles(idxWhichHostAmI);
+myRole = protocolParams.hostRoles{idxWhichHostAmI};
 
 
 %% Modulations used in this experiment
