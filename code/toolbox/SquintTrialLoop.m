@@ -55,13 +55,13 @@ end
 baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
 emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
 trialPacketRootFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from base', ...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
         'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
         'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        'withData', struct('action','trial','duration',0) ...
+        'withData', struct('action','trial','duration',0,'direction','') ...
         );
 trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from base', ...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
         'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
         'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
          'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
@@ -111,10 +111,11 @@ for trial = 1:protocolParams.nTrials
                 );
 
             durationForThisTrial = theMessageReceived.data.duration;
+            directionForThisTrial = theMessageReceived.data.direction;
             
             % Announce that we are proceeding with the trial
             if (protocolParams.verbose)
-                fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
+                fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, directionForThisTrial);
             end
 
             [emgDataStruct] = SquintRecordEMG(...
@@ -137,6 +138,8 @@ for trial = 1:protocolParams.nTrials
             trialPacketFromBase = trialPacketRootFromBase;
             trialPacketFromBase.messageData.duration = ...
                 block(trial).modulationData.modulationParams.stimulusDuration;
+            trialPacketFromBase.messageData.direction = ...
+                block(trial).modulationData.modulationParams.direction;
             
             % Announce trial
             if (protocolParams.verbose)
