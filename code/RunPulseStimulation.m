@@ -230,6 +230,7 @@ switch myRole
         OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
         OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
     case 'satellite'
+        ol = [];
         if protocolParams.verbose
             fprintf('Satellite is ready to launch\n')
         end
