@@ -23,11 +23,6 @@ function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 %% Set some local variables with values from the protocolParams
 speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 
-% Force these to have a value while we are developing. Ultimately these
-% should be passed by the calling function
-protocolParams.hostNames = {'gka06', 'monkfish'};
-protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
-protocolParams.hostRoles = {'base', 'satellite'};
 
 %% Initialize events variable
 events = struct;
@@ -57,8 +52,8 @@ if protocolParams.verbose
     fprintf('UDP communication established\n');
 end
 % Construct the basic communication packet for the master and peripheral
-masterHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'master'), protocolParams.hostRoles)};
-emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'EMG_peripheral'), protocolParams.hostRoles)};
+masterHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
 trialPacketRootFromMaster = UDPcommunicator2.makePacket(hostNames,...
         [masterHostName ' -> ' emgPeripheralHostName], 'Trial start and duration from master', ...
         'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message

@@ -26,8 +26,27 @@ protocolParams.verbose = true;
 protocolParams.simulate = true;
 protocolParams.plotWhenSimulating = true;
 
+% define the identities of the base computer (which oversees the
+% experimenta and controls the OneLight) and the satellite computer that
+% handles EMG recording
+protocolParams.hostNames = {'gka06', 'monkfish'};
+protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
+protocolParams.hostRoles = {'base', 'satellite'};
+
+% Establish myRole
+% Get local computer name
+localHostName = UDPcommunicator2.getLocalHostName();
+% Find which hostName is contained within my computer name
+idxWhichHostAmI = cellfun(@(x) contains(localHostName, x), protocolParams.hostNames);
+if sum(idxWhichHostAmI) ~= 1
+    error(['My local host name (' localHostName ') does not match an available host name']);
+end
+% Assign me the role corresponding to my host name
+myRole = protocolParams.hostRoles(idxWhichHostAmI);
+
+
 %% Modulations used in this experiment
-% 
+%
 % The set of arrays in this cell should have the same length, the entries get paired.
 %
 % Do not change the order of these directions without also fixing up
@@ -40,7 +59,7 @@ protocolParams.modulationNames = { ...
     'MaxContrast3sPulse' ...
     'MaxContrast3sPulse' ...
     };
-                              
+
 protocolParams.directionNames = {...
     'MaxMel_275_80_667'...
     'MaxLMS_275_80_667'...
@@ -98,7 +117,7 @@ protocolParams.pupilDiameterMm = 8;
 
 %% Trial timing parameters.
 %
-% Trial duration - total time for each trial. 
+% Trial duration - total time for each trial.
 protocolParams.trialDuration = 16;
 
 % There is a minimum time at the start of each trial where
@@ -110,7 +129,7 @@ protocolParams.trialMinJitterTimeSec = 1;                  % Time before step
 protocolParams.trialMaxJitterTimeSec = 3;                  % Phase shifts in seconds
 
 % Set ISI time in seconds
-protocolParams.isiTime = 0;                             
+protocolParams.isiTime = 0;
 
 %% Attention task parameters
 %
@@ -121,9 +140,9 @@ protocolParams.isiTime = 0;
 % set and by generalizing the way attention event information is generated
 % within routine InitializeBlockStructArray.
 %
-% Also note that we assume that the dimming is visible when presented at 
+% Also note that we assume that the dimming is visible when presented at
 % any moment within any trial, even if the contrast is zero on that trial
-% or it is a minimum contrast decrement, etc.  Would have to worry about how 
+% or it is a minimum contrast decrement, etc.  Would have to worry about how
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = false;
 
@@ -133,9 +152,9 @@ protocolParams.attentionTask = false;
 % them once in a single array.
 protocolParams.trialTypeOrder = [1 1 1 1 1 1 1];
 protocolParams.nTrials = length(protocolParams.trialTypeOrder);
-      
+
 %% OneLight parameters
-protocolParams.boxName = 'BoxB';  
+protocolParams.boxName = 'BoxB';
 protocolParams.calibrationType = 'BoxBRandomizedLongCableDStubby1_ND00';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
@@ -143,70 +162,78 @@ protocolParams.takeTemperatureMeasurements = false;
 % Validation parameters
 protocolParams.nValidationsPerDirection = 2;
 
-% Information we prompt for and related
-commandwindow;
-protocolParams.observerID = GetWithDefault('>> Enter <strong>user name</strong>', 'HERO_xxxx');
-protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
-protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
-
-%% Use these to test reporting on validation and spectrum seeking
-%
-% Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
-% Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
-% protocolParams.observerID = 'tired';
-% protocolParams.observerAgeInYrs = 32;
-% protocolParams.todayDate = '2017-09-01';
-% protocolParams.sessionName = 'session_1';
-% protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
-% protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
-
-%% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
-if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
-    error('Calibration file prefs not set up as expected for an approach');
+%% Pre-experiment actions
+switch myRole
+    case 'base'
+        % Information we prompt for and related
+        commandwindow;
+        protocolParams.observerID = GetWithDefault('>> Enter <strong>user name</strong>', 'HERO_xxxx');
+        protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
+        protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+        
+        %% Use these to test reporting on validation and spectrum seeking
+        %
+        % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
+        % Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
+        % protocolParams.observerID = 'tired';
+        % protocolParams.observerAgeInYrs = 32;
+        % protocolParams.todayDate = '2017-09-01';
+        % protocolParams.sessionName = 'session_1';
+        % protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
+        % protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
+        
+        %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
+        if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
+            error('Calibration file prefs not set up as expected for an approach');
+        end
+        
+        % Sanity check on modulations
+        if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
+            error('Modulation and direction names cell arrays must have same length');
+        end
+        
+        %% Open the OneLight
+        ol = OneLight('simulate',protocolParams.simulate,'plotWhenSimulating',protocolParams.plotWhenSimulating); drawnow;
+        
+        %% Let user get the radiometer set up
+        radiometerPauseDuration = 0;
+        ol.setAll(true);
+        commandwindow;
+        fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+        input('');
+        ol.setAll(false);
+        pause(radiometerPauseDuration);
+        
+        %% Open the session
+        %
+        % The call to OLSessionLog sets up info in protocolParams for where
+        % the logs go.
+        protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+        
+        %% Make the corrected modulation primaries
+        %
+        % Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
+        % in the direction parameters and as specified in protocol params here, if the former
+        % are part of the direction. Might have to pass protocol params down into the called
+        % routine. Could also do this in other routines below, I think.
+        OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
+        
+        % This routine is mainly to debug the correction procedure, not particularly
+        % useful once things are humming along.  One would use it if the validations
+        % are coming out badly and it was necessary to track things down.
+        % OLCheckPrimaryCorrection(protocolParams);
+        
+        %% Make the modulation starts and stops
+        OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
+        
+        %% Validate direction corrected primaries prior to experiemnt
+        OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
+        OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
+    case 'satellite'
+        if protocolParams.verbose
+            fprintf('Satellite is ready to launch\n')
+        end
 end
-
-% Sanity check on modulations
-if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
-    error('Modulation and direction names cell arrays must have same length');
-end
-
-%% Open the OneLight
-ol = OneLight('simulate',protocolParams.simulate,'plotWhenSimulating',protocolParams.plotWhenSimulating); drawnow;
-
-%% Let user get the radiometer set up
-radiometerPauseDuration = 0;
-ol.setAll(true);
-commandwindow;
-fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-input('');
-ol.setAll(false);
-pause(radiometerPauseDuration);
-
-%% Open the session
-%
-% The call to OLSessionLog sets up info in protocolParams for where
-% the logs go.
-protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
-
-%% Make the corrected modulation primaries
-%
-% Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
-% in the direction parameters and as specified in protocol params here, if the former
-% are part of the direction. Might have to pass protocol params down into the called
-% routine. Could also do this in other routines below, I think.
-OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
-
-% This routine is mainly to debug the correction procedure, not particularly
-% useful once things are humming along.  One would use it if the validations
-% are coming out badly and it was necessary to track things down.
-% OLCheckPrimaryCorrection(protocolParams);
-
-%% Make the modulation starts and stops
-OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
-
-%% Validate direction corrected primaries prior to experiemnt
-OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
-OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 
 %% Run experiment
 %
@@ -214,14 +241,22 @@ OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 % is for one scan.
 ModulationSquint.Experiment(ol,protocolParams,'scanNumber',[],'verbose',protocolParams.verbose);
 
-%% Let user get the radiometer set up
-ol.setAll(true);
-commandwindow;
-fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-input('');
-ol.setAll(false);
-pause(radiometerPauseDuration);
-
-%% Validate direction corrected primaries post experiment
-OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Post');
-OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
+%% Post-experiment actions
+switch myRole
+    case 'base'
+        % Let user get the radiometer set up
+        ol.setAll(true);
+        commandwindow;
+        fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+        input('');
+        ol.setAll(false);
+        pause(radiometerPauseDuration);
+        
+        %% Validate direction corrected primaries post experiment
+        OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Post');
+        OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
+    case 'satellite'
+        if protocolParams.verbose
+            fprintf('The satellite is done executing the main routine\n');
+        end
+end
