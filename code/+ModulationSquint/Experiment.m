@@ -26,11 +26,6 @@ p.addParameter('playSound',false,@islogical);
 p.addParameter('scanNumber',[],@isnumeric);
 p.parse(varargin{:});
 
-%% Where the data goes
-savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
-if ~exist(savePath,'dir')
-    mkdir(savePath);
-end
 
 %% Establish myRole
 % Get local computer name
@@ -46,6 +41,12 @@ myRole = protocolParams.hostRoles{idxWhichHostAmI};
 %% Perform pre trial loop actions
 switch myRole
     case 'base'
+        %% Where the data goes
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+        if ~exist(savePath,'dir')
+            mkdir(savePath);
+        end
+        
         %% Get scan number if not set
         if (isempty(p.Results.scanNumber))
             protocolParams.scanNumber = input('Enter acquisition number: ');
@@ -102,6 +103,10 @@ switch myRole
         %% Set up for responses
         if (p.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
         mglListener('init');
+    case 'satellite'
+        % If I'm the satellite, I just do what I'm told and I don't need to
+        % know the details about the stimuli
+        block = [];
 end
 
 %% Run the trial loop.
