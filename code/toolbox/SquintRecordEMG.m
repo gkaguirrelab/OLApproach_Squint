@@ -8,6 +8,9 @@ function [emgDataStruct] = SquintRecordEMG(varargin)
 %    emgDataStruct - A structure with the fields timebase and response.
 %    timebase is in units of msecs. Response is the voltage measured from
 %    the EMG device during the recording period.
+%
+%  'channelIDs' - list of  channels to aquire from (AIN1 = 1, AIN2 = 2, AIN3 = 3)
+
 
 %% Parse input
 p = inputParser;
@@ -17,6 +20,7 @@ p.addParameter('frequencyInHz',5000,@isnumeric);
 p.addParameter('simulate',false,@islogical);
 p.addParameter('verbose',false,@islogical);
 
+    
 p.parse(varargin{:});
 
 if p.Results.simulate
