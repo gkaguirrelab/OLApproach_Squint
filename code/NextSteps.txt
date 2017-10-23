@@ -1,4 +1,0 @@
-We need to add protocolParams that allow us to independently simulate the OneLight, the EMG device, and the UDP communication between devices. 
-
-Implement the DHB UDP handshaking protocol
-https://github.com/gkaguirrelab/OLPeripheral_EMG/blob/3e4d5cfb5c4b92694931b789f908bb4d096a6463/code/UDPSend.m

@@ -29,28 +29,40 @@ events = struct;
 
 
 %% Establish myRole
-% Get local computer name
-localHostName = UDPcommunicator2.getLocalHostName();
-% Find which hostName is contained within my computer name
-idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
-if isempty(idxWhichHostAmI)
-    error(['My local host name (' localHostName ') does not match an available host name']);
+if protocolParams.simulate.udp
+    % If we are simulating the UDP connection stream, then we will operate
+    % as the base and simulate the satellite component when needed.
+    myRole = {'base','satellite'};
+else
+    % Get local computer name
+    localHostName = UDPcommunicator2.getLocalHostName();
+    % Find which hostName is contained within my computer name
+    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+    if isempty(idxWhichHostAmI)
+        error(['My local host name (' localHostName ') does not match an available host name']);
+    end
+    % Assign me the role corresponding to my host name
+    myRole = protocolParams.hostRoles{idxWhichHostAmI};
 end
-% Assign me the role corresponding to my host name
-myRole = protocolParams.hostRoles{idxWhichHostAmI};
-
 
 %% Pre trial loop actions
 
-% Instantiate our UDPcommunicator object
-UDPobj = UDPcommunicator2.instantiateObject(localHostName, protocolParams.hostNames, protocolParams.hostIPs, 'beVerbose', protocolParams.verbose);
-% Establish the communication
-triggerMessage = 'Go!';
-UDPobj.initiateCommunication(localHostName, protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, 'beVerbose', protocolParams.verbose);
-% Report success
-if protocolParams.verbose
-    fprintf('UDP communication established\n');
+if protocolParams.simulate.udp
+    if protocolParams.verbose
+        fprintf('[simulate] UDP communication established\n');
+    end
+else
+    % Instantiate our UDPcommunicator object
+    UDPobj = UDPcommunicator2.instantiateObject(localHostName, protocolParams.hostNames, protocolParams.hostIPs, 'beVerbose', protocolParams.verbose);
+    % Establish the communication
+    triggerMessage = 'Go!';
+    UDPobj.initiateCommunication(localHostName, protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, 'beVerbose', protocolParams.verbose);
+    % Report success
+    if protocolParams.verbose
+        fprintf('UDP communication established\n');
+    end
 end
+
 % Construct the basic communication packet for the base and peripheral
 baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
 emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
@@ -68,150 +80,178 @@ trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,.
         );
 
 % Role dependent actions
-switch myRole    
-    case 'satellite'
+if any(strcmp('base',myRole))
+    % Suppress keypresses going to the Matlab window and flush keyboard queue.
+    %
+    % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
+    % ListenChar(2), but not sure we don't.
+    ListenChar(2);
+    while (~isempty(mglGetKeyEvent)), end
+    
+    Speak('Press key to start experiment', [], speakRateDefault);
+    if protocolParams.simulate.observer
         if protocolParams.verbose
-            fprintf('EMG computer ready to start trials\n');
+            fprintf('[simulate] Observer pressed a key\n');
         end
-        % If simulating, make a window to show the simulated EMG signal if I am the
-        % satellite
-        if protocolParams.simulate && strcmp(myRole,'satellite')
-            responseStructFigHandle = figure();
-            responseStructPlotHandle=gca(responseStructFigHandle);
-        end
-    case 'base'
-        % Suppress keypresses going to the Matlab window and flush keyboard queue.
-        %
-        % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
-        % ListenChar(2), but not sure we don't.
-        ListenChar(2);
-        while (~isempty(mglGetKeyEvent)), end
-        
-        Speak('Press key to start experiment', [], speakRateDefault);
-        if (~protocolParams.simulate), WaitForKeyPress; end
-        fprintf('* <strong>Experiment started</strong>\n');
-        if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
-    otherwise
-        error('This is not a known identity role for the experiment');
+    else
+        WaitForKeyPress
+    end
+    fprintf('* <strong>Experiment started</strong>\n');
+    if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
 end
 
+if any(strcmp('satellite',myRole))
+    if protocolParams.verbose
+        fprintf('EMG computer ready to start trials\n');
+    end
+    % If simulating, make a window to show the simulated EMG signal if I am the
+    % satellite
+    if protocolParams.simulate.emg && protocolParams.simulate.makePlots && any(strcmp(myRole,'satellite'))
+        responseStructFigHandle = figure();
+        responseStructPlotHandle=gca(responseStructFigHandle);
+    end
+end
+        
 
 %% Trial loop actions
 for trial = 1:protocolParams.nTrials
     
-    % Take the appropriate action
-    switch myRole
-        case 'satellite'
-            % Wait for the trial packet from the base
-            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
-                UDPobj.communicate(...
-                localHostName, trial, trialPacketForSatellite, ...
-                'beVerbose', protocolParams.verbose, ...
-                'displayPackets', protocolParams.verbose...
-                );
-
-            durationForThisTrial = theMessageReceived.data.duration;
-            directionForThisTrial = theMessageReceived.data.direction;
-            
-            % Announce that we are proceeding with the trial
-            if (protocolParams.verbose)
-                fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, directionForThisTrial);
+    % Role dependent actions - BASE
+    if any(strcmp('base',myRole))
+        
+        % Build the UDP communication packet for this trial
+        trialPacketFromBase = trialPacketRootFromBase;
+        trialPacketFromBase.messageData.duration = ...
+            block(trial).modulationData.modulationParams.stimulusDuration;
+        trialPacketFromBase.messageData.direction = ...
+            block(trial).modulationData.modulationParams.direction;
+        
+        % Announce trial
+        if (protocolParams.verbose)
+            fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
+        end
+        
+        % MAKE NOISE TO ALERT SUBJECT THAT WE NEED THEM TO PRESS A BUTTON
+        
+        % Wait for button press from subject
+        if protocolParams.simulate.observer
+            if protocolParams.verbose
+                fprintf('[simulate] Observer pressed a key\n');
             end
-
-            [emgDataStruct] = SquintRecordEMG(...
-                'recordingDurationSecs', durationForThisTrial, ...
-                'simulate', protocolParams.simulate,...
-                'verbose', protocolParams.verbose);
-
-            if protocolParams.simulate
-                plot(responseStructPlotHandle,emgDataStruct.timebase,emgDataStruct.response);
-                drawnow
+        else
+            WaitForKeyPress
+        end
+        
+        % MAKE NOISE TO ALERT SUBJECT TRIAL IS ABOUT TO START
+        
+        % Check that the timing checks out
+        assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
+            <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
+        
+        % Start trial.  Present the background spectrum
+        events(trial).tTrialStart = mglGetSecs;
+        ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
+        
+        % Wait for ISI, including random jitter.
+        %
+        % First, randomly assign a jitter time between
+        % protocolParams.trialMinJitterTimeSec and
+        % protocolParams.trialMaxJitterTimeSec. Then, add the jitter time to
+        % get the total wait time and record it for this trial Then wait.
+        jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
+        totalWaitTime =  protocolParams.isiTime + jitterTime;
+        events(trial).trialWaitTime = totalWaitTime;
+        mglWaitSecs(totalWaitTime);
+        
+        % Show the trial and get any returned keys corresponding to the trial.
+        %
+        % Record start/finish time as well as other information as we go.
+        events(trial).tStimulusStart = mglGetSecs;
+        
+        % Inform the peripheral that it is time to record
+        if protocolParams.simulate.udp
+            if protocolParams.verbose
+                fprintf('[simulate] base sending packet via UDP\n');
             end
-            
-            % REPORT SUCCESS BACK TO THE base
-            
-            % Add a pause here for debugging purposes
-            mglWaitSecs(1);
-            
-        case 'base'
-            
-            % Build the UDP communication packet for this trial
-            trialPacketFromBase = trialPacketRootFromBase;
-            trialPacketFromBase.messageData.duration = ...
-                block(trial).modulationData.modulationParams.stimulusDuration;
-            trialPacketFromBase.messageData.direction = ...
-                block(trial).modulationData.modulationParams.direction;
-            
-            % Announce trial
-            if (protocolParams.verbose)
-                fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
-            end
-            
-            % MAKE NOISE TO ALERT SUBJECT THAT WE NEED THEM TO PRESS A BUTTON
-            
-            % ADD STEP HERE TO WAIT FOR BUTTON PRESS FROM THE SUBJECT
-            if (~protocolParams.simulate), WaitForKeyPress; end
-            
-            % MAKE NOISE TO ALERT SUBJECT TRIAL IS ABOUT TO START
-            
-            % Check that the timing checks out
-            assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
-                <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
-            
-            % Start trial.  Present the background spectrum
-            events(trial).tTrialStart = mglGetSecs;
-            ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
-            
-            % Wait for ISI, including random jitter.
-            %
-            % First, randomly assign a jitter time between
-            % protocolParams.trialMinJitterTimeSec and
-            % protocolParams.trialMaxJitterTimeSec. Then, add the jitter time to
-            % get the total wait time and record it for this trial Then wait.
-            jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
-            totalWaitTime =  protocolParams.isiTime + jitterTime;
-            events(trial).trialWaitTime = totalWaitTime;
-            mglWaitSecs(totalWaitTime);
-            
-            % Show the trial and get any returned keys corresponding to the trial.
-            %
-            % Record start/finish time as well as other information as we go.
-            events(trial).tStimulusStart = mglGetSecs;
-            
-            % Inform the peripheral that it is time to record
+        else
             [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
                 UDPobj.communicate(...
                 localHostName, trial, trialPacketFromBase, ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
-         
-            % Present the modulation
-            [events(trial).buffer, events(trial).t,  events(trial).counter] = SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
-            
-            
-            % Put background back up and record times and keypresses.
-            ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
-            events(trial).tStimulusEnd = mglGetSecs;
-            
-            % CHECK IF THE PERIPHERAL REPORTS EVERYTHING WENT OK
-            
-            % This just makes it easier for us to plot the waveform we think showed on this trial later on.
-            events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
-            
-            % At end of trial, put background to be that trial's background.
-            %
-            % Most modulations will end at their background, so this probably won't have
-            % any visible effect.
-            
-            % Wait for the remaining time for protocolParams.trialDuration to have
-            % passed since the start time.
-            trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
-            mglWaitSecs(trialTimeRemaining);
-            events(trial).tTrialEnd = mglGetSecs;
-            
-    end % switch identity
-end
+        end
+        
+        % Present the modulation
+        [events(trial).buffer, events(trial).t,  events(trial).counter] = SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
+                
+        % Put background back up and record times and keypresses.
+        ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
+        events(trial).tStimulusEnd = mglGetSecs;
+        
+        % CHECK IF THE PERIPHERAL REPORTS EVERYTHING WENT OK
+        
+        % This just makes it easier for us to plot the waveform we think showed on this trial later on.
+        events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
+        
+        % At end of trial, put background to be that trial's background.
+        %
+        % Most modulations will end at their background, so this probably won't have
+        % any visible effect.
+        
+        % Wait for the remaining time for protocolParams.trialDuration to have
+        % passed since the start time.
+        trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
+        mglWaitSecs(trialTimeRemaining);
+        events(trial).tTrialEnd = mglGetSecs;
+    end % base actions
+    
+    
+    % Role dependent actions - SATELLITE
+    if any(strcmp('satellite',myRole))
+
+        % Wait for the trial packet from the base
+        if protocolParams.simulate.udp
+            theMessageReceived.data.duration = block(trial).modulationData.modulationParams.stimulusDuration;
+            theMessageReceived.data.direction = block(trial).modulationData.modulationParams.direction;
+            if protocolParams.verbose
+                fprintf('[simulate] satellite receiving packet via UDP\n');
+            end
+        else
+            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+                UDPobj.communicate(...
+                localHostName, trial, trialPacketForSatellite, ...
+                'beVerbose', protocolParams.verbose, ...
+                'displayPackets', protocolParams.verbose...
+                );
+        end
+        
+        durationForThisTrial = theMessageReceived.data.duration;
+        directionForThisTrial = theMessageReceived.data.direction;
+        
+        % Announce that we are proceeding with the trial
+        if (protocolParams.verbose)
+            fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, directionForThisTrial);
+        end
+        
+        [emgDataStruct] = SquintRecordEMG(...
+            'recordingDurationSecs', durationForThisTrial, ...
+            'simulate', protocolParams.simulate.emg, ...
+            'verbose', protocolParams.verbose);
+        
+        if protocolParams.simulate.emg && protocolParams.simulate.makePlots
+                plot(responseStructPlotHandle,emgDataStruct.timebase,emgDataStruct.response);
+                drawnow
+        end
+        
+        % REPORT SUCCESS BACK TO THE base
+        
+        % Add a pause here for debugging purposes
+        mglWaitSecs(1);
+        
+    end
+    
+end % Loop over trials
 
 
 %% Post trial loop actions
@@ -220,17 +260,18 @@ end
 tBlockEnd = mglGetSecs;
 if (protocolParams.verbose), fprintf('- Done with block.\n'); end
 
-switch myRole
-    case 'satellite'
-        responseStruct = [];
-    case 'base'
-        %  undo key listening
-        ListenChar(0);
-        % Put the trial information into the response struct
-        responseStruct.events = events;
+% Role dependent actions - BASE
+if any(strcmp('base',myRole))
+    %  undo key listening
+    ListenChar(0);
+    % Put the trial information into the response struct
+    responseStruct.events = events;
 end
 
-
+% Role dependent actions - SATELLITE
+if any(strcmp('satellite',myRole))
+    responseStruct = [];
+end
 
 
 end % SquintTrialLoop function
