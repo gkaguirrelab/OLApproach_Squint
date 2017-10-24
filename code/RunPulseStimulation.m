@@ -41,7 +41,7 @@ if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base at this level of the routines, although subsequent levels
     % will simulate both base and satellite roles.
-    myRole = {'base'};
+    myRole = {'base', 'satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -174,6 +174,9 @@ protocolParams.nValidationsPerDirection = 2;
 
 %% Pre-experiment actions
 
+% Set the ol variable to empty
+ol = [];
+
 if any(strcmp('base',myRole))
     % Information we prompt for and related
     commandwindow;
@@ -242,7 +245,6 @@ if any(strcmp('base',myRole))
 end
 
 if any(strcmp('satellite',myRole))
-    ol = [];
     if protocolParams.verbose
         fprintf('Satellite is ready to launch\n')
     end
@@ -250,9 +252,9 @@ end
 
 %% Run experiment
 %
-% Part of a protocol is the desired number of scans.  Calling the Experiment routine
-% is for one scan.
-ModulationSquint.Experiment(ol,protocolParams,'scanNumber',[],'verbose',protocolParams.verbose);
+% Part of a protocol is the desired number of acquisitions.
+% Calling the Experiment routine is for one acquisition.
+ModulationSquint.Experiment(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
 
 %% Post-experiment actions
 if any(strcmp('base',myRole))

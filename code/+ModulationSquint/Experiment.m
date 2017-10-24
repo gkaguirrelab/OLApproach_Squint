@@ -5,7 +5,7 @@ function Experiment(ol,protocolParams,varargin)
 %    Experiment(ol,protocolParams)
 %
 % Description:
-%    Master program for running sequences of OneLight pulses/modulations in the scanner.
+%    Master program for running sequences of OneLight pulses/modulations in the acquisitionner.
 %
 % Input:
 %    ol (object)              An open OneLight object.
@@ -17,13 +17,13 @@ function Experiment(ol,protocolParams,varargin)
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
 %    playSound (logical)       false      Play a sound when the experiment is ready.
-%    scanNumber (value)        []         Scan number for output name
+%    acquisitionNumber (value)        []         acquisition number for output name
 
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
 p.addParameter('playSound',false,@islogical);
-p.addParameter('scanNumber',[],@isnumeric);
+p.addParameter('acquisitionNumber',[],@isnumeric);
 p.parse(varargin{:});
 
 
@@ -31,7 +31,7 @@ p.parse(varargin{:});
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base at this level of the code.
-    myRole = {'base'};
+    myRole = {'base','satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -45,69 +45,74 @@ else
 end
 
 %% Perform pre trial loop actions
+
+% Set block to empty. If we act as the base, something will be put there.
+block = [];
+
+% Role dependent actions - BASE
 if any(strcmp('base',myRole))
-        %% Where the data goes
-        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
-        if ~exist(savePath,'dir')
-            mkdir(savePath);
-        end
-        
-        %% Get scan number if not set
-        if (isempty(p.Results.scanNumber))
-            protocolParams.scanNumber = input('Enter acquisition number: ');
-        else
-            protocolParams.scanNumber = p.Results.scanNumber;
-        end
-        
-        %% Start session log
-        % Add protocol output name and scan number
-        protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
-        
-        %% Get the modulation starts/stops for each trial type
-        % Get path and filenames.  Check that someone has not
-        % done something unexpected in the calling program.
-        modulationDir = fullfile(getpref(protocolParams.protocol, 'ModulationStartsStopsBasePath'), protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
-        for mm = 1:length(protocolParams.modulationNames)
-            fullModulationNames = sprintf('ModulationStartsStops_%s_%s', protocolParams.modulationNames{mm}, protocolParams.directionNames{mm});
-            fullModulationNames = strcat(fullModulationNames, sprintf('_trialType_%s',num2str(mm)));
-            pathToModFile = [fullModulationNames '.mat'];
-            modulationRead = load(fullfile(modulationDir, pathToModFile));
-            modulationData(mm)= modulationRead.modulationData;
-            modulation{mm} = modulationData(mm).modulation;
-            frameDuration(mm) = modulationData(mm).modulationParams.timeStep;
-        end
-        
-        %% Put together the block struct array.
-        % This describes what happens on each trial of the session.
-        % Once this is done we don't need the modulation data and we
-        % clear that just to make sure we don't use it by accident.
-        block = InitializeBlockStructArray(protocolParams,modulationData);
-        clear modulationData;
-        
-        %% Begin the experiment
-        % Play a sound to say hello.
-        if (p.Results.playSound)
-            t = linspace(0, 1, 10000);
-            y = sin(330*2*pi*t);
-            sound(y, 20000);
-        end
-        
-        %% Set the background
-        % Use the background for the first trial as the background to set.
-        ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops);
-        
-        %% Adapt to background
-        % Could wait here for a specified adaptation time
-        
-        %% Set up for responses
-        if (p.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
-        mglListener('init');
+    %% Where the data goes
+    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+    if ~exist(savePath,'dir')
+        mkdir(savePath);
+    end
+    
+    %% Get acquisition number if not set
+    if (isempty(p.Results.acquisitionNumber))
+        protocolParams.acquisitionNumber = input('Enter acquisition number: ');
+    else
+        protocolParams.acquisitionNumber = p.Results.acquisitionNumber;
+    end
+    
+    %% Start session log
+    % Add protocol output name and acquisition number
+    protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
+    
+    %% Get the modulation starts/stops for each trial type
+    % Get path and filenames.  Check that someone has not
+    % done something unexpected in the calling program.
+    modulationDir = fullfile(getpref(protocolParams.protocol, 'ModulationStartsStopsBasePath'), protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
+    for mm = 1:length(protocolParams.modulationNames)
+        fullModulationNames = sprintf('ModulationStartsStops_%s_%s', protocolParams.modulationNames{mm}, protocolParams.directionNames{mm});
+        fullModulationNames = strcat(fullModulationNames, sprintf('_trialType_%s',num2str(mm)));
+        pathToModFile = [fullModulationNames '.mat'];
+        modulationRead = load(fullfile(modulationDir, pathToModFile));
+        modulationData(mm)= modulationRead.modulationData;
+        modulation{mm} = modulationData(mm).modulation;
+        frameDuration(mm) = modulationData(mm).modulationParams.timeStep;
+    end
+    
+    %% Put together the block struct array.
+    % This describes what happens on each trial of the session.
+    % Once this is done we don't need the modulation data and we
+    % clear that just to make sure we don't use it by accident.
+    block = InitializeBlockStructArray(protocolParams,modulationData);
+    clear modulationData;
+    
+    %% Begin the experiment
+    % Play a sound to say hello.
+    if (p.Results.playSound)
+        t = linspace(0, 1, 10000);
+        y = sin(330*2*pi*t);
+        sound(y, 20000);
+    end
+    
+    %% Set the background
+    % Use the background for the first trial as the background to set.
+    ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops);
+    
+    %% Adapt to background
+    % Could wait here for a specified adaptation time
+    
+    %% Set up for responses
+    if (p.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
+    mglListener('init');
 end
 
+% Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
-        % If I'm the satellite, I just do what I'm told and I don't need to
-        % know the details about the stimuli
-        block = [];
+    % If I'm the satellite, I just do what I'm told and I don't need to
+    % know the details about the stimuli
 end
 
 
@@ -117,27 +122,38 @@ responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',protocolParam
 toc
 
 %% Execute post trial loop actions
+
+% Role dependent actions - BASE
 if any(strcmp('base',myRole))
-    %% Turn off key listener
+    % Turn off key listener
     mglListener('quit');
     
-    %% Save the data
+    % Save the experiment execution details
     % Save protocolParams, block, responseStruct.
     % Make sure not to overwrite an existing file.
-    outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_scan%d.mat',protocolParams.scanNumber)]);
+    outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_acquisition%d.mat',protocolParams.acquisitionNumber)]);
     while (exist(outputFile,'file'))
-        protocolParams.scanNumber = input(sprintf('Output file %s exists, enter correct scan number: \n',outputFile));
-        outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_scan%d.mat',protocolParams.scanNumber)]);
+        protocolParams.acquisitionNumber = input(sprintf('Output file %s exists, enter correct acquisition number: \n',outputFile));
+        outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%d.mat',protocolParams.acquisitionNumber)]);
     end
-    responseStruct.scanNumber = protocolParams.scanNumber;
+    responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
     save(outputFile,'protocolParams', 'block', 'responseStruct');
     
-    %% Close Session Log
+    % Close Session Log
     OLSessionLog(protocolParams,'Experiment','StartEnd','end');
 end
 
+% Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
-    % Want code here to save the EMG data to disk
+    % Save the data and protocol params
+    % Make sure not to overwrite an existing file.
+    outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
+    while (exist(outputFile,'file'))
+        protocolParams.acquisitionNumber = input(sprintf('Output file %s exists, enter correct acquisition number: \n',outputFile));
+        outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
+    end
+    responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
+    save(outputFile,'protocolParams', 'responseStruct');
 end
 
 end % Experiment function

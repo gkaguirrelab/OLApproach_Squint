@@ -63,24 +63,39 @@ else
     end
 end
 
-% Construct the basic communication packet for the base and peripheral
-baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
-emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
-trialPacketRootFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
-        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        'withData', struct('action','trial','duration',0,'direction','') ...
-        );
-trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
-        'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        );
-
 % Role dependent actions
 if any(strcmp('base',myRole))
+    
+    % Construct initial config communication packet for the base
+    baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+    emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
+    configPacketFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Acquisition parameters', ...
+        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        'withData', struct( ...
+        'action','config', ...
+        'acquisitionNumber', protocolParams.acquisitionNumber, ...
+        'sessionName', protocolParams.sessionName, ...
+        'observerID', protocolParams.observerID, ...
+        'todayDate', protocolParams.todayDate, ...
+        'protocolOutputName', protocolParams.protocolOutputName) ...        
+        );
+    
+    % Pass the config packet
+    if protocolParams.simulate.udp
+        if protocolParams.verbose
+            fprintf('[simulate] base sending config packet via UDP\n');
+        end
+    else
+        [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+            UDPobj.communicate(...
+            localHostName, 0, configPacketFromBase, ...
+            'beVerbose', protocolParams.verbose, ...
+            'displayPackets', protocolParams.verbose...
+            );
+    end
+    
     % Suppress keypresses going to the Matlab window and flush keyboard queue.
     %
     % This code is a curious mixture of PTB and mgl calls.  Not sure we need to
@@ -100,7 +115,40 @@ if any(strcmp('base',myRole))
     if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
 end
 
+
 if any(strcmp('satellite',myRole))
+
+    % Construct initial config communication packet for the base
+    configPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Acquisition parameters', ...
+        'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        );
+    
+        % Wait for the config packet from the base
+        if protocolParams.simulate.udp
+            % If we are in udp simulation mode then the protocol params are
+            % available as we are acting both as the base  and the
+            % satellite
+            if protocolParams.verbose
+                fprintf('[simulate] satellite receiving config packet via UDP\n');
+            end
+        else
+            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+                UDPobj.communicate(...
+                localHostName, 0, configPacketForSatellite, ...
+                'beVerbose', protocolParams.verbose, ...
+                'displayPackets', protocolParams.verbose...
+                );
+            protocolParams.acquisitionNumber = theMessageReceived.data.acquisitionNumber;
+            protocolParams.sessionName = theMessageReceived.data.sessionName;
+            protocolParams.protocolOutputName = theMessageReceived.data.protocolOutputName;
+            protocolParams.observerID = theMessageReceived.data.observerID;
+            protocolParams.todayDate = theMessageReceived.data.todayDate;
+        end
+
+    
     if protocolParams.verbose
         fprintf('EMG computer ready to start trials\n');
     end
@@ -112,7 +160,23 @@ if any(strcmp('satellite',myRole))
     end
 end
         
+% Construct the basic trial communication packet for the base and peripheral
+baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
+trialPacketRootFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
+        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        'withData', struct('action','trial','duration',0,'direction','') ...
+        );
+trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
+        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
+        'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
+        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+        );
 
+    
 %% Trial loop actions
 for trial = 1:protocolParams.nTrials
     
@@ -234,13 +298,13 @@ for trial = 1:protocolParams.nTrials
             fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, directionForThisTrial);
         end
         
-        [emgDataStruct] = SquintRecordEMG(...
+        emgDataStruct(trial) = SquintRecordEMG(...
             'recordingDurationSecs', durationForThisTrial, ...
             'simulate', protocolParams.simulate.emg, ...
             'verbose', protocolParams.verbose);
         
         if protocolParams.simulate.emg && protocolParams.simulate.makePlots
-                plot(responseStructPlotHandle,emgDataStruct.timebase,emgDataStruct.response);
+                plot(responseStructPlotHandle,emgDataStruct(trial).timebase,emgDataStruct(trial).response);
                 drawnow
         end
         
@@ -270,7 +334,7 @@ end
 
 % Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
-    responseStruct = [];
+    responseStruct.emgData = emgDataStruct;
 end
 
 
