@@ -1,5 +1,5 @@
 function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
-%%SquintTrialLoop  Loop over trials, show stimuli and get responses.
+%% SquintTrialLoop  Loop over trials, show stimuli and get responses.
 %
 % Usage:
 %    responseStruct = trialLoop(protocolParams,block,ol)
@@ -47,6 +47,7 @@ end
 
 %% Pre trial loop actions
 
+% Role independent actions
 if protocolParams.simulate.udp
     if protocolParams.verbose
         fprintf('[simulate] UDP communication established\n');
@@ -63,7 +64,7 @@ else
     end
 end
 
-% Role dependent actions
+% Role dependent actions -- BASE
 if any(strcmp('base',myRole))
     
     % Construct initial config communication packet for the base
@@ -88,7 +89,7 @@ if any(strcmp('base',myRole))
             fprintf('[simulate] base sending config packet via UDP\n');
         end
     else
-        [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+        [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
             UDPobj.communicate(...
             localHostName, 0, configPacketFromBase, ...
             'beVerbose', protocolParams.verbose, ...
@@ -115,7 +116,7 @@ if any(strcmp('base',myRole))
     if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
 end
 
-
+% Role dependent actions -- SATELLITE
 if any(strcmp('satellite',myRole))
 
     % Construct initial config communication packet for the base
@@ -135,7 +136,7 @@ if any(strcmp('satellite',myRole))
                 fprintf('[simulate] satellite receiving config packet via UDP\n');
             end
         else
-            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
                 UDPobj.communicate(...
                 localHostName, 0, configPacketForSatellite, ...
                 'beVerbose', protocolParams.verbose, ...
@@ -152,14 +153,15 @@ if any(strcmp('satellite',myRole))
     if protocolParams.verbose
         fprintf('EMG computer ready to start trials\n');
     end
-    % If simulating, make a window to show the simulated EMG signal if I am the
-    % satellite
+    % If simulating, make a window to show the simulated EMG signal if I am
+    % the satellite
     if protocolParams.simulate.emg && protocolParams.simulate.makePlots && any(strcmp(myRole,'satellite'))
         responseStructFigHandle = figure();
         responseStructPlotHandle=gca(responseStructFigHandle);
     end
 end
-        
+
+% Role independent actions
 % Construct the basic trial communication packet for the base and peripheral
 baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
 emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
@@ -237,17 +239,26 @@ for trial = 1:protocolParams.nTrials
             if protocolParams.verbose
                 fprintf('[simulate] base sending packet via UDP\n');
             end
+        events(trial).udpEvents.theMessageReceived = 'simulated';
+        events(trial).udpEvents.theCommunicationStatus = 'simulated';
+        events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
-            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
                 UDPobj.communicate(...
                 localHostName, trial, trialPacketFromBase, ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
+
+            % Store the message information in the events struct
+            events(trial).udpEvents.theMessageReceived = theMessageReceived;
+            events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
+            events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
         end
-        
+
         % Present the modulation
-        [events(trial).buffer, events(trial).t,  events(trial).counter] = SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
+        [events(trial).buffer, events(trial).t,  events(trial).counter] = ...
+            SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
                 
         % Put background back up and record times and keypresses.
         ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
@@ -262,12 +273,14 @@ for trial = 1:protocolParams.nTrials
         %
         % Most modulations will end at their background, so this probably won't have
         % any visible effect.
+        %% THIS COMMENT IS NOT ASSOCIATED WITH THE CODE DOING ANYTHING. REMOVE?
         
         % Wait for the remaining time for protocolParams.trialDuration to have
         % passed since the start time.
         trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
         mglWaitSecs(trialTimeRemaining);
         events(trial).tTrialEnd = mglGetSecs;
+
     end % base actions
     
     
@@ -279,50 +292,56 @@ for trial = 1:protocolParams.nTrials
             theMessageReceived.data.duration = block(trial).modulationData.modulationParams.stimulusDuration;
             theMessageReceived.data.direction = block(trial).modulationData.modulationParams.direction;
             if protocolParams.verbose
-                fprintf('[simulate] satellite receiving packet via UDP\n');
+                fprintf('[simulate] satellite received packet via UDP\n');
             end
+        % Store the message information in the events struct
+        events(trial).udpEvents.theMessageReceived = theMessageReceived;
+        events(trial).udpEvents.theCommunicationStatus = 'simulated';
+        events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
-            [theMessageReceived, theCommunicationStatus, roundTipDelayMilliSecs] = ...
+            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
                 UDPobj.communicate(...
                 localHostName, trial, trialPacketForSatellite, ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
+        % Store the message information in the events struct
+        events(trial).udpEvents.theMessageReceived = theMessageReceived;
+        events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
+        events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
         end
-        
-        durationForThisTrial = theMessageReceived.data.duration;
-        directionForThisTrial = theMessageReceived.data.direction;
         
         % Announce that we are proceeding with the trial
         if (protocolParams.verbose)
-            fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, directionForThisTrial);
+            fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, theMessageReceived.data.direction);
         end
-        
+
+        % Record start/finish time as well as other information as we go.
+        events(trial).tEMGRecordingStart = mglGetSecs;
+
         emgDataStruct(trial) = SquintRecordEMG(...
-            'recordingDurationSecs', durationForThisTrial, ...
+            'recordingDurationSecs', theMessageReceived.data.duration, ...
             'simulate', protocolParams.simulate.emg, ...
             'verbose', protocolParams.verbose);
+
+        % Record start/finish time as well as other information as we go.
+        events(trial).tEMGRecordingEnd = mglGetSecs;
         
+        % If we are simulating the emg, show the simulated data
         if protocolParams.simulate.emg && protocolParams.simulate.makePlots
-                plot(responseStructPlotHandle,emgDataStruct(trial).timebase,emgDataStruct(trial).response);
-                drawnow
+            plot(responseStructPlotHandle,emgDataStruct(trial).timebase,emgDataStruct(trial).response);
+            drawnow
         end
         
-        % REPORT SUCCESS BACK TO THE base
-        
-        % Add a pause here for debugging purposes
-        mglWaitSecs(1);
-        
-    end
+    end % satellite actions
     
 end % Loop over trials
 
 
 %% Post trial loop actions
 
-% Record when the block ended
-tBlockEnd = mglGetSecs;
-if (protocolParams.verbose), fprintf('- Done with block.\n'); end
+% Report that we are done with this block of trials
+if (protocolParams.verbose), fprintf('- Done with block of trials.\n'); end
 
 % Role dependent actions - BASE
 if any(strcmp('base',myRole))
@@ -334,6 +353,7 @@ end
 
 % Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
+    responseStruct.events = events;
     responseStruct.emgData = emgDataStruct;
 end
 

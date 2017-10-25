@@ -46,7 +46,7 @@ end
 
 %% Perform pre trial loop actions
 
-% Set block to empty. If we act as the base, something will be put there.
+% Set block to empty. If we act as the base, something will be put in here.
 block = [];
 
 % Role dependent actions - BASE
@@ -100,6 +100,7 @@ if any(strcmp('base',myRole))
     %% Set the background
     % Use the background for the first trial as the background to set.
     ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops);
+    if (p.Results.verbose), fprintf('Setting OneLight to background.\n'); end
     
     %% Adapt to background
     % Could wait here for a specified adaptation time

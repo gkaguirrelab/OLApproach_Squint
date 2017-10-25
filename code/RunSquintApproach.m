@@ -17,8 +17,8 @@ clear; close all;
 %
 % Who we are and what we're doing today
 protocolParams.approach = 'OLApproach_Squint';
-protocolParams.protocol = 'SquintToStimulation';
-protocolParams.protocolOutputName = 'StS';
+protocolParams.protocol = 'SquintToPulse';
+protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
