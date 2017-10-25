@@ -1,16 +1,14 @@
-% RunPulseStimulation
+% RunSquintApproach
 %
 % Description:
-%   Define the parameters for the RunPulseStimulation protocol of the
+%   Define the parameters for the RunSquintApproach protocol of the
 %   OLApproach_Squint approach, and then invoke each of the
 %   steps required to set up and run a session of the experiment.
-
-% 6/28/17  dhb  Added first history comment.
-%          dhb  Move params.photoreceptorClasses into the dictionaries.
-%          dhb  Move params.useAmbient into the dictionaries.
-% 09/20/17 dhb, gka, hmm  Copy over the CRF version and start editing.
-% Late September - brought from OLApproach_MRTrialSequence over to Squint.
-% Relying upon github version and comments from here on out.
+%
+% The design of these routines allows a single code base to operate on both
+% the primary (base) computer that controls the timing of the experiment
+% and the sitmuli, as well as the secondary (satellite) computers that
+% collect EMG and pupil response data.
 
 %% Clear
 clear; close all;
@@ -39,8 +37,7 @@ protocolParams.hostRoles = {'base', 'satellite'};
 % Establish myRole
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
-    % as the base at this level of the routines, although subsequent levels
-    % will simulate both base and satellite roles.
+    % as both the base and satellite.
     myRole = {'base', 'satellite'};
 else
     % Get local computer name
@@ -170,17 +167,18 @@ protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
 % Validation parameters
-protocolParams.nValidationsPerDirection = 2;
+protocolParams.nValidationsPerDirection = 1;
 
 %% Pre-experiment actions
 
-% Set the ol variable to empty
+% Set the ol variable to empty. It will be filled if we are the base.
 ol = [];
 
+% Role dependent actions - BASE
 if any(strcmp('base',myRole))
     % Information we prompt for and related
     commandwindow;
-    protocolParams.observerID = GetWithDefault('>> Enter <strong>user name</strong>', 'HERO_xxxx');
+    protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
     protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
     
@@ -244,6 +242,7 @@ if any(strcmp('base',myRole))
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 end
 
+% Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
     if protocolParams.verbose
         fprintf('Satellite is ready to launch\n')
@@ -252,11 +251,15 @@ end
 
 %% Run experiment
 %
+% HERE IS WHERE WE WOULD PERHAPS CREATE A LOOP OVER ACQUISITIONS, AND PASS
+% THE ACQUISITION NUMBER TO THE NEXT ROUTINE
 % Part of a protocol is the desired number of acquisitions.
 % Calling the Experiment routine is for one acquisition.
 ModulationSquint.Experiment(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
 
 %% Post-experiment actions
+
+% Role dependent actions - BASE
 if any(strcmp('base',myRole))
     % Let user get the radiometer set up
     ol.setAll(true);
@@ -271,6 +274,7 @@ if any(strcmp('base',myRole))
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
 end
 
+% Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
     if protocolParams.verbose
         fprintf('The satellite is done executing the main routine\n');

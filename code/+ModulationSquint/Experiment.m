@@ -1,5 +1,5 @@
 function Experiment(ol,protocolParams,varargin)
-%%Experiment  Run a squint protcol experiment.
+%% Experiment - Run a squint protcol experiment.
 %
 % Usage:
 %    Experiment(ol,protocolParams)
