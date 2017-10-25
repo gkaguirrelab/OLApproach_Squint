@@ -23,7 +23,7 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.udp = true;
+protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.makePlots = true;
 
