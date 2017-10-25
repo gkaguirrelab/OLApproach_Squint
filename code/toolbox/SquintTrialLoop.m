@@ -119,7 +119,9 @@ end
 % Role dependent actions -- SATELLITE
 if any(strcmp('satellite',myRole))
 
-    % Construct initial config communication packet for the base
+    % Construct initial config communication packet for the satellite
+    baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+    emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
     configPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
         [baseHostName ' -> ' emgPeripheralHostName], 'Acquisition parameters', ...
         'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
