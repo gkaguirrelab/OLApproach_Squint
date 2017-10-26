@@ -146,13 +146,19 @@ end
 
 % Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
-    % Save the data and protocol params
+    % Figure out where to save the data
+    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+    if ~exist(savePath,'dir')
+        mkdir(savePath);
+        warning('The base computer should have created a directory for saving data, but the satellite does not see it. Creating it so I can save.');
+    end
     % Make sure not to overwrite an existing file.
     outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
     while (exist(outputFile,'file'))
         protocolParams.acquisitionNumber = input(sprintf('Output file %s exists, enter correct acquisition number: \n',outputFile));
         outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
     end
+    % Save the protocol params and response struct
     responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
     save(outputFile,'protocolParams', 'responseStruct');
 end
