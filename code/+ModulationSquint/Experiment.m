@@ -147,6 +147,7 @@ end
 % Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
     % Figure out where to save the data
+    protocolParams = responseStruct.protocolParams;
     savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
     if ~exist(savePath,'dir')
         mkdir(savePath);

@@ -357,6 +357,7 @@ end
 if any(strcmp('satellite',myRole))
     responseStruct.events = events;
     responseStruct.emgData = emgDataStruct;
+    responseStruct.protocolParams = protocolParams;
 end
 
 
