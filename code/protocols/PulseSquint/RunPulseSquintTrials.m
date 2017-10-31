@@ -23,7 +23,7 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.udp = false;
+protocolParams.simulate.udp = true;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.makePlots = true;
 
@@ -255,7 +255,7 @@ end
 % THE ACQUISITION NUMBER TO THE NEXT ROUTINE
 % Part of a protocol is the desired number of acquisitions.
 % Calling the Experiment routine is for one acquisition.
-ModulationSquint.Experiment(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
+ApproachEngine(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
 
 %% Post-experiment actions
 

@@ -1,5 +1,5 @@
-function Experiment(ol,protocolParams,varargin)
-%% Experiment - Run a squint protcol experiment.
+function ApproachEngine(ol,protocolParams,varargin)
+%% ApproachEngine - Run a squint protcol experiment.
 %
 % Usage:
 %    Experiment(ol,protocolParams)
