@@ -305,7 +305,7 @@ end
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRole))
     if protocolParams.verbose
         for aa = 1:length(myActions)
-            fprintf(['Satellite is finished. My action was: ' myActions{aa} ' \n'])
+            fprintf('Satellite is finished.\n')
         end
     end
 end
