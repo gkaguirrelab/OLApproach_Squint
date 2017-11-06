@@ -22,23 +22,26 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
-protocolParams.simulate.emg = false;
-protocolParams.simulate.udp = false;
+protocolParams.simulate.emg = true;
+protocolParams.simulate.pupil = true;
+protocolParams.simulate.udp = true;
 protocolParams.simulate.observer = true;
+protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
 
 % define the identities of the base computer (which oversees the
-% experimenta and controls the OneLight) and the satellite computer that
-% handles EMG recording
-protocolParams.hostNames = {'gka06', 'monkfish'};
-protocolParams.hostIPs = {'128.91.12.160', '128.91.12.161'};
-protocolParams.hostRoles = {'base', 'satellite'};
+% experiment and controls the OneLight) and the satellite computers that
+% handle EMG and pupil recording
+protocolParams.hostNames = {'gka06', 'monkfish', 'gka33'};
+protocolParams.hostIPs = {'128.91.12.161', '128.91.12.161', '128.91.12.160'};
+protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
+protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 
-% Establish myRole
+% Establish myRole and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
-    % as both the base and satellite.
-    myRole = {'base', 'satellite'};
+    % as the base and simulate the satellite component when needed.
+    myRole = {'base','satellite','satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -50,6 +53,24 @@ else
     % Assign me the role corresponding to my host name
     myRole = protocolParams.hostRoles{idxWhichHostAmI};
 end
+
+if protocolParams.simulate.udp
+    % If we are simulating the UDP connection stream, then we will execute
+    % all actions in this routine.
+    myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+else
+    % Get local computer name
+    localHostName = UDPcommunicator2.getLocalHostName();
+    % Find which hostName is contained within my computer name
+    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+    if isempty(idxWhichHostAmI)
+        error(['My local host name (' localHostName ') does not match an available host name']);
+    end
+    % Assign me the actions corresponding to my host name
+    myActions = protocolParams.hostActions{idxWhichHostAmI};
+end
+
+
 
 
 %% Modulations used in this experiment
@@ -174,8 +195,8 @@ protocolParams.nValidationsPerDirection = 1;
 % Set the ol variable to empty. It will be filled if we are the base.
 ol = [];
 
-% Role dependent actions - BASE
-if any(strcmp('base',myRole))
+% Role dependent actions - base
+if any(cellfun(@(x) sum(strcmp(x,'base')),myRole))
     % Information we prompt for and related
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
@@ -202,7 +223,11 @@ if any(strcmp('base',myRole))
     if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
         error('Modulation and direction names cell arrays must have same length');
     end
-    
+end
+
+% Role dependent actions - oneLight
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
+
     %% Open the OneLight
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
     
@@ -242,12 +267,13 @@ if any(strcmp('base',myRole))
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 end
 
-% Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRole))
+% Role dependent actions - satellite
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRole))
     if protocolParams.verbose
-        fprintf('Satellite is ready to launch\n')
+            fprintf('Satellite is ready to launch.\n')
     end
 end
+
 
 %% Run experiment
 %
@@ -257,10 +283,11 @@ end
 % Calling the Experiment routine is for one acquisition.
 ApproachEngine(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
 
+
 %% Post-experiment actions
 
-% Role dependent actions - BASE
-if any(strcmp('base',myRole))
+% Role dependent actions - oneLight
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
     % Let user get the radiometer set up
     ol.setAll(true);
     commandwindow;
@@ -274,10 +301,11 @@ if any(strcmp('base',myRole))
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
 end
 
-% Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRole))
+% Role dependent actions - satellite
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRole))
     if protocolParams.verbose
-        fprintf('The satellite is done executing the main routine\n');
+        for aa = 1:length(myActions)
+            fprintf(['Satellite is finished. My action was: ' myActions{aa} ' \n'])
+        end
     end
 end
-

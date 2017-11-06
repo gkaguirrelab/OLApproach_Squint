@@ -24,11 +24,10 @@ function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 
 
-%% Initialize events variable
+%% Initialize events variable and establish roles
 events = struct;
 
-
-%% Establish myRole
+% Establish myRole
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base and simulate the satellite component when needed.
@@ -45,19 +44,44 @@ else
     myRole = protocolParams.hostRoles{idxWhichHostAmI};
 end
 
+% Establish myActions
+if protocolParams.simulate.udp
+    % If we are simulating the UDP connection stream, then we will execute
+    % all actions in this routine.
+    myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+else
+    % Get local computer name
+    localHostName = UDPcommunicator2.getLocalHostName();
+    % Find which hostName is contained within my computer name
+    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+    if isempty(idxWhichHostAmI)
+        error(['My local host name (' localHostName ') does not match an available host name']);
+    end
+    % Assign me the actions corresponding to my host name
+    myActions = protocolParams.hostActions{idxWhichHostAmI};
+end
+
+
 %% Pre trial loop actions
 
 % Role independent actions
+
+% Establish the name of the base
+baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+% Find the number of satellites and their indices
+satelliteIdx = find(strcmp(protocolParams.hostRoles,'satellite'));
+numSatellites = length(satelliteIdx);
+% Instantiate our UDPcommunicator object
 if protocolParams.simulate.udp
     if protocolParams.verbose
         fprintf('[simulate] UDP communication established\n');
     end
 else
-    % Instantiate our UDPcommunicator object
-    UDPobj = UDPcommunicator2.instantiateObject(localHostName, protocolParams.hostNames, protocolParams.hostIPs, 'beVerbose', protocolParams.verbose);
-    % Establish the communication
+UDPobj = UDPBaseSatteliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose);
+% Establish the communication
     triggerMessage = 'Go!';
-    UDPobj.initiateCommunication(localHostName, protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, 'beVerbose', protocolParams.verbose);
+    allSattelitesAreAGOMessage = 'All Sattelites Are Go!';
+    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSattelitesAreAGOMessage, 'beVerbose', protocolParams.verbose);
     % Report success
     if protocolParams.verbose
         fprintf('UDP communication established\n');
@@ -67,34 +91,37 @@ end
 % Role dependent actions -- BASE
 if any(strcmp('base',myRole))
     
-    % Construct initial config communication packet for the base
-    baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
-    emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
-    configPacketFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Acquisition parameters', ...
-        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        'withData', struct( ...
-        'action','config', ...
-        'acquisitionNumber', protocolParams.acquisitionNumber, ...
-        'sessionName', protocolParams.sessionName, ...
-        'observerID', protocolParams.observerID, ...
-        'todayDate', protocolParams.todayDate, ...
-        'protocolOutputName', protocolParams.protocolOutputName) ...        
-        );
-    
-    % Pass the config packet
+    % Create and send an initial configuration packet between machines
     if protocolParams.simulate.udp
         if protocolParams.verbose
             fprintf('[simulate] base sending config packet via UDP\n');
         end
-    else
-        [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
-            UDPobj.communicate(...
-            localHostName, 0, configPacketFromBase, ...
-            'beVerbose', protocolParams.verbose, ...
-            'displayPackets', protocolParams.verbose...
-            );
+    else        
+        % Construct a send a config packet to each satellite
+        for ss = 1:numSatellites
+            satelliteHostName = protocolParams.hostNames(satelliteIdx(ss));
+            configPacketFromBaseToSatellite = UDPobj.makePacket(...
+                satelliteHostName,...                                               % satellite target
+                [baseHostName ' -> ' satelliteHostName], ...                        % message direction
+                'Acquisition parameters', ...                                       % message label
+                'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+                'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+                'withData', struct( ...                                             % The data
+                'action','config', ...
+                'acquisitionNumber', protocolParams.acquisitionNumber, ...
+                'sessionName', protocolParams.sessionName, ...
+                'observerID', protocolParams.observerID, ...
+                'todayDate', protocolParams.todayDate, ...
+                'protocolOutputName', protocolParams.protocolOutputName) ...
+                );
+            
+            % Send the config packet (which is number zero)
+            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
+                UDPobj.communicate(0, configPacketFromBaseToSatellite, ...
+                'beVerbose', protocolParams.verbose, ...
+                'displayPackets', protocolParams.verbose...
+                );            
+        end
     end
     
     % Suppress keypresses going to the Matlab window and flush keyboard queue.
@@ -118,81 +145,105 @@ end
 
 % Role dependent actions -- SATELLITE
 if any(strcmp('satellite',myRole))
-
-    % Construct initial config communication packet for the satellite
-    baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
-    emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
-    configPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Acquisition parameters', ...
-        'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        );
     
-        % Wait for the config packet from the base
-        if protocolParams.simulate.udp
-            % If we are in udp simulation mode then the protocol params are
-            % available as we are acting both as the base  and the
-            % satellite
-            if protocolParams.verbose
-                fprintf('[simulate] satellite receiving config packet via UDP\n');
-            end
-        else
-            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
-                UDPobj.communicate(...
-                localHostName, 0, configPacketForSatellite, ...
-                'beVerbose', protocolParams.verbose, ...
-                'displayPackets', protocolParams.verbose...
-                );
-            protocolParams.acquisitionNumber = theMessageReceived.data.acquisitionNumber;
-            protocolParams.sessionName = theMessageReceived.data.sessionName;
-            protocolParams.protocolOutputName = theMessageReceived.data.protocolOutputName;
-            protocolParams.observerID = theMessageReceived.data.observerID;
-            protocolParams.todayDate = theMessageReceived.data.todayDate;
+    if protocolParams.simulate.udp
+        % If we are in UDP simulation mode then the protocol params are
+        % available as we are acting both as the base  and the
+        % satellite
+        if protocolParams.verbose
+            fprintf('[simulate] satellite receiving config packet via UDP\n');
         end
+        % Make a window to show the simulated signal
+        for ss=1:numSatellites
+            if protocolParams.simulate.(myActions{satelliteIdx(ss)}) && protocolParams.simulate.makePlots
+                responseStructFigHandle.(myActions{satelliteIdx(ss)}) = figure();
+                responseStructPlotHandle.(myActions{satelliteIdx(ss)})=gca(responseStructFigHandle.(myActions{satelliteIdx(ss)}));
+            end
+        end
+    else
+        % Construct initial config communication packet for the satellite
+        configPacketForSatelliteFromBase = UDPobj.makePacket(...
+            satelliteHostName,...                                                       % satellite target
+            [baseHostName ' -> ' satelliteHostName], ...                                % message direction
+            'Acquisition parameters', ...                                               % message label
+            'timeOutSecs', 3600, ...                                                    % Sit and wait up to an hour for my instruction
+            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'badTransmissionAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER ...     % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            );
+        
+        % Wait for the config packet from the base
+        [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
+            UDPobj.communicate(...
+            localHostName, 0, configPacketForSatelliteFromBase, ...
+            'beVerbose', protocolParams.verbose, ...
+            'displayPackets', protocolParams.verbose...
+            );
 
+        % Place the information from the message into protocolParams
+        protocolParams.acquisitionNumber = theMessageReceived.data.acquisitionNumber;
+        protocolParams.sessionName = theMessageReceived.data.sessionName;
+        protocolParams.protocolOutputName = theMessageReceived.data.protocolOutputName;
+        protocolParams.observerID = theMessageReceived.data.observerID;
+        protocolParams.todayDate = theMessageReceived.data.todayDate;
+    end
     
     if protocolParams.verbose
-        fprintf('EMG computer ready to start trials\n');
+        fprintf('Satellite computer ready to start trials\n');
     end
-    % If simulating, make a window to show the simulated EMG signal if I am
-    % the satellite
-    if protocolParams.simulate.emg && protocolParams.simulate.makePlots && any(strcmp(myRole,'satellite'))
-        responseStructFigHandle = figure();
-        responseStructPlotHandle=gca(responseStructFigHandle);
+    
+end
+
+
+% Role independent actions
+% Construct the basic trial communication packets for the base and the
+% satellites
+
+if ~protocolParams.simulate.udp
+    for ss = 1:length(satelliteIdx)
+        satelliteHostName = protocolParams.hostNames(satelliteIdx(ss));
+        satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
+        trialPacketRootFromBase.(satelliteAction) = UDPobj.makePacket(...
+            satelliteHostName,...                                               % satellite target
+            [baseHostName ' -> ' satelliteHostName], ...                        % message direction
+            'Parameters for this trial from base', ...                          % message label
+            'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'withData', struct( ...
+            'action','trial', ...
+            'duration',0, ...
+            'direction','' ...
+            ) ...
+            );
+        
+        trialPacketForSatellite.(satelliteAction) = UDPobj.makePacket( ...
+            satelliteHostName,...
+            [baseHostName ' -> ' satelliteHostName], ...
+            'Parameters for this trial from base', ...
+            'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction
+            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+            'badTransmissionAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+            );
     end
 end
 
-% Role independent actions
-% Construct the basic trial communication packet for the base and peripheral
-baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
-emgPeripheralHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'satellite'), protocolParams.hostRoles)};
-trialPacketRootFromBase = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
-        'timeOutSecs', 1.0, ...                                         % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        'withData', struct('action','trial','duration',0,'direction','') ...
-        );
-trialPacketForSatellite = UDPcommunicator2.makePacket(protocolParams.hostNames,...
-        [baseHostName ' -> ' emgPeripheralHostName], 'Parameters for this trial from base', ...
-        'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction 
-        'timeOutAction', UDPcommunicator2.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-         'badTransmissionAction', UDPcommunicator2.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-        );
-
-    
 %% Trial loop actions
 for trial = 1:protocolParams.nTrials
     
     % Role dependent actions - BASE
     if any(strcmp('base',myRole))
         
-        % Build the UDP communication packet for this trial
-        trialPacketFromBase = trialPacketRootFromBase;
-        trialPacketFromBase.messageData.duration = ...
-            block(trial).modulationData.modulationParams.stimulusDuration;
-        trialPacketFromBase.messageData.direction = ...
-            block(trial).modulationData.modulationParams.direction;
+        % Build the UDP communication packet for this trial for each
+        % satellite
+        if ~protocolParams.simulate.udp
+            for ss = 1:length(satelliteIdx)
+                satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
+                trialPacketFromBase.(satelliteAction) = trialPacketRootFromBase.(satelliteAction);
+                trialPacketFromBase.(satelliteAction).messageData.duration = ...
+                    block(trial).modulationData.modulationParams.stimulusDuration;
+                trialPacketFromBase.(satelliteAction).messageData.direction = ...
+                    block(trial).modulationData.modulationParams.direction;
+            end
+        end
         
         % Announce trial
         if (protocolParams.verbose)
@@ -236,32 +287,34 @@ for trial = 1:protocolParams.nTrials
         % Record start/finish time as well as other information as we go.
         events(trial).tStimulusStart = mglGetSecs;
         
-        % Inform the peripheral that it is time to record
+        % Inform the satellites that it is time to record
         if protocolParams.simulate.udp
             if protocolParams.verbose
                 fprintf('[simulate] base sending packet via UDP\n');
             end
-        events(trial).udpEvents.theMessageReceived = 'simulated';
-        events(trial).udpEvents.theCommunicationStatus = 'simulated';
-        events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
+            events(trial).udpEvents.theMessageReceived = 'simulated';
+            events(trial).udpEvents.theCommunicationStatus = 'simulated';
+            events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
-            [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
-                UDPobj.communicate(...
-                localHostName, trial, trialPacketFromBase, ...
-                'beVerbose', protocolParams.verbose, ...
-                'displayPackets', protocolParams.verbose...
-                );
-
+            for ss=1:numSatellites
+                satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
+                [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
+                    UDPobj.communicate(...
+                    localHostName, trial, trialPacketFromBase.(satelliteAction), ...
+                    'beVerbose', protocolParams.verbose, ...
+                    'displayPackets', protocolParams.verbose...
+                    );
+            end
             % Store the message information in the events struct
             events(trial).udpEvents.theMessageReceived = theMessageReceived;
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
             events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
         end
-
+        
         % Present the modulation
         [events(trial).buffer, events(trial).t,  events(trial).counter] = ...
             SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
-                
+        
         % Put background back up and record times and keypresses.
         ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
         events(trial).tStimulusEnd = mglGetSecs;
@@ -282,13 +335,13 @@ for trial = 1:protocolParams.nTrials
         trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
         mglWaitSecs(trialTimeRemaining);
         events(trial).tTrialEnd = mglGetSecs;
-
+        
     end % base actions
     
     
     % Role dependent actions - SATELLITE
     if any(strcmp('satellite',myRole))
-
+        
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
             theMessageReceived.data.duration = block(trial).modulationData.modulationParams.stimulusDuration;
@@ -296,44 +349,60 @@ for trial = 1:protocolParams.nTrials
             if protocolParams.verbose
                 fprintf('[simulate] satellite received packet via UDP\n');
             end
-        % Store the message information in the events struct
-        events(trial).udpEvents.theMessageReceived = theMessageReceived;
-        events(trial).udpEvents.theCommunicationStatus = 'simulated';
-        events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
+            % Store the message information in the events struct
+            events(trial).udpEvents.theMessageReceived = theMessageReceived;
+            events(trial).udpEvents.theCommunicationStatus = 'simulated';
+            events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
             [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
                 UDPobj.communicate(...
-                localHostName, trial, trialPacketForSatellite, ...
+                trial, trialPacketForSatellite.(myActions{1}), ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
-        % Store the message information in the events struct
-        events(trial).udpEvents.theMessageReceived = theMessageReceived;
-        events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
-        events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
+            % Store the message information in the events struct
+            events(trial).udpEvents.theMessageReceived = theMessageReceived;
+            events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
+            events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
         end
         
         % Announce that we are proceeding with the trial
         if (protocolParams.verbose)
             fprintf('* Recording for trial %i/%i - %s,\n', trial, protocolParams.nTrials, theMessageReceived.data.direction);
         end
-
-        % Record start/finish time as well as other information as we go.
-        events(trial).tEMGRecordingStart = mglGetSecs;
-
-        emgDataStruct(trial) = SquintRecordEMG(...
-            'recordingDurationSecs', theMessageReceived.data.duration, ...
-            'simulate', protocolParams.simulate.emg, ...
-            'verbose', protocolParams.verbose);
-
-        % Record start/finish time as well as other information as we go.
-        events(trial).tEMGRecordingEnd = mglGetSecs;
         
-        % If we are simulating the emg, show the simulated data
-        if protocolParams.simulate.emg && protocolParams.simulate.makePlots
-            plot(responseStructPlotHandle,emgDataStruct(trial).timebase,emgDataStruct(trial).response);
-            drawnow
+        % Record start/finish time as well as other information as we go.
+        events(trial).tRecordingStart = mglGetSecs;
+        
+        if any(cellfun(@(x) sum(strcmp(x,'emg')), myActions))
+            dataStruct(trial).emg = SquintRecordEMG(...
+                'recordingDurationSecs', theMessageReceived.data.duration, ...
+                'simulate', protocolParams.simulate.emg, ...
+                'verbose', protocolParams.verbose);
+            % If we are simulating the emg, show the simulated data
+            if protocolParams.simulate.emg && protocolParams.simulate.makePlots
+                plot(responseStructPlotHandle.emg,dataStruct(trial).emg.timebase,dataStruct(trial).emg.response);
+                drawnow
+            end
         end
+        
+        if any(cellfun(@(x) sum(strcmp(x,'pupil')), myActions))
+%             dataStruct(trial).pupil = SquintRecordPupil(...
+%                 'recordingDurationSecs', theMessageReceived.data.duration, ...
+%                 'simulate', protocolParams.simulate.pupil, ...
+%                 'verbose', protocolParams.verbose);
+dataStruct(trial).pupil.timebase=0:1:1000;
+dataStruct(trial).pupil.response=atan(0:1:1000);
+            % If we are simulating the pupil, show the simulated data
+            if protocolParams.simulate.pupil && protocolParams.simulate.makePlots
+                plot(responseStructPlotHandle.pupil,dataStruct(trial).pupil.timebase,dataStruct(trial).pupil.response);
+                drawnow
+            end
+        end
+        
+        % Record start/finish time as well as other information as we go.
+        events(trial).tRecordingEnd = mglGetSecs;
+        
         
     end % satellite actions
     
@@ -356,7 +425,7 @@ end
 % Role dependent actions - SATELLITE
 if any(strcmp('satellite',myRole))
     responseStruct.events = events;
-    responseStruct.emgData = emgDataStruct;
+    responseStruct.data = dataStruct;
     responseStruct.protocolParams = protocolParams;
 end
 

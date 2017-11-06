@@ -27,11 +27,11 @@ p.addParameter('acquisitionNumber',[],@isnumeric);
 p.parse(varargin{:});
 
 
-%% Establish myRole
+% Establish myRoles and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
-    % as the base at this level of the code.
-    myRole = {'base','satellite'};
+    % as the base and simulate the satellite component when needed.
+    myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -41,16 +41,33 @@ else
         error(['My local host name (' localHostName ') does not match an available host name']);
     end
     % Assign me the role corresponding to my host name
-    myRole = protocolParams.hostRoles{idxWhichHostAmI};
+    myRoles = protocolParams.hostRoles{idxWhichHostAmI};
 end
+
+if protocolParams.simulate.udp
+    % If we are simulating the UDP connection stream, then we will execute
+    % all actions in this routine.
+    myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+else
+    % Get local computer name
+    localHostName = UDPcommunicator2.getLocalHostName();
+    % Find which hostName is contained within my computer name
+    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+    if isempty(idxWhichHostAmI)
+        error(['My local host name (' localHostName ') does not match an available host name']);
+    end
+    % Assign me the actions corresponding to my host name
+    myActions = protocolParams.hostActions{idxWhichHostAmI};
+end
+
 
 %% Perform pre trial loop actions
 
 % Set block to empty. If we act as the base, something will be put in here.
 block = [];
 
-% Role dependent actions - BASE
-if any(strcmp('base',myRole))
+% Role dependent actions - base
+if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
     %% Where the data goes
     savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
     if ~exist(savePath,'dir')
@@ -110,11 +127,6 @@ if any(strcmp('base',myRole))
     mglListener('init');
 end
 
-% Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRole))
-    % If I'm the satellite, I just do what I'm told and I don't need to
-    % know the details about the stimuli
-end
 
 
 %% Run the trial loop.
@@ -122,10 +134,12 @@ tic
 responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',protocolParams.verbose);
 toc
 
+
+
 %% Execute post trial loop actions
 
-% Role dependent actions - BASE
-if any(strcmp('base',myRole))
+% Role dependent actions - base
+if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
     % Turn off key listener
     mglListener('quit');
     
@@ -144,25 +158,33 @@ if any(strcmp('base',myRole))
     OLSessionLog(protocolParams,'Experiment','StartEnd','end');
 end
 
-% Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRole))
-    % Figure out where to save the data
-    protocolParams = responseStruct.protocolParams;
-    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
-    if ~exist(savePath,'dir')
-        mkdir(savePath);
-        warning('The base computer should have created a directory for saving data, but the satellite does not see it. Creating it so I can save.');
+% Role dependent actions - satellite
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
+    % Handle the possibility that I am simulating more than one satellite
+    satelliteIdx=find(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles));
+    for ss=1:length(satelliteIdx)
+
+        thisAction = myActions{satelliteIdx(ss)};
+        
+        % Figure out where to save the data
+        protocolParams = responseStruct.protocolParams;
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+        if ~exist(savePath,'dir')
+            mkdir(savePath);
+            warning('The base computer should have created a directory for saving data, but the satellite does not see it. Creating it so I can save.');
+        end
+        % Make sure not to overwrite an existing file.
+        outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_acquisition%d_%s.mat',protocolParams.acquisitionNumber,thisAction)]);
+        while (exist(outputFile,'file'))
+            protocolParams.acquisitionNumber = input(sprintf('Output file %s exists, enter correct acquisition number: \n',outputFile));
+            outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%d_pupil.mat',protocolParams.acquisitionNumber)]);
+        end
+        % Save the protocol params and response struct
+        responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
+        save(outputFile,'protocolParams', 'responseStruct');
     end
-    % Make sure not to overwrite an existing file.
-    outputFile = fullfile(savePath,[protocolParams.sessionName '_' protocolParams.protocolOutputName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
-    while (exist(outputFile,'file'))
-        protocolParams.acquisitionNumber = input(sprintf('Output file %s exists, enter correct acquisition number: \n',outputFile));
-        outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%d_emg.mat',protocolParams.acquisitionNumber)]);
-    end
-    % Save the protocol params and response struct
-    responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
-    save(outputFile,'protocolParams', 'responseStruct');
 end
+
 
 end % Experiment function
 
