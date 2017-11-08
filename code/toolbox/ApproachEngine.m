@@ -27,7 +27,7 @@ p.addParameter('acquisitionNumber',[],@isnumeric);
 p.parse(varargin{:});
 
 
-% Establish myRoles and myActions
+% Establish myRole and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base and simulate the satellite component when needed.
@@ -42,6 +42,9 @@ else
     end
     % Assign me the role corresponding to my host name
     myRoles = protocolParams.hostRoles{idxWhichHostAmI};
+    if ~iscell(myRoles)
+        myRoles={myRoles};
+    end
 end
 
 if protocolParams.simulate.udp
@@ -58,6 +61,9 @@ else
     end
     % Assign me the actions corresponding to my host name
     myActions = protocolParams.hostActions{idxWhichHostAmI};
+    if ~iscell(myActions)
+        myActions={myActions};
+    end
 end
 
 

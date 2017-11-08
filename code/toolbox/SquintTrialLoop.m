@@ -27,11 +27,11 @@ speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 %% Initialize events variable and establish roles
 events = struct;
 
-% Establish myRole
+% Establish myRole and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base and simulate the satellite component when needed.
-    myRole = {'base','satellite'};
+    myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -41,10 +41,12 @@ else
         error(['My local host name (' localHostName ') does not match an available host name']);
     end
     % Assign me the role corresponding to my host name
-    myRole = protocolParams.hostRoles{idxWhichHostAmI};
+    myRoles = protocolParams.hostRoles{idxWhichHostAmI};
+    if ~iscell(myRoles)
+        myRoles={myRoles};
+    end
 end
 
-% Establish myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will execute
     % all actions in this routine.
@@ -59,6 +61,9 @@ else
     end
     % Assign me the actions corresponding to my host name
     myActions = protocolParams.hostActions{idxWhichHostAmI};
+    if ~iscell(myActions)
+        myActions={myActions};
+    end
 end
 
 
@@ -77,11 +82,11 @@ if protocolParams.simulate.udp
         fprintf('[simulate] UDP communication established\n');
     end
 else
-UDPobj = UDPBaseSatteliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose);
+UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose);
 % Establish the communication
     triggerMessage = 'Go!';
-    allSattelitesAreAGOMessage = 'All Sattelites Are Go!';
-    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSattelitesAreAGOMessage, 'beVerbose', protocolParams.verbose);
+    allSatellitesAreAGOMessage = 'All Satellites Are Go!';
+    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSatellitesAreAGOMessage, 'beVerbose', protocolParams.verbose);
     % Report success
     if protocolParams.verbose
         fprintf('UDP communication established\n');
@@ -89,7 +94,7 @@ UDPobj = UDPBaseSatteliteCommunicator.instantiateObject(protocolParams.hostNames
 end
 
 % Role dependent actions -- BASE
-if any(strcmp('base',myRole))
+if any(strcmp('base',myRoles))
     
     % Create and send an initial configuration packet between machines
     if protocolParams.simulate.udp
@@ -105,7 +110,7 @@ if any(strcmp('base',myRole))
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
                 'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-                'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+                'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
                 'withData', struct( ...                                             % The data
                 'action','config', ...
                 'acquisitionNumber', protocolParams.acquisitionNumber, ...
@@ -144,7 +149,7 @@ if any(strcmp('base',myRole))
 end
 
 % Role dependent actions -- SATELLITE
-if any(strcmp('satellite',myRole))
+if any(strcmp('satellite',myRoles))
     
     if protocolParams.simulate.udp
         % If we are in UDP simulation mode then the protocol params are
@@ -167,8 +172,8 @@ if any(strcmp('satellite',myRole))
             [baseHostName ' -> ' satelliteHostName], ...                                % message direction
             'Acquisition parameters', ...                                               % message label
             'timeOutSecs', 3600, ...                                                    % Sit and wait up to an hour for my instruction
-            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
-            'badTransmissionAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER ...     % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'badTransmissionAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER ...     % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
             );
         
         % Wait for the config packet from the base
@@ -207,7 +212,7 @@ if ~protocolParams.simulate.udp
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
             'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatteliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
             'withData', struct( ...
             'action','trial', ...
             'duration',0, ...
@@ -220,8 +225,8 @@ if ~protocolParams.simulate.udp
             [baseHostName ' -> ' satelliteHostName], ...
             'Parameters for this trial from base', ...
             'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction
-            'timeOutAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-            'badTransmissionAction', UDPBaseSatteliteCommunicator.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+            'badTransmissionAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
             );
     end
 end
@@ -230,7 +235,7 @@ end
 for trial = 1:protocolParams.nTrials
     
     % Role dependent actions - BASE
-    if any(strcmp('base',myRole))
+    if any(strcmp('base',myRoles))
         
         % Build the UDP communication packet for this trial for each
         % satellite
@@ -340,7 +345,7 @@ for trial = 1:protocolParams.nTrials
     
     
     % Role dependent actions - SATELLITE
-    if any(strcmp('satellite',myRole))
+    if any(strcmp('satellite',myRoles))
         
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
@@ -415,7 +420,7 @@ end % Loop over trials
 if (protocolParams.verbose), fprintf('- Done with block of trials.\n'); end
 
 % Role dependent actions - BASE
-if any(strcmp('base',myRole))
+if any(strcmp('base',myRoles))
     %  undo key listening
     ListenChar(0);
     % Put the trial information into the response struct
@@ -423,7 +428,7 @@ if any(strcmp('base',myRole))
 end
 
 % Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRole))
+if any(strcmp('satellite',myRoles))
     responseStruct.events = events;
     responseStruct.data = dataStruct;
     responseStruct.protocolParams = protocolParams;

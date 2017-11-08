@@ -41,7 +41,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base and simulate the satellite component when needed.
-    myRole = {'base','satellite','satellite'};
+    myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
     localHostName = UDPcommunicator2.getLocalHostName();
@@ -51,7 +51,10 @@ else
         error(['My local host name (' localHostName ') does not match an available host name']);
     end
     % Assign me the role corresponding to my host name
-    myRole = protocolParams.hostRoles{idxWhichHostAmI};
+    myRoles = protocolParams.hostRoles{idxWhichHostAmI};
+    if ~iscell(myRoles)
+        myRoles={myRoles};
+    end
 end
 
 if protocolParams.simulate.udp
@@ -68,6 +71,9 @@ else
     end
     % Assign me the actions corresponding to my host name
     myActions = protocolParams.hostActions{idxWhichHostAmI};
+    if ~iscell(myActions)
+        myActions={myActions};
+    end
 end
 
 
@@ -196,7 +202,7 @@ protocolParams.nValidationsPerDirection = 1;
 ol = [];
 
 % Role dependent actions - base
-if any(cellfun(@(x) sum(strcmp(x,'base')),myRole))
+if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
     % Information we prompt for and related
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
@@ -268,7 +274,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
 end
 
 % Role dependent actions - satellite
-if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRole))
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
     if protocolParams.verbose
             fprintf('Satellite is ready to launch.\n')
     end
@@ -302,7 +308,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
 end
 
 % Role dependent actions - satellite
-if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRole))
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
     if protocolParams.verbose
         for aa = 1:length(myActions)
             fprintf('Satellite is finished.\n')
