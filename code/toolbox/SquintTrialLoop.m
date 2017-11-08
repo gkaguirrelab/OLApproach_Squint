@@ -104,7 +104,7 @@ if any(strcmp('base',myRoles))
     else        
         % Construct a send a config packet to each satellite
         for ss = 1:numSatellites
-            satelliteHostName = protocolParams.hostNames(satelliteIdx(ss))
+            satelliteHostName = protocolParams.hostNames{satelliteIdx(ss)};
 
             configPacketFromBaseToSatellite = UDPobj.makePacket(...
                 satelliteHostName,...                                               % satellite target
@@ -173,7 +173,7 @@ if any(strcmp('satellite',myRoles))
             end
         end
     else
-        satelliteHostName = UDPBaseSatelliteCommunicator.getLocalHostName()
+        satelliteHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
         % Construct initial config communication packet for the satellite
         configPacketForSatelliteFromBase = UDPobj.makePacket(...
             satelliteHostName,...                                                       % satellite target
@@ -218,7 +218,7 @@ end
 
 if ~protocolParams.simulate.udp
     for ss = 1:length(satelliteIdx)
-        satelliteHostName = protocolParams.hostNames(satelliteIdx(ss));
+        satelliteHostName = protocolParams.hostNames{satelliteIdx(ss)};
         satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
         trialPacketRootFromBase.(satelliteAction) = UDPobj.makePacket(...
             satelliteHostName,...                                               % satellite target
