@@ -32,8 +32,8 @@ protocolParams.simulate.makePlots = true;
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
-protocolParams.hostNames = {'gka06', 'monkfish', 'melanopsin'};
-protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.59.222'};
+protocolParams.hostNames = {'gka06', 'monkfish', 'gka33'};
+protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.59.228'};
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 
