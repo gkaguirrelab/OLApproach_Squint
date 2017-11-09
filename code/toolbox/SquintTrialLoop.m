@@ -128,11 +128,6 @@ if any(strcmp('base',myRoles))
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
                 );
-         
-%                 UDPobj.communicate(0, configPacketFromBaseToSatellite, ...
-%                 'beVerbose', protocolParams.verbose, ...
-%                 'displayPackets', protocolParams.verbose...
-%                 );            
         end
     end
     
@@ -166,13 +161,6 @@ if any(strcmp('satellite',myRoles))
         if protocolParams.verbose
             fprintf('[simulate] satellite receiving config packet via UDP\n');
         end
-        % Make a window to show the simulated signal
-        for ss=1:numSatellites
-            if protocolParams.simulate.(myActions{satelliteIdx(ss)}) && protocolParams.simulate.makePlots
-                responseStructFigHandle.(myActions{satelliteIdx(ss)}) = figure();
-                responseStructPlotHandle.(myActions{satelliteIdx(ss)})=gca(responseStructFigHandle.(myActions{satelliteIdx(ss)}));
-            end
-        end
     else
         satelliteHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
         % Construct initial config communication packet for the satellite
@@ -191,12 +179,6 @@ if any(strcmp('satellite',myRoles))
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
              );
-         
-%             UDPobj.communicate(...
-%             localHostName, 0, configPacketForSatelliteFromBase, ...
-%             'beVerbose', protocolParams.verbose, ...
-%             'displayPackets', protocolParams.verbose...
-%             );
 
         % Place the information from the message into protocolParams
         protocolParams.acquisitionNumber = theMessageReceived.data.acquisitionNumber;
@@ -205,6 +187,15 @@ if any(strcmp('satellite',myRoles))
         protocolParams.observerID = theMessageReceived.data.observerID;
         protocolParams.todayDate = theMessageReceived.data.todayDate;
     end
+    
+    % Determine if I am simulatiing any of my actions
+    for aa = 1:length(myActions)
+        if protocolParams.simulate.(myActions{aa}) && protocolParams.simulate.makePlots
+            responseStructFigHandle.(myActions{aa}) = figure();
+            responseStructPlotHandle.(myActions{aa})=gca(responseStructFigHandle.(myActions{aa}));
+        end
+    end
+
     
     if protocolParams.verbose
         fprintf('Satellite computer ready to start trials\n');
