@@ -32,7 +32,7 @@ protocolParams.simulate.makePlots = true;
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
-protocolParams.hostNames = {'melanopsins-imac-2.local', 'monkfish', 'gka33'};
+protocolParams.hostNames = {'melanopsins-imac-2', 'monkfish', 'gka33'};
 protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.59.228'};
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
@@ -44,7 +44,7 @@ if protocolParams.simulate.udp
     myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)
@@ -63,7 +63,7 @@ if protocolParams.simulate.udp
     myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)

@@ -27,6 +27,7 @@ speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 %% Initialize events variable and establish roles
 events = struct;
 
+
 % Establish myRole and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
@@ -34,7 +35,7 @@ if protocolParams.simulate.udp
     myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)
@@ -53,7 +54,7 @@ if protocolParams.simulate.udp
     myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)

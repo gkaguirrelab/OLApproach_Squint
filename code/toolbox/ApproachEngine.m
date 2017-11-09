@@ -34,7 +34,7 @@ if protocolParams.simulate.udp
     myRoles = {'base','satellite','satellite'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)
@@ -53,7 +53,7 @@ if protocolParams.simulate.udp
     myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 else
     % Get local computer name
-    localHostName = UDPcommunicator2.getLocalHostName();
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
     % Find which hostName is contained within my computer name
     idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
     if isempty(idxWhichHostAmI)
