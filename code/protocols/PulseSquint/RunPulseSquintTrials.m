@@ -23,8 +23,8 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = true;
-protocolParams.simulate.udp = false;
+protocolParams.simulate.pupil = false;
+protocolParams.simulate.udp = true;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
@@ -36,6 +36,9 @@ protocolParams.hostNames = {'melanopsins-imac-2', 'monkfish', 'gka33'};
 protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.59.228'};
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+
+% provide the basic command for video acquisition
+protocolParams.videoRecordSystemCommandStem='ffmpeg -video_size 640x480 -framerate 30.000030 -f avfoundation -i "0"';
 
 % Establish myRole and myActions
 if protocolParams.simulate.udp

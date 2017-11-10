@@ -156,7 +156,7 @@ if any(strcmp('satellite',myRoles))
     
     if protocolParams.simulate.udp
         % If we are in UDP simulation mode then the protocol params are
-        % available as we are acting both as the base  and the
+        % available as we are acting both as the base and the
         % satellite
         if protocolParams.verbose
             fprintf('[simulate] satellite receiving config packet via UDP\n');
@@ -188,14 +188,24 @@ if any(strcmp('satellite',myRoles))
         protocolParams.todayDate = theMessageReceived.data.todayDate;
     end
     
-    % Determine if I am simulatiing any of my actions
+    % Determine if I am simulating any of my actions
     for aa = 1:length(myActions)
-        if protocolParams.simulate.(myActions{aa}) && protocolParams.simulate.makePlots
-            responseStructFigHandle.(myActions{aa}) = figure();
-            responseStructPlotHandle.(myActions{aa})=gca(responseStructFigHandle.(myActions{aa}));
+        if ischar(myActions{aa}) % A hack to handle the simulated actions for the base
+            if protocolParams.simulate.(myActions{aa}) && protocolParams.simulate.makePlots
+                responseStructFigHandle.(myActions{aa}) = figure();
+                responseStructPlotHandle.(myActions{aa})=gca(responseStructFigHandle.(myActions{aa}));
+            end
         end
     end
-
+    
+    % myAction specific commands
+    if any(cellfun(@(x) sum(strcmp(x,'pupil')), myActions))
+        % Create a directory in which to save pupil videos
+        pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
+        if ~exist(pupilVideoSaveDirectoryPath,'dir')
+            mkdir(pupilVideoSaveDirectoryPath);
+        end        
+    end
     
     if protocolParams.verbose
         fprintf('Satellite computer ready to start trials\n');
@@ -249,7 +259,7 @@ for trial = 1:protocolParams.nTrials
                 satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
                 trialPacketFromBase.(satelliteAction) = trialPacketRootFromBase.(satelliteAction);
                 trialPacketFromBase.(satelliteAction).messageData.duration = ...
-                    block(trial).modulationData.modulationParams.stimulusDuration;
+                    block(trial).modulationData.protocolParams.trialDuration;
                 trialPacketFromBase.(satelliteAction).messageData.direction = ...
                     block(trial).modulationData.modulationParams.direction;
             end
@@ -275,7 +285,30 @@ for trial = 1:protocolParams.nTrials
         
         % Check that the timing checks out
         assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
-            <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial durration');
+            <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial duration');
+
+        % Inform the satellites that it is time to record
+        if protocolParams.simulate.udp
+            if protocolParams.verbose
+                fprintf('[simulate] base sending packet via UDP\n');
+            end
+            events(trial).udpEvents.theMessageReceived = 'simulated';
+            events(trial).udpEvents.theCommunicationStatus = 'simulated';
+            events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
+        else
+            for ss=1:numSatellites
+                satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
+                [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
+                    UDPobj.communicate(trial, trialPacketFromBase.(satelliteAction), ...
+                    'beVerbose', protocolParams.verbose, ...
+                    'displayPackets', protocolParams.verbose...
+                    );
+            end
+            % Store the message information in the events struct
+            events(trial).udpEvents.theMessageReceived = theMessageReceived;
+            events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
+            events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
+        end
         
         % Start trial.  Present the background spectrum
         events(trial).tTrialStart = mglGetSecs;
@@ -296,35 +329,6 @@ for trial = 1:protocolParams.nTrials
         %
         % Record start/finish time as well as other information as we go.
         events(trial).tStimulusStart = mglGetSecs;
-        
-        % Inform the satellites that it is time to record
-        if protocolParams.simulate.udp
-            if protocolParams.verbose
-                fprintf('[simulate] base sending packet via UDP\n');
-            end
-            events(trial).udpEvents.theMessageReceived = 'simulated';
-            events(trial).udpEvents.theCommunicationStatus = 'simulated';
-            events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
-        else
-            for ss=1:numSatellites
-                satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
-                [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
-                UDPobj.communicate(trial, trialPacketFromBase.(satelliteAction), ...
-                    'beVerbose', protocolParams.verbose, ...
-                    'displayPackets', protocolParams.verbose...
-                );
-         
-%                     UDPobj.communicate(...
-%                     localHostName, trial, trialPacketFromBase.(satelliteAction), ...
-%                     'beVerbose', protocolParams.verbose, ...
-%                     'displayPackets', protocolParams.verbose...
-%                     );
-            end
-            % Store the message information in the events struct
-            events(trial).udpEvents.theMessageReceived = theMessageReceived;
-            events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
-            events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
-        end
         
         % Present the modulation
         [events(trial).buffer, events(trial).t,  events(trial).counter] = ...
@@ -359,7 +363,7 @@ for trial = 1:protocolParams.nTrials
         
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
-            theMessageReceived.data.duration = block(trial).modulationData.modulationParams.stimulusDuration;
+            theMessageReceived.data.duration = block(trial).modulationData.protocolParams.trialDuration;
             theMessageReceived.data.direction = block(trial).modulationData.modulationParams.direction;
             if protocolParams.verbose
                 fprintf('[simulate] satellite received packet via UDP\n');
@@ -374,12 +378,6 @@ for trial = 1:protocolParams.nTrials
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
              );
-         
-%                 UDPobj.communicate(...
-%                 trial, trialPacketForSatellite.(myActions{1}), ...
-%                 'beVerbose', protocolParams.verbose, ...
-%                 'displayPackets', protocolParams.verbose...
-%                 );
             % Store the message information in the events struct
             events(trial).udpEvents.theMessageReceived = theMessageReceived;
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
@@ -394,6 +392,7 @@ for trial = 1:protocolParams.nTrials
         % Record start/finish time as well as other information as we go.
         events(trial).tRecordingStart = mglGetSecs;
         
+        % ACTIONS -- emg
         if any(cellfun(@(x) sum(strcmp(x,'emg')), myActions))
             dataStruct(trial).emg = SquintRecordEMG(...
                 'recordingDurationSecs', theMessageReceived.data.duration, ...
@@ -406,17 +405,21 @@ for trial = 1:protocolParams.nTrials
             end
         end
         
+        % ACTIONS -- pupil
         if any(cellfun(@(x) sum(strcmp(x,'pupil')), myActions))
-%             dataStruct(trial).pupil = SquintRecordPupil(...
-%                 'recordingDurationSecs', theMessageReceived.data.duration, ...
-%                 'simulate', protocolParams.simulate.pupil, ...
-%                 'verbose', protocolParams.verbose);
-dataStruct(trial).pupil.timebase=0:1:1000;
-dataStruct(trial).pupil.response=atan(0:1:1000);
-            % If we are simulating the pupil, show the simulated data
-            if protocolParams.simulate.pupil && protocolParams.simulate.makePlots
-                plot(responseStructPlotHandle.pupil,dataStruct(trial).pupil.timebase,dataStruct(trial).pupil.response);
-                drawnow
+            videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
+            videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
+            [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
+            if recordErrorFlag
+                warning('Error reported during video acquisition');
+            end
+            dataStruct(trial).pupil.videoRecordCommand=videoRecordCommand;
+            dataStruct(trial).pupil.recordErrorFlag=recordErrorFlag;
+            dataStruct(trial).pupil.consoleOutput=consoleOutput;
+
+            % If we are simulating the pupil, report a simulated recording
+            if protocolParams.simulate.pupil
+                fprintf('[simulate] Video file recorded and saved');
             end
         end
         

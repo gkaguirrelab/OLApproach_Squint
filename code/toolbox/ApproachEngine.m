@@ -133,7 +133,20 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
     mglListener('init');
 end
 
+% Role dependent actions - satellite
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
 
+    % Check that the hardware and software needed for myActions are present
+    if any(cellfun(@(x) sum(strcmp(x,'pupil')),myActions))
+        % Check that ffmpeg is installed on this computer
+        if system('command -v ffmpeg')
+            error('Please install ffmpeg on this computer using the command ''brew install ffmpeg''. If you need homebrew, visit https://brew.sh');
+        end
+    end
+    
+    % Set up directories and file names for saving data
+    
+end
 
 %% Run the trial loop.
 tic
