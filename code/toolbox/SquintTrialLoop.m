@@ -28,46 +28,6 @@ speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
 events = struct;
 
 
-% Establish myRole and myActions
-if protocolParams.simulate.udp
-    % If we are simulating the UDP connection stream, then we will operate
-    % as the base and simulate the satellite component when needed.
-    myRoles = {'base','satellite','satellite'};
-else
-    % Get local computer name
-    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
-    % Find which hostName is contained within my computer name
-    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
-    if isempty(idxWhichHostAmI)
-        error(['My local host name (' localHostName ') does not match an available host name']);
-    end
-    % Assign me the role corresponding to my host name
-    myRoles = protocolParams.hostRoles{idxWhichHostAmI};
-    if ~iscell(myRoles)
-        myRoles={myRoles};
-    end
-end
-
-if protocolParams.simulate.udp
-    % If we are simulating the UDP connection stream, then we will execute
-    % all actions in this routine.
-    myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
-else
-    % Get local computer name
-    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
-    % Find which hostName is contained within my computer name
-    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
-    if isempty(idxWhichHostAmI)
-        error(['My local host name (' localHostName ') does not match an available host name']);
-    end
-    % Assign me the actions corresponding to my host name
-    myActions = protocolParams.hostActions{idxWhichHostAmI};
-    if ~iscell(myActions)
-        myActions={myActions};
-    end
-end
-
-
 %% Pre trial loop actions
 
 % Role independent actions
@@ -95,7 +55,7 @@ UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames
 end
     
 % Role dependent actions -- BASE
-if any(strcmp('base',myRoles))
+if any(strcmp('base',protocolParams.myRoles))
     
     % Create and send an initial configuration packet between machines
     if protocolParams.simulate.udp
@@ -152,7 +112,7 @@ end
 
 
 % Role dependent actions -- SATELLITE
-if any(strcmp('satellite',myRoles))
+if any(strcmp('satellite',protocolParams.myRoles))
     
     if protocolParams.simulate.udp
         % If we are in UDP simulation mode then the protocol params are
@@ -189,17 +149,17 @@ if any(strcmp('satellite',myRoles))
     end
     
     % Determine if I am simulating any of my actions
-    for aa = 1:length(myActions)
-        if ischar(myActions{aa}) % A hack to handle the simulated actions for the base
-            if protocolParams.simulate.(myActions{aa}) && protocolParams.simulate.makePlots
-                responseStructFigHandle.(myActions{aa}) = figure();
-                responseStructPlotHandle.(myActions{aa})=gca(responseStructFigHandle.(myActions{aa}));
+    for aa = 1:length(protocolParams.myActions)
+        if ischar(protocolParams.myActions{aa}) % A hack to handle the simulated actions for the base
+            if protocolParams.simulate.(protocolParams.myActions{aa}) && protocolParams.simulate.makePlots
+                responseStructFigHandle.(protocolParams.myActions{aa}) = figure();
+                responseStructPlotHandle.(protocolParams.myActions{aa})=gca(responseStructFigHandle.(protocolParams.myActions{aa}));
             end
         end
     end
     
     % myAction specific commands
-    if any(cellfun(@(x) sum(strcmp(x,'pupil')), myActions))
+    if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
         % Create a directory in which to save pupil videos
         pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
         if ~exist(pupilVideoSaveDirectoryPath,'dir')
@@ -250,7 +210,7 @@ end
 for trial = 1:protocolParams.nTrials
     
     % Role dependent actions - BASE
-    if any(strcmp('base',myRoles))
+    if any(strcmp('base',protocolParams.myRoles))
         
         % Build the UDP communication packet for this trial for each
         % satellite
@@ -359,7 +319,7 @@ for trial = 1:protocolParams.nTrials
     
     
     % Role dependent actions - SATELLITE
-    if any(strcmp('satellite',myRoles))
+    if any(strcmp('satellite',protocolParams.myRoles))
         
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
@@ -374,7 +334,7 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
             [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
-                UDPobj.communicate(trial, trialPacketForSatellite.(myActions{1}), ...
+                UDPobj.communicate(trial, trialPacketForSatellite.(protocolParams.myActions{1}), ...
                 'beVerbose', protocolParams.verbose, ...
                 'displayPackets', protocolParams.verbose...
              );
@@ -393,7 +353,7 @@ for trial = 1:protocolParams.nTrials
         events(trial).tRecordingStart = mglGetSecs;
         
         % ACTIONS -- emg
-        if any(cellfun(@(x) sum(strcmp(x,'emg')), myActions))
+        if any(cellfun(@(x) sum(strcmp(x,'emg')), protocolParams.myActions))
             dataStruct(trial).emg = SquintRecordEMG(...
                 'recordingDurationSecs', theMessageReceived.data.duration, ...
                 'simulate', protocolParams.simulate.emg, ...
@@ -406,7 +366,7 @@ for trial = 1:protocolParams.nTrials
         end
         
         % ACTIONS -- pupil
-        if any(cellfun(@(x) sum(strcmp(x,'pupil')), myActions))
+        if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
             videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
             videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
             [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
@@ -438,7 +398,7 @@ end % Loop over trials
 if (protocolParams.verbose), fprintf('- Done with block of trials.\n'); end
 
 % Role dependent actions - BASE
-if any(strcmp('base',myRoles))
+if any(strcmp('base',protocolParams.myRoles))
     %  undo key listening
     ListenChar(0);
     % Put the trial information into the response struct
@@ -446,7 +406,7 @@ if any(strcmp('base',myRoles))
 end
 
 % Role dependent actions - SATELLITE
-if any(strcmp('satellite',myRoles))
+if any(strcmp('satellite',protocolParams.myRoles))
     responseStruct.events = events;
     responseStruct.data = dataStruct;
     responseStruct.protocolParams = protocolParams;

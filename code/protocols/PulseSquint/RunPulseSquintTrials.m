@@ -38,13 +38,17 @@ protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 
 % provide the basic command for video acquisition
-protocolParams.videoRecordSystemCommandStem='ffmpeg -video_size 640x480 -framerate 30.000030 -f avfoundation -i "0"';
+protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 640x480 -pixel_format uyvy422 -framerate 30.000030 -f avfoundation -i "0"';
 
 % Establish myRole and myActions
 if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will operate
     % as the base and simulate the satellite component when needed.
-    myRoles = {'base','satellite','satellite'};
+    protocolParams.myRoles = {'base','satellite','satellite'};
+    % If we are simulating the UDP connection stream, then we will execute
+    % all actions in this routine.
+    protocolParams.myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+
 else
     % Get local computer name
     localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
@@ -54,31 +58,16 @@ else
         error(['My local host name (' localHostName ') does not match an available host name']);
     end
     % Assign me the role corresponding to my host name
-    myRoles = protocolParams.hostRoles{idxWhichHostAmI};
-    if ~iscell(myRoles)
-        myRoles={myRoles};
-    end
-end
-
-if protocolParams.simulate.udp
-    % If we are simulating the UDP connection stream, then we will execute
-    % all actions in this routine.
-    myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
-else
-    % Get local computer name
-    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
-    % Find which hostName is contained within my computer name
-    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
-    if isempty(idxWhichHostAmI)
-        error(['My local host name (' localHostName ') does not match an available host name']);
+    protocolParams.myRoles = protocolParams.hostRoles{idxWhichHostAmI};
+    if ~iscell(protocolParams.myRoles)
+        protocolParams.myRoles={protocolParams.myRoles};
     end
     % Assign me the actions corresponding to my host name
-    myActions = protocolParams.hostActions{idxWhichHostAmI};
-    if ~iscell(myActions)
-        myActions={myActions};
+    protocolParams.myActions = protocolParams.hostActions{idxWhichHostAmI};
+    if ~iscell(protocolParams.myActions)
+        protocolParams.myActions={protocolParams.myActions};
     end
 end
-
 
 
 
@@ -205,7 +194,7 @@ protocolParams.nValidationsPerDirection = 1;
 ol = [];
 
 % Role dependent actions - base
-if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     % Information we prompt for and related
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
@@ -235,7 +224,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),myRoles))
 end
 
 % Role dependent actions - oneLight
-if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
 
     %% Open the OneLight
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
@@ -277,7 +266,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
 end
 
 % Role dependent actions - satellite
-if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     if protocolParams.verbose
             fprintf('Satellite is ready to launch.\n')
     end
@@ -296,7 +285,7 @@ ApproachEngine(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams
 %% Post-experiment actions
 
 % Role dependent actions - oneLight
-if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % Let user get the radiometer set up
     ol.setAll(true);
     commandwindow;
@@ -311,9 +300,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),myActions))
 end
 
 % Role dependent actions - satellite
-if any(cellfun(@(x) sum(strcmp(x,'satellite')),myRoles))
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     if protocolParams.verbose
-        for aa = 1:length(myActions)
+        for aa = 1:length(protocolParams.myActions)
             fprintf('Satellite is finished.\n')
         end
     end
