@@ -152,7 +152,6 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
         thisAction = protocolParams.myActions{satelliteIdx(ss)};
         
         % Figure out where to save the data
-        protocolParams = responseStruct.protocolParams;
         savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
         if ~exist(savePath,'dir')
             mkdir(savePath);
