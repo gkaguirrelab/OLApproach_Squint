@@ -363,19 +363,23 @@ for trial = 1:protocolParams.nTrials
         
         % ACTIONS -- pupil
         if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
-            videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
-            videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
-            [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
-            if recordErrorFlag
-                warning('Error reported during video acquisition');
-            end
-            dataStruct(trial).pupil.videoRecordCommand=videoRecordCommand;
-            dataStruct(trial).pupil.recordErrorFlag=recordErrorFlag;
-            dataStruct(trial).pupil.consoleOutput=consoleOutput;
-
-            % If we are simulating the pupil, report a simulated recording
             if protocolParams.simulate.pupil
-                fprintf('[simulate] Video file recorded and saved');
+                dataStruct(trial).pupil.videoRecordCommand = 'simulate ffmpeg recording command';
+                dataStruct(trial).pupil.recordErrorFlag=0;
+                dataStruct(trial).pupil.consoleOutput='simulate ffmpeg console output';
+                if protocolParams.verbose
+                    fprintf('[simulate] Video file recorded and saved');
+                end
+            else
+                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
+                videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
+                [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
+                if recordErrorFlag
+                    warning('Error reported during video acquisition');
+                end
+                dataStruct(trial).pupil.videoRecordCommand=videoRecordCommand;
+                dataStruct(trial).pupil.recordErrorFlag=recordErrorFlag;
+                dataStruct(trial).pupil.consoleOutput=consoleOutput;
             end
         end
         
