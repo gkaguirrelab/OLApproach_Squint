@@ -32,7 +32,7 @@ p.parse(varargin{:});
 %% Perform pre trial loop actions
 
 % Set block to empty. If we act as the base, something will be put in here.
-block = [];
+stimulusStruct = [];
 
 % Role dependent actions - base
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
@@ -71,7 +71,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     % This describes what happens on each trial of the session.
     % Once this is done we don't need the modulation data and we
     % clear that just to make sure we don't use it by accident.
-    block = InitializeBlockStructArray(protocolParams,modulationData);
+    stimulusStruct = InitializeBlockStructArray(protocolParams,modulationData);
     clear modulationData;
     
     %% Begin the experiment
@@ -84,7 +84,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     
     %% Set the background
     % Use the background for the first trial as the background to set.
-    ol.setMirrors(block(1).modulationData.modulation.background.starts, block(1).modulationData.modulation.background.stops);
+    ol.setMirrors(stimulusStruct(1).modulationData.modulation.background.starts, stimulusStruct(1).modulationData.modulation.background.stops);
     if (p.Results.verbose), fprintf('Setting OneLight to background.\n'); end
     
     %% Adapt to background
@@ -112,7 +112,11 @@ end
 
 %% Run the trial loop.
 tic
-responseStruct = SquintTrialLoop(protocolParams,block,ol,'verbose',protocolParams.verbose);
+% The protocolParams are passed as input and returned as output from
+% SquintTrialLoop. This is because the satellite computers will have
+% information passed to them from the base via UDP which will be added to
+% the protocolParams variable.
+[responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,stimulusStruct,ol,'verbose',protocolParams.verbose);
 toc
 
 
@@ -133,7 +137,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%02d.mat',protocolParams.acquisitionNumber)]);
     end
     responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
-    save(outputFile,'protocolParams', 'block', 'responseStruct');
+    save(outputFile,'protocolParams', 'stimulusStruct', 'responseStruct');
     
     % Close Session Log
     OLSessionLog(protocolParams,'Experiment','StartEnd','end');

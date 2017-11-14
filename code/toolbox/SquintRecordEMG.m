@@ -20,7 +20,6 @@ p.addParameter('frequencyInHz',5000,@isnumeric);
 p.addParameter('simulate',false,@islogical);
 p.addParameter('verbose',false,@islogical);
 
-    
 p.parse(varargin{:});
 
 if p.Results.simulate
@@ -45,6 +44,7 @@ else
         %% NEED TO DO SOME WORK HERE TO LINK THE UNITS OF TIME TO THE STANDARD MSECS OF OUR PACKETS
         emgDataStruct.timebase = labjackOBJ.timeAxis;
         emgDataStruct.response = labjackOBJ.data;
+        emgDataStruct.params = p.Results;
         
         % Close-up shop
         labjackOBJ.shutdown();

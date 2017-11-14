@@ -1,4 +1,4 @@
-function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
+function [responseStruct, protocolParams] = SquintTrialLoop(protocolParams,stimulusStruct,ol,varargin)
 %% SquintTrialLoop  Loop over trials, show stimuli and get responses.
 %
 % Usage:
@@ -11,11 +11,12 @@ function responseStruct = SquintTrialLoop(protocolParams,block,ol,varargin)
 %
 % Input:
 %    protocolParams (struct)  The protocol parameters structure.
-%    block (struct)           Contains trial-by-trial starts/stops and other info.
+%    stimulusStruct (struct)           Contains trial-by-trial starts/stops and other info.
 %    ol (object)              An open OneLight object.
 %
 % Output:
 %    responseStruct (struct)  Structure containing information about what happened on each trial
+%    protocolParams (struct)  The protocol parameters structure.
 %
 % Optional key/value pairs:
 %    verbose (logical)         true       Be chatty?
@@ -219,15 +220,15 @@ for trial = 1:protocolParams.nTrials
                 satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
                 trialPacketFromBase.(satelliteAction) = trialPacketRootFromBase.(satelliteAction);
                 trialPacketFromBase.(satelliteAction).messageData.duration = ...
-                    block(trial).modulationData.protocolParams.trialDuration;
+                    stimulusStruct(trial).modulationData.protocolParams.trialDuration;
                 trialPacketFromBase.(satelliteAction).messageData.direction = ...
-                    block(trial).modulationData.modulationParams.direction;
+                    stimulusStruct(trial).modulationData.modulationParams.direction;
             end
         end
         
         % Announce trial
         if (protocolParams.verbose)
-            fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, block(trial).modulationData.modulationParams.direction);
+            fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, stimulusStruct(trial).modulationData.modulationParams.direction);
         end
         
         % MAKE NOISE TO ALERT SUBJECT THAT WE NEED THEM TO PRESS A BUTTON
@@ -244,7 +245,7 @@ for trial = 1:protocolParams.nTrials
         % MAKE NOISE TO ALERT SUBJECT TRIAL IS ABOUT TO START
         
         % Check that the timing checks out
-        assert(block(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
+        assert(stimulusStruct(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
             <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial duration');
 
         % Inform the satellites that it is time to record
@@ -272,7 +273,7 @@ for trial = 1:protocolParams.nTrials
         
         % Start trial.  Present the background spectrum
         events(trial).tTrialStart = mglGetSecs;
-        ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
+        ol.setMirrors(stimulusStruct(trial).modulationData.modulation.background.starts, stimulusStruct(trial).modulationData.modulation.background.stops);
         
         % Wait for ISI, including random jitter.
         %
@@ -292,16 +293,11 @@ for trial = 1:protocolParams.nTrials
         
         % Present the modulation
         [events(trial).buffer, events(trial).t,  events(trial).counter] = ...
-            SquintOLFlicker(ol, block, trial, block(trial).modulationData.modulationParams.timeStep, 1);
+            SquintOLFlicker(ol, stimulusStruct, trial, stimulusStruct(trial).modulationData.modulationParams.timeStep, 1);
         
         % Put background back up and record times and keypresses.
-        ol.setMirrors(block(trial).modulationData.modulation.background.starts, block(trial).modulationData.modulation.background.stops);
+        ol.setMirrors(stimulusStruct(trial).modulationData.modulation.background.starts, stimulusStruct(trial).modulationData.modulation.background.stops);
         events(trial).tStimulusEnd = mglGetSecs;
-        
-        % CHECK IF THE PERIPHERAL REPORTS EVERYTHING WENT OK
-        
-        % This just makes it easier for us to plot the waveform we think showed on this trial later on.
-        events(trial).powerLevels = block(trial).modulationData.modulation.powerLevels;
         
         % At end of trial, put background to be that trial's background.
         %
@@ -323,8 +319,8 @@ for trial = 1:protocolParams.nTrials
         
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
-            theMessageReceived.data.duration = block(trial).modulationData.protocolParams.trialDuration;
-            theMessageReceived.data.direction = block(trial).modulationData.modulationParams.direction;
+            theMessageReceived.data.duration = stimulusStruct(trial).modulationData.protocolParams.trialDuration;
+            theMessageReceived.data.direction = stimulusStruct(trial).modulationData.modulationParams.direction;
             if protocolParams.verbose
                 fprintf('[simulate] satellite received packet via UDP\n');
             end
@@ -409,7 +405,6 @@ end
 if any(strcmp('satellite',protocolParams.myRoles))
     responseStruct.events = events;
     responseStruct.data = dataStruct;
-    responseStruct.protocolParams = protocolParams;
 end
 
 
