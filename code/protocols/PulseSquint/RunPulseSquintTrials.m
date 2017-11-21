@@ -181,7 +181,7 @@ protocolParams.attentionTask = false;
 %
 % Modulation and direction indices match on each trial, so we just specify
 % them once in a single array.
-protocolParams.trialTypeOrder = [1 1 1 1 1 1 1];
+protocolParams.trialTypeOrder = [1 2 3 1 2 3 1];
 protocolParams.nTrials = length(protocolParams.trialTypeOrder);
 
 %% OneLight parameters
