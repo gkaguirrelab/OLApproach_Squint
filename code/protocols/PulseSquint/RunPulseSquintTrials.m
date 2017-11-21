@@ -25,7 +25,7 @@ protocolParams.simulate.oneLight = false;
 protocolParams.simulate.emg = false;
 protocolParams.simulate.pupil = true;
 protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = true;
+protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
 
