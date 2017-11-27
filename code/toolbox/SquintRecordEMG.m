@@ -43,7 +43,7 @@ else
         % Place the data in a response structure
         %% NEED TO DO SOME WORK HERE TO LINK THE UNITS OF TIME TO THE STANDARD MSECS OF OUR PACKETS
         emgDataStruct.timebase = labjackOBJ.timeAxis;
-        emgDataStruct.response = labjackOBJ.data(:,1);
+        emgDataStruct.response = labjackOBJ.data;
         emgDataStruct.params = p.Results;
         
         % Close-up shop
