@@ -15,7 +15,7 @@ function [emgDataStruct] = SquintRecordEMG(varargin)
 %% Parse input
 p = inputParser;
 p.addParameter('recordingDurationSecs',20,@isnumeric);
-p.addParameter('channelIDs',[1],@isnumeric);
+p.addParameter('channelIDs',[1 3],@isnumeric);
 p.addParameter('frequencyInHz',5000,@isnumeric);
 p.addParameter('simulate',false,@islogical);
 p.addParameter('verbose',false,@islogical);
@@ -43,7 +43,7 @@ else
         % Place the data in a response structure
         %% NEED TO DO SOME WORK HERE TO LINK THE UNITS OF TIME TO THE STANDARD MSECS OF OUR PACKETS
         emgDataStruct.timebase = labjackOBJ.timeAxis;
-        emgDataStruct.response = labjackOBJ.data;
+        emgDataStruct.response = labjackOBJ.data(:,1);
         emgDataStruct.params = p.Results;
         
         % Close-up shop
