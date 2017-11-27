@@ -99,6 +99,7 @@ if any(strcmp('base',protocolParams.myRoles))
     ListenChar(2);
     while (~isempty(mglGetKeyEvent)), end
     
+    % Alert the observer that we are ready to start and wait for a keypress
     Speak('Press key to start experiment', [], speakRateDefault);
     if protocolParams.simulate.observer
         if protocolParams.verbose
@@ -109,6 +110,7 @@ if any(strcmp('base',protocolParams.myRoles))
     end
     fprintf('* <strong>Experiment started</strong>\n');
     if (protocolParams.verbose), fprintf('- Starting trials.\n'); end
+
 end
 
 
@@ -212,6 +214,12 @@ for trial = 1:protocolParams.nTrials
     
     % Role dependent actions - BASE
     if any(strcmp('base',protocolParams.myRoles))
+                
+        % Calculate how long the satellites should record data
+        dataRecordingTimeSec = ...
+            protocolParams.trialBackgroundTimeSec + ...
+            stimulusStruct(trial).modulationData.modulationParams.stimulusDuration + ...
+            protocolParams.trialISITimeSec;
         
         % Build the UDP communication packet for this trial for each
         % satellite
@@ -220,18 +228,28 @@ for trial = 1:protocolParams.nTrials
                 satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
                 trialPacketFromBase.(satelliteAction) = trialPacketRootFromBase.(satelliteAction);
                 trialPacketFromBase.(satelliteAction).messageData.duration = ...
-                    stimulusStruct(trial).modulationData.protocolParams.trialDuration;
+                    dataRecordingTimeSec;
                 trialPacketFromBase.(satelliteAction).messageData.direction = ...
                     stimulusStruct(trial).modulationData.modulationParams.direction;
             end
         end
         
+        % Create an audiorecording object
+        audioRecObj = eval(protocolParams.audioRecordObjCommand);
+
         % Announce trial
         if (protocolParams.verbose)
             fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, stimulusStruct(trial).modulationData.modulationParams.direction);
+        end        
+
+        % Alert the subject we are ready for the next trial
+        if protocolParams.simulate.speaker
+            if protocolParams.verbose
+                fprintf('[simulate] base speaking we are ready for trial\n');
+            end
+        else
+            Speak('Ready', [], speakRateDefault);
         end
-        
-        % MAKE NOISE TO ALERT SUBJECT THAT WE NEED THEM TO PRESS A BUTTON
         
         % Wait for button press from subject
         if protocolParams.simulate.observer
@@ -241,12 +259,24 @@ for trial = 1:protocolParams.nTrials
         else
             WaitForKeyPress
         end
+                       
+        % Speak which trial this is
+        if protocolParams.simulate.speaker
+            if protocolParams.verbose
+                fprintf('[simulate] base speaking which trial we are on\n');
+            end
+        else
+            Speak(['Trial ' num2str(trial)], [], speakRateDefault);
+        end
+                
+        % Present the background spectrum
+        events(trial).tTrialStart = mglGetSecs;
+        ol.setMirrors(stimulusStruct(trial).modulationData.modulation.background.starts, stimulusStruct(trial).modulationData.modulation.background.stops);
         
-        % MAKE NOISE TO ALERT SUBJECT TRIAL IS ABOUT TO START
-        
-        % Check that the timing checks out
-        assert(stimulusStruct(trial).modulationData.modulationParams.stimulusDuration + protocolParams.isiTime + protocolParams.trialMaxJitterTimeSec ...
-            <= protocolParams.trialDuration, 'Stimulus time + max jitter + ISI time is greater than trial duration');
+        % Wait for jitter period
+        jitterTimeSec  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
+        events(trial).jitterTimeSec = jitterTimeSec;
+        mglWaitSecs(jitterTimeSec);
 
         % Inform the satellites that it is time to record
         if protocolParams.simulate.udp
@@ -270,27 +300,16 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
             events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
         end
-        
-        % Start trial.  Present the background spectrum
-        events(trial).tTrialStart = mglGetSecs;
-        ol.setMirrors(stimulusStruct(trial).modulationData.modulation.background.starts, stimulusStruct(trial).modulationData.modulation.background.stops);
-        
-        % Wait for ISI, including random jitter.
-        %
-        % First, randomly assign a jitter time between
-        % protocolParams.trialMinJitterTimeSec and
-        % protocolParams.trialMaxJitterTimeSec. Then, add the jitter time to
-        % get the total wait time and record it for this trial Then wait.
-        jitterTime  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
-        totalWaitTime =  protocolParams.isiTime + jitterTime;
-        events(trial).trialWaitTime = totalWaitTime;
-        mglWaitSecs(totalWaitTime);
-        
-        % Show the trial and get any returned keys corresponding to the trial.
-        %
-        % Record start/finish time as well as other information as we go.
+
+        % Record start time of the background.
+        events(trial).tBackgroundStart = mglGetSecs;
+
+        % Wait for the duration of the background period
+        mglWaitSecs(protocolParams.trialBackgroundTimeSec);
+                
+        % Record start time of the stimulus.
         events(trial).tStimulusStart = mglGetSecs;
-        
+
         % Present the modulation
         [events(trial).buffer, events(trial).t,  events(trial).counter] = ...
             SquintOLFlicker(ol, stimulusStruct, trial, stimulusStruct(trial).modulationData.modulationParams.timeStep, 1);
@@ -299,17 +318,62 @@ for trial = 1:protocolParams.nTrials
         ol.setMirrors(stimulusStruct(trial).modulationData.modulation.background.starts, stimulusStruct(trial).modulationData.modulation.background.stops);
         events(trial).tStimulusEnd = mglGetSecs;
         
-        % At end of trial, put background to be that trial's background.
-        %
-        % Most modulations will end at their background, so this probably won't have
-        % any visible effect.
-        %% THIS COMMENT IS NOT ASSOCIATED WITH THE CODE DOING ANYTHING. REMOVE?
+        % Wait for the duration of the ISI
+        mglWaitSecs(protocolParams.trialISITimeSec);
         
-        % Wait for the remaining time for protocolParams.trialDuration to have
-        % passed since the start time.
-        trialTimeRemaining =  protocolParams.trialDuration - (mglGetSecs - events(trial).tTrialStart);
-        mglWaitSecs(trialTimeRemaining);
-        events(trial).tTrialEnd = mglGetSecs;
+        % Record start time of the stimulus.
+        events(trial).tISIEnd = mglGetSecs;
+        
+        % We are now entering the response period. Start recording from the
+        % microphone
+        if protocolParams.simulate.microphone
+            if protocolParams.verbose
+                fprintf('[simulate] base recording from the microphone\n');
+            end
+        else
+            record(audioRecObj,protocolParams.trialResponseWindowTimeSec);
+        end
+
+        % Play a beep to alert the subject that it is time to respond
+        if protocolParams.simulate.speaker
+            if protocolParams.verbose
+                fprintf('[simulate] base alerting subject time to respond\n');
+            end
+        else
+            t = linspace(0, 1, 2400);
+            y = sin(160*2*pi*t)*0.5;
+            sound(y, 16000);
+        end
+        
+        % Wait for the duration of the response time. Could add in the
+        % capability to record a keypress response from the subject if we
+        % wished.        
+        mglWaitSecs(protocolParams.trialResponseWindowTimeSec);
+
+        % Play a boop to alert the subject that time is up
+        if protocolParams.simulate.speaker
+            if protocolParams.verbose
+                fprintf('[simulate] base alerting subject response time is over\n');
+            end
+        else
+            t = linspace(0, 1, 4800);
+            y = sin(160*2*pi*t)*0.5;
+            sound(y, 16000);
+        end
+        
+        % Wait for the post-response time tone to play
+        mglWaitSecs(4000/16000 * 2);
+        
+        % Save the audio recording and clear the audio object
+        if protocolParams.simulate.microphone
+            if protocolParams.verbose
+                fprintf('[simulate] base saving audio data\n');
+                dataStruct(trial).audio=NaN;
+            end
+        else
+            dataStruct(trial).audio=getaudiodata(audioRecObj);
+            clear audioRecObj
+        end
         
     end % base actions
     
@@ -319,7 +383,7 @@ for trial = 1:protocolParams.nTrials
         
         % Wait for the trial packet from the base
         if protocolParams.simulate.udp
-            theMessageReceived.data.duration = stimulusStruct(trial).modulationData.protocolParams.trialDuration;
+            theMessageReceived.data.duration = dataRecordingTimeSec;
             theMessageReceived.data.direction = stimulusStruct(trial).modulationData.modulationParams.direction;
             if protocolParams.verbose
                 fprintf('[simulate] satellite received packet via UDP\n');
@@ -368,7 +432,7 @@ for trial = 1:protocolParams.nTrials
                 dataStruct(trial).pupil.recordErrorFlag=0;
                 dataStruct(trial).pupil.consoleOutput='simulate ffmpeg console output';
                 if protocolParams.verbose
-                    fprintf('[simulate] Video file recorded and saved');
+                    fprintf('[simulate] Video file recorded and saved\n');
                 end
             else
                 videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
@@ -385,8 +449,7 @@ for trial = 1:protocolParams.nTrials
         
         % Record start/finish time as well as other information as we go.
         events(trial).tRecordingEnd = mglGetSecs;
-        
-        
+                
     end % satellite actions
     
 end % Loop over trials
@@ -403,6 +466,7 @@ if any(strcmp('base',protocolParams.myRoles))
     ListenChar(0);
     % Put the trial information into the response struct
     responseStruct.events = events;
+    responseStruct.data = dataStruct;
 end
 
 % Role dependent actions - SATELLITE

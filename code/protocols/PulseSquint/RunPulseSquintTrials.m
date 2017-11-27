@@ -21,13 +21,15 @@ protocolParams.protocol = 'SquintToPulse';
 protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
-protocolParams.simulate.oneLight = false;
-protocolParams.simulate.emg = false;
+protocolParams.simulate.oneLight = true;
+protocolParams.simulate.microphone = false;
+protocolParams.simulate.speaker = false;
+protocolParams.simulate.emg = true;
 protocolParams.simulate.pupil = true;
-protocolParams.simulate.udp = false;
+protocolParams.simulate.udp = true;
 protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = true;
-protocolParams.simulate.makePlots = true;
+protocolParams.simulate.makePlots = false;
 
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
@@ -44,6 +46,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 % the quotes after the -i in the command stem below.
 % GKA NOTE: do we also need the argument -pixel_format uyvy422  ?
 protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,0)';
 
 % Establish myRole and myActions
 if protocolParams.simulate.udp
@@ -148,19 +151,29 @@ protocolParams.pupilDiameterMm = 8;
 
 %% Trial timing parameters.
 %
-% Trial duration - total time for each trial.
-protocolParams.trialDuration = 16;
+% A trial is composed of the following elements:
+% - [trialMinJitterTimeSec, trialMaxJitterTimeSec] defines the bounds on a
+%   uniform random distribution of time spent on the background prior to
+%   trial initiation. A key property of the jitter period is that
+%   physiologic data are not recorded during this interval. An audio alert
+%   plays prior to the start of the jitter time.
+% - trialBackgroundTimeSec - presentation of the background prior to the
+%   stimulus. Physiologic recording begins with the onset of the
+%   background period.
+% - stimulusDuration - duration of the modulation itself. This is defined
+%   by the stimulus dictionary
+% - trialISITimeSec - duration of presentation of the background after the
+%   stimulus. Physiologic recording ends at the end of the ISI time.
+% - trialResponseWindowTimeSec - duration of a response window during which
+%   the subject can make verbal or keypress responses. An audio alert plays
+%   prior to the start of the response window.
+%
 
-% There is a minimum time at the start of each trial where
-% the background is presented.  Then the actual trial
-% start time is chosen based on a random draw from
-% the jitter parameters.
-protocolParams.trialBackgroundTimeSec = 0;
-protocolParams.trialMinJitterTimeSec = 1;                  % Time before step
-protocolParams.trialMaxJitterTimeSec = 3;                  % Phase shifts in seconds
-
-% Set ISI time in seconds
-protocolParams.isiTime = 0;
+protocolParams.trialMinJitterTimeSec = 1;
+protocolParams.trialMaxJitterTimeSec = 3;
+protocolParams.trialBackgroundTimeSec = 1;
+protocolParams.trialISITimeSec = 2;
+protocolParams.trialResponseWindowTimeSec = 4;
 
 %% Attention task parameters
 %

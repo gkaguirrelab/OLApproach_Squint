@@ -22,11 +22,8 @@ function ApproachEngine(ol,protocolParams,varargin)
 %% Parse
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
-p.addParameter('playSound',false,@islogical);
 p.addParameter('acquisitionNumber',[],@isnumeric);
 p.parse(varargin{:});
-
-
 
 
 %% Perform pre trial loop actions
@@ -73,15 +70,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     % clear that just to make sure we don't use it by accident.
     stimulusStruct = InitializeBlockStructArray(protocolParams,modulationData);
     clear modulationData;
-    
-    %% Begin the experiment
-    % Play a sound to say hello.
-    if (p.Results.playSound)
-        t = linspace(0, 1, 10000);
-        y = sin(330*2*pi*t);
-        sound(y, 20000);
-    end
-    
+        
     %% Set the background
     % Use the background for the first trial as the background to set.
     ol.setMirrors(stimulusStruct(1).modulationData.modulation.background.starts, stimulusStruct(1).modulationData.modulation.background.stops);
@@ -93,16 +82,19 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %% Set up for responses
     if (p.Results.verbose), fprintf('\n* Creating keyboard listener\n'); end
     mglListener('init');
+    
 end
 
 % Role dependent actions - satellite
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
 
-    % Check that the hardware and software needed for myActions are present
-    if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-        % Check that ffmpeg is installed on this computer
-        if system('command -v ffmpeg')
-            error('Please install ffmpeg on this computer using the command ''brew install ffmpeg''. If you need homebrew, visit https://brew.sh');
+    if ~protocolParams.simulate.pupil
+        % Check that the hardware and software needed for myActions are present
+        if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+            % Check that ffmpeg is installed on this computer
+            if system('command -v ffmpeg')
+                error('Please install ffmpeg on this computer using the command ''brew install ffmpeg''. If you need homebrew, visit https://brew.sh');
+            end
         end
     end
     
@@ -111,11 +103,11 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
 end
 
 %% Run the trial loop.
-tic
 % The protocolParams are passed as input and returned as output from
 % SquintTrialLoop. This is because the satellite computers will have
 % information passed to them from the base via UDP which will be added to
 % the protocolParams variable.
+tic
 [responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,stimulusStruct,ol,'verbose',protocolParams.verbose);
 toc
 
