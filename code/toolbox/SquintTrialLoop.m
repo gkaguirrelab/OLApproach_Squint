@@ -300,8 +300,13 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
             events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
             
-            if strcmp(theCommunicationStatus,'BAD_TRANSMISSION')
-                error('Received bad transmission status for packet');
+            switch theCommunicationStatus
+                case 'BAD_TRANSMISSION'
+                    error('Received bad transmission status for packet');
+                case 'NO_ACKNOWLDGMENT_WITHIN_TIMEOUT_PERIOD'
+                    error('No response from the satellite to our packet');
+                otherwise
+                    % all is well
             end
         end
 
