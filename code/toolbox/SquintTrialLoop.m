@@ -299,6 +299,10 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.theMessageReceived = theMessageReceived;
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
             events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
+            
+            if strcmp(theCommunicationStatus,'BAD_TRANSMISSION')
+                error('Received bad transmission status for packet');
+            end
         end
 
         % Record start time of the background.
