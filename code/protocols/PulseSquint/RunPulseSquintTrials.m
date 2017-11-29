@@ -35,7 +35,7 @@ protocolParams.simulate.makePlots = false;
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
 protocolParams.hostNames = {'gka06', 'monkfish', 'gka33'};
-protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.12.60'}; % '128.91.59.228'};
+protocolParams.hostIPs = {'128.91.59.227', '128.91.59.157', '128.91.59.228'};
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
 
