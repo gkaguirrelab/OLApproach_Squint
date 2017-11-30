@@ -15,7 +15,7 @@ function [emgDataStruct] = SquintRecordEMG(varargin)
 %% Parse input
 p = inputParser;
 p.addParameter('recordingDurationSecs',20,@isnumeric);
-p.addParameter('channelIDs',[1],@isnumeric);
+p.addParameter('channelIDs',[1 3],@isnumeric);
 p.addParameter('frequencyInHz',5000,@isnumeric);
 p.addParameter('simulate',false,@islogical);
 p.addParameter('verbose',false,@islogical);
