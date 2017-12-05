@@ -290,6 +290,11 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     end
 end
 
+%% Pause dropBox syncing
+dropBoxSyncingStatus = pauseUnpauseDropbox('--pause');
+if protocolParams.verbose
+    fprintf('DropBox syncing status set to %d',dropBoxSyncingStatus);
+end
 
 %% Run experiment
 %
@@ -298,6 +303,12 @@ end
 % Part of a protocol is the desired number of acquisitions.
 % Calling the Experiment routine is for one acquisition.
 ApproachEngine(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
+
+%% Resume dropBox syncing
+dropBoxSyncingStatus = pauseUnpauseDropbox('--resume');
+if protocolParams.verbose
+    fprintf('DropBox syncing status set to %d',dropBoxSyncingStatus);
+end
 
 
 %% Post-experiment actions
