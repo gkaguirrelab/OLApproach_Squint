@@ -305,7 +305,7 @@ end
 ApproachEngine(ol,protocolParams,'acquisitionNumber',[],'verbose',protocolParams.verbose);
 
 %% Resume dropBox syncing
-dropBoxSyncingStatus = pauseUnpauseDropbox('--resume');
+dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d',dropBoxSyncingStatus);
 end
