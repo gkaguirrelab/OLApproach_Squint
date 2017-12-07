@@ -291,7 +291,7 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
 end
 
 %% Pause dropBox syncing
-dropBoxSyncingStatus = pauseUnpauseDropbox('--pause');
+dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d',dropBoxSyncingStatus);
 end
