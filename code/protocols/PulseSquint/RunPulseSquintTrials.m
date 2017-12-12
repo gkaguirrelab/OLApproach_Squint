@@ -337,29 +337,31 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 %% Prepare equipment and subject
-plotFig = figure;
-subplot(1,3,1)
-title('Pupillometry')
-subplot(1,3,2)
-title('Audio')
-subplot(1,3,3)
-title('EMG')
-
-% make scratch protocol params just to prep the subject
-scratchProtocolParams = protocolParams;
-
-% check IR camera status
-commandwindow;
-fprintf('- Setup the IR camera. Press <strong>Enter</strong> when ready.\n');
-input('');
-scratchProtocolParams.simulate.oneLight = true;
-scratchProtocolParams.simulate.microphone = true;
-scratchProtocolParams.simulate.speaker = true;
-scratchProtocolParams.simulate.emg = true;
-scratchProtocolParams.simulate.pupil = false;
-scratchProtocolParams.simulate.udp = true;
-scratchProtocolParams.simulate.observer = true;
-scratchProtocolParams.simulate.operator = false;
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    plotFig = figure;
+    subplot(1,3,1)
+    title('Pupillometry')
+    subplot(1,3,2)
+    title('Audio')
+    subplot(1,3,3)
+    title('EMG')
+    
+    % make scratch protocol params just to prep the subject
+    scratchProtocolParams = protocolParams;
+    
+    % check IR camera status
+    commandwindow;
+    fprintf('- Setup the IR camera. Press <strong>Enter</strong> when ready.\n');
+    input('');
+    scratchProtocolParams.simulate.oneLight = true;
+    scratchProtocolParams.simulate.microphone = true;
+    scratchProtocolParams.simulate.speaker = true;
+    scratchProtocolParams.simulate.emg = true;
+    scratchProtocolParams.simulate.pupil = false;
+    scratchProtocolParams.simulate.udp = true;
+    scratchProtocolParams.simulate.observer = true;
+    scratchProtocolParams.simulate.operator = false;
+end
 
 
 
