@@ -373,10 +373,10 @@ nMelAcquisitions = 1;
 nLMSAcquisitions = 1;
 for aa = 1:length(acquisitionOrder)
     if strcmp(acquisitionOrder{aa}, 'Mel')
-        protocolParams.trialTypeOrder = deBruijnSequences(nMelAcquisitions,:);
+        protocolParams.trialTypeOrder = [deBruijnSequences(nMelAcquisitions,length(deBruijnSequences(nMelAcquisitions,:))), deBruijnSequences(nMelAcquisitions,:)];
         nMelAcquisitions = nMelAcquisitions + 1;
     elseif strcmp(acquisitionOrder{aa}, 'LMS')
-        protocolParams.trialTypeOrder = deBruijnSequences(nLMSAcquisitions,:)+3;
+        protocolParams.trialTypeOrder = [deBruijnSequences(nLMSAcquisitions,length(deBruijnSequences(nLMSAcquisitions,:)))+3, deBruijnSequences(nLMSAcquisitions,:)+3];
         nLMSAcquisitions = nLMSAcquisitions + 1;
     end
     protocolParams.nTrials = length(protocolParams.trialTypeOrder);
