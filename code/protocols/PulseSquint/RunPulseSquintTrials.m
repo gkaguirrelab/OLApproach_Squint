@@ -22,13 +22,13 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.simulate.oneLight = true;
-protocolParams.simulate.microphone = false;
-protocolParams.simulate.speaker = false;
-protocolParams.simulate.emg = false;
-protocolParams.simulate.pupil = false;
-protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = false;
-protocolParams.simulate.operator = false;
+protocolParams.simulate.microphone = true;
+protocolParams.simulate.speaker = true;
+protocolParams.simulate.emg = true;
+protocolParams.simulate.pupil = true;
+protocolParams.simulate.udp = true;
+protocolParams.simulate.observer = true;
+protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
 
 % define the identities of the base computer (which oversees the
@@ -387,7 +387,7 @@ end
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
 if protocolParams.verbose
-    fprintf('DropBox syncing status set to %d',dropBoxSyncingStatus);
+    fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
 
