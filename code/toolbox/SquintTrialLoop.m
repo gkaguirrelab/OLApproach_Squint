@@ -235,7 +235,10 @@ for trial = 1:protocolParams.nTrials
         end
         
         % Create an audiorecording object
-        audioRecObj = eval(protocolParams.audioRecordObjCommand);
+        if ~protocolParams.stimulate.udp
+            audioRecObj = eval(protocolParams.audioRecordObjCommand);
+        else
+        end
 
         % Announce trial
         if (protocolParams.verbose)
