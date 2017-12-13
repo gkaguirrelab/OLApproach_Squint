@@ -355,8 +355,9 @@ scratchProtocolParams.simulate.operator = false;
 
 % have to specify where to save, here a special setup dir with the normal session dir, rather than the
 % traditional session dir where the actual data will go
-savePath = fullfile(getpref(scratchProtocolParams.protocol, 'DataFilesBasePath'),scratchProtocolParams.observerID, scratchProtocolParams.todayDate, scratchProtocolParams.sessionName, 'setup');
-
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    savePath = fullfile(getpref(scratchProtocolParams.protocol, 'DataFilesBasePath'),scratchProtocolParams.observerID, scratchProtocolParams.todayDate, scratchProtocolParams.sessionName, 'setup');
+end
 
 
 % check IR camera setup first
@@ -401,22 +402,25 @@ while toContinue ~= 'y'
     end
     
     % run scratch trial
-    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', savePath);
+    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', 'setup');
     
     % show plot of audio results to convince us the mic is working
-    data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
-    plotFig = figure;
-    plot(data.responseStruct.data.audio)
-    ylabel('Amplitude')
-    xlabel('Time')
-    title('Audio Output')
-    
-    toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
-    
-    close(plotFig)
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+        plotFig = figure;
+        plot(data.responseStruct.data.audio)
+        ylabel('Amplitude')
+        xlabel('Time')
+        title('Audio Output')
+        
+        toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
+        
+        close(plotFig)
+    end
 end
-movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_audioCheck.mat',1)]));
-
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_audioCheck.mat',1)]));
+end
 % now show subjects the range of contrasts to see if any of them make the
 % subject uncomfortable
 scratchProtocolParams.simulate.oneLight = true;
@@ -436,9 +440,11 @@ for contrastLevel = [3 2 1]
     fprintf('- Now showing %02d%% melanopsin contrast\n', contrastValues{loopIndex});
     scratchProtocolParams.trialTypeOrder = [contrastLevel];
     
-    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', savePath);
-    movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
-
+    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', 'setup');
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
+    end
+    
     loopIndex = loopIndex+1;
 end
 
@@ -447,9 +453,11 @@ end
 toContinue = 'y';
 while toContinue ~= 'n'
     
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', savePath);
-    toContinue = GetWithDefault('Want another practice trial?', 'y');
-    delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', 'setup');
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        toContinue = GetWithDefault('Want another practice trial?', 'y');
+        delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    end
 
 end
 
