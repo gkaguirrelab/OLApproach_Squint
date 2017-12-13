@@ -437,7 +437,7 @@ for contrastLevel = [3 2 1]
     scratchProtocolParams.trialTypeOrder = [contrastLevel];
     
     ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', savePath);
-    movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)])
+    movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
 
     loopIndex = loopIndex+1;
 end
