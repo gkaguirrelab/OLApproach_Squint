@@ -23,14 +23,16 @@ function ApproachEngine(ol,protocolParams,varargin)
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
 p.addParameter('acquisitionNumber',[],@isnumeric);
-p.addParameter('savePath',fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName), @ischar);
+p.addParameter('savePath','', @ischar);
     % overwhelmingly, we're going to want to have the ApproachEngine
     % control where the save files go. This flexibility was added so we
     % could save out results from setup, but have these clearly
     % distinguished from the actual data
 p.parse(varargin{:});
 
-savePath = p.Results.savePath;
+
+
+savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
 
 %% Perform pre trial loop actions
 
