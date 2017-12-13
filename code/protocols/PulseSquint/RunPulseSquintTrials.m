@@ -400,21 +400,59 @@ while toContinue ~= 'y'
         delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
     end
     
-% run scratch trial
-ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',scratchProtocolParams.verbose, 'savePath', savePath);
-
-% show plot of audio results to convince us the mic is working
-data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
-plotFig = figure;
-plot(data.responseStruct.data.audio)
-ylabel('Amplitude')
-xlabel('Time')
-title('Audio Output')
-
-toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
-
-close(plotFig)
+    % run scratch trial
+    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', savePath);
+    
+    % show plot of audio results to convince us the mic is working
+    data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    plotFig = figure;
+    plot(data.responseStruct.data.audio)
+    ylabel('Amplitude')
+    xlabel('Time')
+    title('Audio Output')
+    
+    toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
+    
+    close(plotFig)
 end
+movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_audioCheck.mat',1)]));
+
+% now show subjects the range of contrasts to see if any of them make the
+% subject uncomfortable
+scratchProtocolParams.simulate.oneLight = true;
+scratchProtocolParams.simulate.microphone = true;
+scratchProtocolParams.simulate.speaker = false;
+scratchProtocolParams.simulate.emg = true;
+scratchProtocolParams.simulate.pupil = true;
+scratchProtocolParams.simulate.udp = true;
+scratchProtocolParams.simulate.observer = false;
+scratchProtocolParams.simulate.operator = false;
+scratchProtocolParams.trialResponseWindowTimeSec = 0;
+
+contrastValues = {100, 200, 400};
+loopIndex = 1;
+for contrastLevel = [3 2 1]
+    
+    fprintf('- Now showing %02d%% melanopsin contrast\n', contrastValues{loopIndex});
+    scratchProtocolParams.trialTypeOrder = [contrastLevel];
+    
+    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', savePath);
+    movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)])
+
+    loopIndex = loopIndex+1;
+end
+
+% now the subject can practice the whole trial procedure
+
+toContinue = 'y';
+while toContinue ~= 'n'
+    
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', savePath);
+    toContinue = GetWithDefault('Want another practice trial?', 'y');
+    delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+
+end
+
 %% Run experiment
 
 % define our acquisition order
