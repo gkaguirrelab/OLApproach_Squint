@@ -394,8 +394,13 @@ scratchProtocolParams.trialISITimeSec = 0;
 scratchProtocolParams.trialResponseWindowTimeSec = 4;
 scratchProtocolParams.simulate.microphone = false;
 
+toContinue = 'n';
+while toContinue ~= 'y'
+    if exist(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), 'file');
+        delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    end
+    
 % run scratch trial
-
 ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',scratchProtocolParams.verbose, 'savePath', savePath);
 
 % show plot of audio results to convince us the mic is working
@@ -405,6 +410,11 @@ plot(data.responseStruct.data.audio)
 ylabel('Amplitude')
 xlabel('Time')
 title('Audio Output')
+
+toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
+
+close(plotFig)
+end
 %% Run experiment
 
 % define our acquisition order
