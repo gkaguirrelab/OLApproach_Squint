@@ -397,8 +397,10 @@ scratchProtocolParams.simulate.microphone = false;
 
 toContinue = 'n';
 while toContinue ~= 'y'
-    if exist(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), 'file');
-        delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        if exist(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), 'file');
+            delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+        end
     end
     
     % run scratch trial
