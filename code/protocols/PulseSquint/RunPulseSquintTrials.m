@@ -451,6 +451,8 @@ end
 % now the subject can practice the whole trial procedure
 
 toContinue = 'y';
+protocolParams.trialTypeOrder = [3];
+protocolParams.nTrials = protocolParams.trialTypeOrder;
 while toContinue ~= 'n'
     
     ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', 'setup');
