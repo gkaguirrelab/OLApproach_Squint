@@ -339,32 +339,31 @@ if protocolParams.verbose
 end
 %% Prepare equipment and subject
 
-% check IR camera setup first
- % make scratch protocol params just to prep the subject
+% we're going to be running scratch trials where everything is simulated ex
+% except the piece of hardware in question. the idea is that we'll run the
+% trial, make sure that the single hardware piece gave appropriate output,
+% then move onto the next piece of hardware
 scratchProtocolParams = protocolParams;
 scratchProtocolParams.simulate.oneLight = true;
 scratchProtocolParams.simulate.microphone = true;
-scratchProtocolParams.simulate.speaker = true;
+scratchProtocolParams.simulate.speaker = false;
 scratchProtocolParams.simulate.emg = true;
-scratchProtocolParams.simulate.pupil = false;
+scratchProtocolParams.simulate.pupil = true;
 scratchProtocolParams.simulate.udp = true;
-scratchProtocolParams.simulate.observer = true;
+scratchProtocolParams.simulate.observer = false;
 scratchProtocolParams.simulate.operator = false;
-scratchProtocolParams.setup.pupil = true;
-if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-    
-    
-   
-    
-    % check IR camera status
-    commandwindow;
-    fprintf('- Setup the IR camera. Press <strong>Enter</strong> when ready.\n');
-    input('');
-    
-    
-    
-end
 
+% have to specify where to save, here a special setup dir with the normal session dir, rather than the
+% traditional session dir where the actual data will go
+savePath = fullfile(getpref(scratchProtocolParams.protocol, 'DataFilesBasePath'),scratchProtocolParams.observerID, scratchProtocolParams.todayDate, scratchProtocolParams.sessionName, 'setup');
+
+
+
+% check IR camera setup first
+% note that here we're just opening the camera and displaying the output,
+% giving time for the user to adjust the setup so that the pupil is
+% properly positioned. That is, unlike the rest of the checks, we're not
+% actually running a scratch trial
 if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
     cameraTurnOnCommand = '/Applications/VLC\ 2.app/Contents/MacOS/VLC qtcapture://0xfa13300005a39230 &';
     [recordedErrorFlag, consoleOutput] = system(cameraTurnOnCommand);
@@ -376,6 +375,36 @@ if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
 end
 
 
+% Now check on the microphone
+scratchProtocolParams.trialTypeOrder = [1];
+scratchProtocolParams.nTrials = length(scratchProtocolParams.trialTypeOrder);
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    % check IR camera status
+    commandwindow;
+    fprintf('- Checking the microphone. Press <strong>Enter</strong> when ready.\n');
+    input('');
+
+end
+
+% make scratch trial short and sweet
+scratchProtocolParams.trialMinJitterTimeSec = 0;
+scratchProtocolParams.trialMaxJitterTimeSec = 0;
+scratchProtocolParams.trialBackgroundTimeSec = 0;
+scratchProtocolParams.trialISITimeSec = 0;
+scratchProtocolParams.trialResponseWindowTimeSec = 4;
+scratchProtocolParams.simulate.microphone = false;
+
+% run scratch trial
+
+ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',scratchProtocolParams.verbose, 'savePath', savePath);
+
+% show plot of audio results to convince us the mic is working
+data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+plotFig = figure;
+plot(data.responseStruct.data.audio)
+ylabel('Amplitude')
+xlabel('Time')
+title('Audio Output')
 %% Run experiment
 
 % define our acquisition order
