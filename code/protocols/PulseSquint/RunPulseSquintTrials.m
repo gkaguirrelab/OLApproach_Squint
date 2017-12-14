@@ -379,82 +379,85 @@ end
 % Now check on the microphone
 scratchProtocolParams.trialTypeOrder = [1];
 scratchProtocolParams.nTrials = length(scratchProtocolParams.trialTypeOrder);
+% microphone just relies on the base, so only the base needs to get
+% involved
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     % check IR camera status
     commandwindow;
     fprintf('- Checking the microphone. Press <strong>Enter</strong> when ready.\n');
     input('');
-
-end
-
-% make scratch trial short and sweet
-scratchProtocolParams.trialMinJitterTimeSec = 0;
-scratchProtocolParams.trialMaxJitterTimeSec = 0;
-scratchProtocolParams.trialBackgroundTimeSec = 0;
-scratchProtocolParams.trialISITimeSec = 0;
-scratchProtocolParams.trialResponseWindowTimeSec = 4;
-scratchProtocolParams.simulate.microphone = false;
-
-toContinue = 'n';
-while toContinue ~= 'y'
-    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-        if exist(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), 'file');
-            delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+    
+    
+    
+    % make scratch trial short and sweet
+    scratchProtocolParams.trialMinJitterTimeSec = 0;
+    scratchProtocolParams.trialMaxJitterTimeSec = 0;
+    scratchProtocolParams.trialBackgroundTimeSec = 0;
+    scratchProtocolParams.trialISITimeSec = 0;
+    scratchProtocolParams.trialResponseWindowTimeSec = 4;
+    scratchProtocolParams.simulate.microphone = false;
+    
+    toContinue = 'n';
+    while toContinue ~= 'y'
+        if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+            if exist(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), 'file');
+                delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+            end
+        end
+        
+        % run scratch trial
+        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', 'setup');
+        
+        % show plot of audio results to convince us the mic is working
+        if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+            data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+            plotFig = figure;
+            plot(data.responseStruct.data.audio)
+            ylabel('Amplitude')
+            xlabel('Time')
+            title('Audio Output')
+            
+            toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
+            
+            close(plotFig)
         end
     end
     
-    % run scratch trial
-    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', 'setup');
-    
-    % show plot of audio results to convince us the mic is working
-    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-        data = load(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
-        plotFig = figure;
-        plot(data.responseStruct.data.audio)
-        ylabel('Amplitude')
-        xlabel('Time')
-        title('Audio Output')
-        
-        toContinue = GetWithDefault('Does the audio look OK? If yes, setup will continue', 'y');
-        
-        close(plotFig)
-    end
-end
-if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_audioCheck.mat',1)]));
-end
-% now show subjects the range of contrasts to see if any of them make the
-% subject uncomfortable
-scratchProtocolParams.simulate.oneLight = true;
-scratchProtocolParams.simulate.microphone = true;
-scratchProtocolParams.simulate.speaker = false;
-scratchProtocolParams.simulate.emg = true;
-scratchProtocolParams.simulate.pupil = true;
-scratchProtocolParams.simulate.udp = true;
-scratchProtocolParams.simulate.observer = false;
-scratchProtocolParams.simulate.operator = false;
-scratchProtocolParams.trialResponseWindowTimeSec = 0;
-
-contrastValues = {100, 200, 400};
-loopIndex = 1;
-for contrastLevel = [3 2 1]
     
-    fprintf('- Now showing %02d%% melanopsin contrast\n', contrastValues{loopIndex});
-    scratchProtocolParams.trialTypeOrder = [contrastLevel];
+    % now show subjects the range of contrasts to see if any of them make the
+    % subject uncomfortable
+    scratchProtocolParams.simulate.oneLight = true;
+    scratchProtocolParams.simulate.microphone = true;
+    scratchProtocolParams.simulate.speaker = false;
+    scratchProtocolParams.simulate.emg = true;
+    scratchProtocolParams.simulate.pupil = true;
+    scratchProtocolParams.simulate.udp = true;
+    scratchProtocolParams.simulate.observer = false;
+    scratchProtocolParams.simulate.operator = false;
+    scratchProtocolParams.trialResponseWindowTimeSec = 0;
     
-    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', 'setup');
-    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-        movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
+    contrastValues = {100, 200, 400};
+    loopIndex = 1;
+    for contrastLevel = [3 2 1]
+        
+        fprintf('- Now showing %02d%% melanopsin contrast\n', contrastValues{loopIndex});
+        scratchProtocolParams.trialTypeOrder = [contrastLevel];
+        
+        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', 'setup');
+        if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+            movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
+        end
+        
+        loopIndex = loopIndex+1;
     end
-    
-    loopIndex = loopIndex+1;
 end
 
 % now the subject can practice the whole trial procedure
 
 toContinue = 'y';
 protocolParams.trialTypeOrder = [3];
-protocolParams.nTrials = protocolParams.trialTypeOrder;
+protocolParams.nTrials = length(protocolParams.trialTypeOrder);
 while toContinue ~= 'n'
     
     ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', 'setup');
