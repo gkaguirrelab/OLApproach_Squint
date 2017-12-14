@@ -485,7 +485,7 @@ while toContinue ~= 'n'
     % take place via the base computer.
     %if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         toContinue = GetWithDefault('Want another practice trial?', 'y');
-        delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
+        %delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
     %end
     counter = counter + 1;
 end
