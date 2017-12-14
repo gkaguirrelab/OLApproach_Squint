@@ -21,7 +21,7 @@ protocolParams.protocol = 'SquintToPulse';
 protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
-protocolParams.simulate.oneLight = true;
+protocolParams.simulate.oneLight = false;
 protocolParams.simulate.microphone = false;
 protocolParams.simulate.speaker = false;
 protocolParams.simulate.emg = false;
@@ -121,6 +121,8 @@ protocolParams.directionNames = {...
 % needs to be true.  That should never be a problem, because we always want to
 % validate each direction once and only once, and it is as easy to validate the
 % first occurrance of a direction as a subsequent one.
+
+% the kind of spectrum seeking we actually will want to perform
 protocolParams.doCorrectionAndValidationFlag = {...
     true, ...
     false, ...
@@ -132,6 +134,20 @@ protocolParams.doCorrectionAndValidationFlag = {...
     false, ...
     false, ...
     };
+
+%silencing spectrum seeking to speed things along
+protocolParams.doCorrectionAndValidationFlag = {...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    false, ...
+    };
+
 
 % This is also related to directions.  This determines whether the
 % correction gets done using the radiometer (set to false) or just by
@@ -462,10 +478,15 @@ counter = 1;
 while toContinue ~= 'n'
     
     ApproachEngine(ol,protocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose, 'savePath', 'setup');
-    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    
+    % bit of a code issue to work out: we want the option to be able to
+    % repeat practice trials as many times as the subject needs. however,
+    % it would be great for the decision to repeat/continue to only need to
+    % take place via the base computer.
+    %if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         toContinue = GetWithDefault('Want another practice trial?', 'y');
         delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
-    end
+    %end
     counter = counter + 1;
 end
 
