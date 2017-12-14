@@ -21,6 +21,7 @@ protocolParams.protocol = 'SquintToPulse';
 protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
+protocolParams.setup = false;
 protocolParams.simulate.oneLight = true;
 protocolParams.simulate.microphone = false;
 protocolParams.simulate.speaker = false;
@@ -30,6 +31,7 @@ protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
 protocolParams.simulate.makePlots = true;
+
 
 
 % define the identities of the base computer (which oversees the
@@ -347,6 +349,7 @@ end
 % trial, make sure that the single hardware piece gave appropriate output,
 % then move onto the next piece of hardware
 scratchProtocolParams = protocolParams;
+scratchProtocolParams.setup = true;
 scratchProtocolParams.simulate.oneLight = true;
 scratchProtocolParams.simulate.microphone = true;
 scratchProtocolParams.simulate.speaker = false;
@@ -409,7 +412,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         end
         
         % run scratch trial
-        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false, 'savePath', 'setup');
+        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', 1,'verbose',false);
         
         % show plot of audio results to convince us the mic is working
         if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
@@ -447,7 +450,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         fprintf('- Now showing %02d%% melanopsin contrast\n', contrastValues{loopIndex});
         scratchProtocolParams.trialTypeOrder = [contrastLevel];
         
-        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false, 'savePath', 'setup');
+        ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', contrastLevel,'verbose',false);
         if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
             movefile(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',contrastLevel)]), fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base_contrastCheck.mat',contrastLevel)]));
         end
@@ -459,12 +462,15 @@ end
 % now the subject can practice the whole trial procedure
 
 toContinue = 'y';
-protocolParams.trialTypeOrder = [3];
-protocolParams.nTrials = length(protocolParams.trialTypeOrder);
+scratchProtocolParams = protocolParams;
+scratchProtocolParams.trialTypeOrder = [3];
+scratchProtocolParams.nTrials = length(protocolParams.trialTypeOrder);
+scratchProtocolParams.setup = true;
+
 counter = 1;
 while toContinue ~= 'n'
     
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose, 'savePath', 'setup');
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose);
     
     % bit of a code issue to work out: we want the option to be able to
     % repeat practice trials as many times as the subject needs. however,

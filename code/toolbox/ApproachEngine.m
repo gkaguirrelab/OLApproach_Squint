@@ -23,11 +23,7 @@ function ApproachEngine(ol,protocolParams,varargin)
 p = inputParser;
 p.addParameter('verbose',true,@islogical);
 p.addParameter('acquisitionNumber',[],@isnumeric);
-p.addParameter('savePath','', @ischar);
-    % overwhelmingly, we're going to want to have the ApproachEngine
-    % control where the save files go. This flexibility was added so we
-    % could save out results from setup, but have these clearly
-    % distinguished from the actual data
+
 p.parse(varargin{:});
 
 
@@ -42,7 +38,11 @@ stimulusStruct = [];
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %% Where the data goes
     
-    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
+    if protocolParams.setup
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, 'setup');
+    else
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+    end
     if ~exist(savePath,'dir')
         mkdir(savePath);
     end
@@ -152,7 +152,11 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
         thisAction = protocolParams.myActions{satelliteIdx(ss)};
         
         % Figure out where to save the data
-        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
+        if protocolParams.setup
+            savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, 'setup');
+        else
+            savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+        end
         if ~exist(savePath,'dir')
             mkdir(savePath);
             warning('The base computer should have created a directory for saving data, but the satellite does not see it. Creating it so I can save.');

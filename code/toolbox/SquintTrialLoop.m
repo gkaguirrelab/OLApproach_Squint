@@ -166,10 +166,14 @@ if any(strcmp('satellite',protocolParams.myRoles))
     % myAction specific commands
     if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
         % Create a directory in which to save pupil videos
-        pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
+        if protocolParams.setup
+            pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, 'setup', sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
+        else
+            pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
+        end
         if ~exist(pupilVideoSaveDirectoryPath,'dir')
             mkdir(pupilVideoSaveDirectoryPath);
-        end        
+        end
     end
     
     if protocolParams.verbose
@@ -451,7 +455,7 @@ for trial = 1:protocolParams.nTrials
                     fprintf('[simulate] Video file recorded and saved\n');
                 end
             else
-                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial));
+                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial)); 
                 videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
                 [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
                 if recordErrorFlag
