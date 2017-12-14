@@ -458,14 +458,15 @@ end
 toContinue = 'y';
 protocolParams.trialTypeOrder = [3];
 protocolParams.nTrials = length(protocolParams.trialTypeOrder);
+counter = 1;
 while toContinue ~= 'n'
     
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose, 'savePath', 'setup');
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose, 'savePath', 'setup');
     if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         toContinue = GetWithDefault('Want another practice trial?', 'y');
         delete(fullfile(savePath, [scratchProtocolParams.sessionName '_' scratchProtocolParams.protocolOutputName sprintf('_acquisition%02d_base.mat',1)]));
     end
-
+    counter = counter + 1;
 end
 
 %% Run experiment
