@@ -470,7 +470,7 @@ scratchProtocolParams.setup = true;
 counter = 1;
 while toContinue ~= 'n'
     
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose);
+    ApproachEngine(ol,scratchProtocolParams,'acquisitionNumber', counter,'verbose',protocolParams.verbose);
     
     % bit of a code issue to work out: we want the option to be able to
     % repeat practice trials as many times as the subject needs. however,
