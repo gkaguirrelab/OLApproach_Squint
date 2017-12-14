@@ -32,7 +32,6 @@ p.parse(varargin{:});
 
 
 
-savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
 
 %% Perform pre trial loop actions
 
@@ -43,7 +42,7 @@ stimulusStruct = [];
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %% Where the data goes
     
-    %savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
     if ~exist(savePath,'dir')
         mkdir(savePath);
     end
@@ -153,7 +152,7 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
         thisAction = protocolParams.myActions{satelliteIdx(ss)};
         
         % Figure out where to save the data
-        %savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName);
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, p.Results.savePath);
         if ~exist(savePath,'dir')
             mkdir(savePath);
             warning('The base computer should have created a directory for saving data, but the satellite does not see it. Creating it so I can save.');
