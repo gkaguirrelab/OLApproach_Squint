@@ -464,7 +464,7 @@ end
 toContinue = 'y';
 scratchProtocolParams = protocolParams;
 scratchProtocolParams.trialTypeOrder = [3];
-scratchProtocolParams.nTrials = length(protocolParams.trialTypeOrder);
+scratchProtocolParams.nTrials = length(scratchProtocolParams.trialTypeOrder);
 scratchProtocolParams.setup = true;
 
 counter = 1;
