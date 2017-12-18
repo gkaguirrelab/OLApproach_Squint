@@ -303,6 +303,21 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
         error('Modulation and direction names cell arrays must have same length');
     end
+    
+    % Invite the operator to test the microphone
+    micCheckDoneFlag = false;
+    while ~micCheckDoneFlag
+        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
+        switch micCheckChoice
+            case 'y'
+                % CODE TO COLLECT AUDIO SAMPLE AND PLAY BACK (WITH THE
+                % BOOPS AND BEEP AT THE START AND END
+            case 'n'
+                micCheckDoneFlag = true;
+            otherwise
+        end
+    end
+    
 end
 
 % Role dependent actions - oneLight
@@ -353,6 +368,7 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
             fprintf('Satellite is ready to launch.\n')
     end
 end
+
 
 %% Pause dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
