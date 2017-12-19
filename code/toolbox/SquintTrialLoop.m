@@ -72,7 +72,7 @@ if any(strcmp('base',protocolParams.myRoles))
                 satelliteHostName,...                                               % satellite target
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
-                'timeOutSecs', 1.5, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+                'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
                 'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
                 'withData', struct( ...                                             % The data
                 'action','config', ...
@@ -195,7 +195,7 @@ if ~protocolParams.simulate.udp
             satelliteHostName,...                                               % satellite target
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
-            'timeOutSecs', 1.5, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+            'timeOutSecs', 1.0, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
             'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
             'withData', struct( ...
             'action','trial', ...
