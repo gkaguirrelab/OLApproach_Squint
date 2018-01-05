@@ -73,7 +73,6 @@ if any(strcmp('base',protocolParams.myRoles))
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
                 'timeOutSecs', 0.3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-                'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
                 'withData', struct( ...                                             % The data
                 'action','config', ...
                 'acquisitionNumber', protocolParams.acquisitionNumber, ...
@@ -132,9 +131,7 @@ if any(strcmp('satellite',protocolParams.myRoles))
             satelliteHostName,...                                                       % satellite target
             [baseHostName ' -> ' satelliteHostName], ...                                % message direction
             'Acquisition parameters', ...                                               % message label
-            'timeOutSecs', 3600, ...                                                    % Sit and wait up to an hour for my instruction
-            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
-            'badTransmissionAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER ...     % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
+            'timeOutSecs', 3600 ...                                                     % Sit and wait up to an hour for my instruction
             );
         
         % Wait for the config packet from the base
@@ -196,7 +193,6 @@ if ~protocolParams.simulate.udp
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
             'timeOutSecs', 0.3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
-            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...    % Do not throw an error, notify caller function instead (choose from UDPBaseSatelliteCommunicator.{NOTIFY_CALLER, THROW_ERROR})
             'withData', struct( ...
             'action','trial', ...
             'duration',0, ...
@@ -208,9 +204,7 @@ if ~protocolParams.simulate.udp
             satelliteHostName,...
             [baseHostName ' -> ' satelliteHostName], ...
             'Parameters for this trial from base', ...
-            'timeOutSecs', 3600, ...                                        % Sit and wait up to an hour for my instruction
-            'timeOutAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER, ...            % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
-            'badTransmissionAction', UDPBaseSatelliteCommunicator.NOTIFY_CALLER ...    % Do not throw an error, notify caller function instead (choose from UDPcommunicator2.{NOTIFY_CALLER, THROW_ERROR})
+            'timeOutSecs', 3600 ...                                        % Sit and wait up to an hour for my instruction
             );
     end
 end
