@@ -310,10 +310,13 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
         switch micCheckChoice
             case 'y'
-                % CODE TO COLLECT AUDIO SAMPLE AND PLAY BACK (WITH THE
-                % BOOPS AND BEEP AT THE START AND END
+                if ishandle(plotFig)
+                    close(plotFig)
+                end
+                [plotFig] = testAudio(protocolParams);
             case 'n'
                 micCheckDoneFlag = true;
+                close(plotFig);
             otherwise
         end
     end
