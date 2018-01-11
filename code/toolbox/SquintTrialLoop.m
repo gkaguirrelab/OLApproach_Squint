@@ -72,7 +72,7 @@ if any(strcmp('base',protocolParams.myRoles))
                 satelliteHostName,...                                               % satellite target
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
-                'timeOutSecs', 0.25, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+                'timeOutSecs', 3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
                 'withData', struct( ...                                             % The data
                 'action','config', ...
                 'acquisitionNumber', protocolParams.acquisitionNumber, ...
@@ -192,7 +192,7 @@ if ~protocolParams.simulate.udp
             satelliteHostName,...                                               % satellite target
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
-            'timeOutSecs', 0.25, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+            'timeOutSecs', 3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
             'withData', struct( ...
             'action','trial', ...
             'duration',0, ...
@@ -354,7 +354,7 @@ for trial = 1:protocolParams.nTrials
             end
         else
             t = linspace(0, 1, 2400);
-            y = sin(160*2*pi*t)*0.5;
+            y = sin(160*2*pi*t)*3;
             sound(y, 16000);
         end
         
@@ -370,7 +370,7 @@ for trial = 1:protocolParams.nTrials
             end
         else
             t = linspace(0, 1, 4800);
-            y = sin(160*2*pi*t)*0.5;
+            y = sin(160*2*pi*t)*3;
             sound(y, 16000);
         end
         
