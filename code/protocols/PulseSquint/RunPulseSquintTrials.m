@@ -379,7 +379,7 @@ end
 
 % Check the EMG output
 if any(cellfun(@(x) sum(strcmp(x,'emg')),protocolParams.myActions))
-
+    testEMG(protocolParams);
 end
 
 % Get the satelittes to the "ready to launch" position
