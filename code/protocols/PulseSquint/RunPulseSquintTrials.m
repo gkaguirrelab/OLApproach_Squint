@@ -379,7 +379,23 @@ end
 
 % Check the EMG output
 if any(cellfun(@(x) sum(strcmp(x,'emg')),protocolParams.myActions))
-    testEMG(protocolParams);
+    emgCheckDoneFlag = false;
+    while ~emgCheckDoneFlag
+        emgCheckChoice = GetWithDefault('>> Test the EMG? [y/n]', 'y');
+        switch emgCheckChoice
+            case 'y'
+                
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+                [plotFig] = testEMG(protocolParams);
+            case 'n'
+                emgCheckDoneFlag = true;
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+            otherwise
+        end
+    end
+    
 end
 
 % Get the satelittes to the "ready to launch" position
