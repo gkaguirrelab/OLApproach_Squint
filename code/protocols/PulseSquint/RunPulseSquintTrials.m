@@ -374,7 +374,7 @@ end
 
 % Check the video output
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-
+    testVideo(protocolParams);
 end
 
 % Check the EMG output
