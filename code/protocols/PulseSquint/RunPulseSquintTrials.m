@@ -304,23 +304,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         error('Modulation and direction names cell arrays must have same length');
     end
     
-    % Invite the operator to test the microphone
-    micCheckDoneFlag = false;
-    while ~micCheckDoneFlag
-        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
-        switch micCheckChoice
-            case 'y'
-                
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-                [plotFig] = testAudio(protocolParams);
-            case 'n'
-                micCheckDoneFlag = true;
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-            otherwise
-        end
-    end
+    
     
 end
 
@@ -366,7 +350,39 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
 end
 
-% Role dependent actions - satellite
+%% Pre-Flight Routine
+
+% Check the microphone
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    micCheckDoneFlag = false;
+    while ~micCheckDoneFlag
+        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
+        switch micCheckChoice
+            case 'y'
+                
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+                [plotFig] = testAudio(protocolParams);
+            case 'n'
+                micCheckDoneFlag = true;
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+            otherwise
+        end
+    end
+end
+
+% Check the video output
+if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    testVideo(protocolParams);
+end
+
+% Check the EMG output
+if any(cellfun(@(x) sum(strcmp(x,'emg')),protocolParams.myActions))
+
+end
+
+% Get the satelittes to the "ready to launch" position
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     if protocolParams.verbose
             fprintf('Satellite is ready to launch.\n')
