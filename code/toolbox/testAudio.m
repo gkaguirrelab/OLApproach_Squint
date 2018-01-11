@@ -53,7 +53,7 @@ mglWaitSecs(4000/16000 * 2);
 audioOutput = getaudiodata(audioRecObj);
 
 % plot audio trace
-plotFig = figure;
+plotFig = figure('name', 'plotFig');
 plot(0:4/64000:4-1/64000, audioOutput)
 ylabel('Amplitude')
 xlabel('Time (s)')

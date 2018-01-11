@@ -310,13 +310,14 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
         switch micCheckChoice
             case 'y'
-                if ishandle(plotFig)
-                    close(plotFig)
-                end
+                
+                existingFig = findobj(get(0), 'Children', 'flat', 'Name', 'plotFig');
+                close(existingFig);
                 [plotFig] = testAudio(protocolParams);
             case 'n'
                 micCheckDoneFlag = true;
-                close(plotFig);
+                existingFig = findobj(get(0), 'Children', 'flat', 'Name', 'plotFig');
+                close(existingFig);
             otherwise
         end
     end
