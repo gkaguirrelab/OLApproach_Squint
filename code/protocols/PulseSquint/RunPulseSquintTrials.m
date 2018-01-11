@@ -311,12 +311,12 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         switch micCheckChoice
             case 'y'
                 
-                existingFig = findobj(get(0), 'Children', 'flat', 'Name', 'plotFig');
+                existingFig = findobj('type','figure','name','plotFig');
                 close(existingFig);
                 [plotFig] = testAudio(protocolParams);
             case 'n'
                 micCheckDoneFlag = true;
-                existingFig = findobj(get(0), 'Children', 'flat', 'Name', 'plotFig');
+                existingFig = findobj('type','figure','name','plotFig');
                 close(existingFig);
             otherwise
         end
