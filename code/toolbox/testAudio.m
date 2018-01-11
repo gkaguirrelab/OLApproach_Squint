@@ -27,7 +27,7 @@ function [ plotFig ] = testAudio(protocolParams)
 %protocolParams.trialResponseWindowTimeSec = 4;
 %protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,3)'; %
 %correct ID (3) for the stimulus computer
-protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,0)'; % hopefully the correct ID (0) for my bluetooth headphones for troulbe shooting
+%protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,0)'; % hopefully the correct ID (0) for my bluetooth headphones for troulbe shooting
 
 
 audioRecObj = eval(protocolParams.audioRecordObjCommand);
