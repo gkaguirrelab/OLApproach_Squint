@@ -72,7 +72,7 @@ if any(strcmp('base',protocolParams.myRoles))
                 satelliteHostName,...                                               % satellite target
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
-                'timeOutSecs', 3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+                'timeOutSecs', .05, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
                 'withData', struct( ...                                             % The data
                 'action','config', ...
                 'acquisitionNumber', protocolParams.acquisitionNumber, ...
@@ -192,7 +192,7 @@ if ~protocolParams.simulate.udp
             satelliteHostName,...                                               % satellite target
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
-            'timeOutSecs', 3, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+            'timeOutSecs', 0.05, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
             'withData', struct( ...
             'action','trial', ...
             'duration',0, ...
