@@ -44,7 +44,12 @@ if protocolParams.simulate.udp
         fprintf('[simulate] UDP communication established\n');
     end
 else
+    
+lazyPollIntervalSeconds = 10/1000;
+timeOutSecs = 40/1000;
 UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose);
+UDPobj.lazyPollIntervalSeconds = lazyPollIntervalSeconds;
+
 % Establish the communication
     triggerMessage = 'Go!';
     allSatellitesAreAGOMessage = 'All Satellites Are Go!';
@@ -72,7 +77,7 @@ if any(strcmp('base',protocolParams.myRoles))
                 satelliteHostName,...                                               % satellite target
                 [baseHostName ' -> ' satelliteHostName], ...                        % message direction
                 'Acquisition parameters', ...                                       % message label
-                'timeOutSecs', .05, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+                'timeOutSecs', timeOutSecs, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
                 'withData', struct( ...                                             % The data
                 'action','config', ...
                 'acquisitionNumber', protocolParams.acquisitionNumber, ...
@@ -192,7 +197,7 @@ if ~protocolParams.simulate.udp
             satelliteHostName,...                                               % satellite target
             [baseHostName ' -> ' satelliteHostName], ...                        % message direction
             'Parameters for this trial from base', ...                          % message label
-            'timeOutSecs', 0.05, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
+            'timeOutSecs', timeOutSecs, ...                                             % Wait for 1 secs to receive this message. I'm the base so I'm impatient
             'withData', struct( ...
             'action','trial', ...
             'duration',0, ...
