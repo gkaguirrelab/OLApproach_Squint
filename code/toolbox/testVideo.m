@@ -8,4 +8,31 @@ input('');
 cameraTurnOffCommand = 'osascript -e ''quit app "VLC"''';
 [recordedErrorFlag, consoleOutput] = system(cameraTurnOffCommand);
 
+
+videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+
+
+calibrationDoneFlag = false;
+counter = 1;
+    while ~calibrationDoneFlag
+        micCheckChoice = GetWithDefault('>> Run pupil calibration?? [y/n]', 'y');
+        switch micCheckChoice
+            case 'y'
+                pupilVideoSaveDirectoryPath = '~/Desktop/';
+                duration = 60;
+                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('calibration_%03d.avi',counter)); 
+                videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(duration) ' ' videoOutFile ''];
+                [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
+                counter = counter + 1;
+                
+                playCommand = ['/Applications/VLC\ 2.app/Contents/MacOS/VLC play ' videoOutFile ' &'];
+                [recordErrorFlag,consoleOutput]=system(playCommand);
+                
+            case 'n'
+                calibrationDoneFlag = true;
+                
+            otherwise
+        end
+    end
+
 end
