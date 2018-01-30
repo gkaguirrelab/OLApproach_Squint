@@ -1,0 +1,264 @@
+function ResumePulseSquintTrials(protocolParams)
+
+% Establish myRole and myActions
+if protocolParams.simulate.udp
+    % If we are simulating the UDP connection stream, then we will operate
+    % as the base and simulate the satellite component when needed.
+    protocolParams.myRoles = {'base','satellite','satellite'};
+    % If we are simulating the UDP connection stream, then we will execute
+    % all actions in this routine.
+    protocolParams.myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
+
+else
+    % Get local computer name
+    localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
+    % Find which hostName is contained within my computer name
+    idxWhichHostAmI = find(cellfun(@(x) contains(localHostName, x), protocolParams.hostNames));
+    if isempty(idxWhichHostAmI)
+        error(['My local host name (' localHostName ') does not match an available host name']);
+    end
+    % Assign me the role corresponding to my host name
+    protocolParams.myRoles = protocolParams.hostRoles{idxWhichHostAmI};
+    if ~iscell(protocolParams.myRoles)
+        protocolParams.myRoles={protocolParams.myRoles};
+    end
+    % Assign me the actions corresponding to my host name
+    protocolParams.myActions = protocolParams.hostActions{idxWhichHostAmI};
+    if ~iscell(protocolParams.myActions)
+        protocolParams.myActions={protocolParams.myActions};
+    end
+end
+
+%% Set trial sequence
+%
+% 12/12/17: these are now to be set within the loop around acquisition,
+% because each acquisition will need to have a different trial order
+
+
+% deBruijn sequences: we want to use deBruijn sequences to counter-balance
+% the order of trial types within a given acquisition
+deBruijnSequences = ...
+    [3,     3,     1,     2,     1,     1,     3,     2,     2;
+     3,     1,     2,     2,     1,     1,     3,     3,     2;
+     2,     2,     3,     1,     1,     2,     1,     3,     3;
+     2,     3,     3,     1,     1,     2,     2,     1,     3];
+ % each row here refers to a differnt deBruijn sequence governing trial
+ % order within each acquisition. Each different label refers (1, 2, or 3) to a
+ % different contrast level
+ 
+ % when it comes time to actually run an acquisition below, we'll grab a
+ % row from this deBruijnSequences matrix, and use that row to provide the
+ % trial order for that acqusition.
+
+%% Pre-experiment actions
+
+% Set the ol variable to empty. It will be filled if we are the base.
+ol = [];
+
+% Role dependent actions - base
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    % Information we prompt for and related
+    commandwindow;
+    protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
+    protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
+    protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
+    protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+    
+    protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+    
+    %% Use these to test reporting on validation and spectrum seeking
+    %
+    % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
+    % Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
+    % protocolParams.observerID = 'tired';
+    % protocolParams.observerAgeInYrs = 32;
+    % protocolParams.todayDate = '2017-09-01';
+    % protocolParams.sessionName = 'session_1';
+    % protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
+    % protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
+    
+    %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
+    if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
+        error('Calibration file prefs not set up as expected for an approach');
+    end
+    
+    % Sanity check on modulations
+    if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
+        error('Modulation and direction names cell arrays must have same length');
+    end
+    
+    
+    
+end
+
+% Role dependent actions - oneLight
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
+
+    %% Open the OneLight
+    ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
+    
+    %% Let user get the radiometer set up
+    radiometerPauseDuration = 0;
+    ol.setAll(true);
+    commandwindow;
+    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+    input('');
+    ol.setAll(false);
+    pause(radiometerPauseDuration);
+    
+    %% Open the session
+    %
+    % The call to OLSessionLog sets up info in protocolParams for where
+    % the logs go.
+    protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+    
+    %% Make the corrected modulation primaries
+    %
+    % Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
+    % in the direction parameters and as specified in protocol params here, if the former
+    % are part of the direction. Might have to pass protocol params down into the called
+    % routine. Could also do this in other routines below, I think.
+    OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
+    
+    % This routine is mainly to debug the correction procedure, not particularly
+    % useful once things are humming along.  One would use it if the validations
+    % are coming out badly and it was necessary to track things down.
+    % OLCheckPrimaryCorrection(protocolParams);
+    
+    %% Make the modulation starts and stops
+    OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
+    
+    %% Validate direction corrected primaries prior to experiemnt
+    OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
+    OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
+end
+
+%% Pre-Flight Routine
+
+% Check the microphone
+if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    micCheckDoneFlag = false;
+    while ~micCheckDoneFlag
+        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
+        switch micCheckChoice
+            case 'y'
+                
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+                [plotFig] = testAudio(protocolParams);
+            case 'n'
+                micCheckDoneFlag = true;
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+            otherwise
+        end
+    end
+end
+
+% Check the video output
+if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    testVideo(protocolParams);
+end
+
+% Check the EMG output
+if any(cellfun(@(x) sum(strcmp(x,'emg')),protocolParams.myActions))
+    emgCheckDoneFlag = false;
+    while ~emgCheckDoneFlag
+        emgCheckChoice = GetWithDefault('>> Test the EMG? [y/n]', 'y');
+        switch emgCheckChoice
+            case 'y'
+                
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+                [plotFig] = testEMG(protocolParams);
+            case 'n'
+                emgCheckDoneFlag = true;
+                existingFig = findobj('type','figure','name','plotFig');
+                close(existingFig);
+            otherwise
+        end
+    end
+    
+end
+
+% Get the satelittes to the "ready to launch" position
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+    if protocolParams.verbose
+            fprintf('Satellite is ready to launch.\n')
+    end
+end
+
+
+%% Pause dropBox syncing
+dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
+if protocolParams.verbose
+    fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
+end
+
+%% Run experiment
+
+% define our acquisition order. Because deBruijn sequences were poorly
+% ordered with 2 labels, we decided to go with alternating order
+acquisitionOrder = {'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS'};
+
+% set up some counters, so we know which deBruijn sequence to grab for the
+% relevant acquisition
+nMelAcquisitions = 1;
+nLMSAcquisitions = 1;
+for aa = protocolParams.acquisitionNumber:length(acquisitionOrder)
+    
+    if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
+        % grab a specific deBruijn sequence, and append a duplicate of the
+        % last trial as the first trial
+        protocolParams.trialTypeOrder = [deBruijnSequences(nMelAcquisitions,length(deBruijnSequences(nMelAcquisitions,:))), deBruijnSequences(nMelAcquisitions,:)];
+        % update the counter
+        nMelAcquisitions = nMelAcquisitions + 1;
+    elseif strcmp(acquisitionOrder{aa}, 'LMS')
+         % grab a specific deBruijn sequence, and append a duplicate of the
+        % last trial as the first trial
+        % the +3 gives LMS modulations, rather than Mel modulations (the
+        % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
+        % flux)
+        protocolParams.trialTypeOrder = [deBruijnSequences(nLMSAcquisitions,length(deBruijnSequences(nLMSAcquisitions,:)))+3, deBruijnSequences(nLMSAcquisitions,:)+3];
+        %update the counter
+        nLMSAcquisitions = nLMSAcquisitions + 1;
+    end
+    protocolParams.nTrials = length(protocolParams.trialTypeOrder);
+    
+    % actually launch the acquisition, and label that acquisition according
+    % to where we are in the for-loop
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+end
+
+%% Resume dropBox syncing
+dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
+if protocolParams.verbose
+    fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
+end
+
+
+%% Post-experiment actions
+
+% Role dependent actions - oneLight
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
+    % Let user get the radiometer set up
+    ol.setAll(true);
+    commandwindow;
+    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+    input('');
+    ol.setAll(false);
+    pause(radiometerPauseDuration);
+    
+    %% Validate direction corrected primaries post experiment
+    OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Post');
+    OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Post');
+end
+
+% Role dependent actions - satellite
+if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+    if protocolParams.verbose
+        for aa = 1:length(protocolParams.myActions)
+            fprintf('Satellite is finished.\n')
+        end
+    end
+end
