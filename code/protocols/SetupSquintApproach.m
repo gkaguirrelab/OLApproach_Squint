@@ -16,10 +16,10 @@ approachParams.approach = 'OLApproach_Squint';
 approachParams.calibrationTypes = {'BoxBRandomizedLongCableDStubby1_ND00', 'BoxARandomizedLongCableAEyePiece1_ND01'};
 
 % List of all backgrounds used in this approach
-approachParams.backgroundNames = {'MelanopsinDirected_275_60_667', 'LMSDirected_275_60_667', 'LightFlux_540_380_50'};
+approachParams.backgroundNames = {'MelanopsinDirected_275_60_667', 'LMSDirected_275_60_667'};
 
 % List of all directions used in this approach
-approachParams.directionNames = {'MaxMel_275_60_667', 'MaxLMS_275_60_667', 'LightFlux_540_380_50'};
+approachParams.directionNames = {'MaxMel_unipolar_275_60_667', 'MaxLMS_unipolar_275_60_667'};
 
 %%  Make the backgrounds
 for cc = 1:length(approachParams.calibrationTypes)
