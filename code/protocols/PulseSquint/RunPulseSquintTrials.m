@@ -408,6 +408,7 @@ acquisitionOrder = {'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS'};
 nMelAcquisitions = 1;
 nLMSAcquisitions = 1;
 for aa = 1:length(acquisitionOrder)
+    protocolParams.acquisitionNumber = aa;
     
     if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
         % grab a specific deBruijn sequence, and append a duplicate of the
@@ -429,7 +430,7 @@ for aa = 1:length(acquisitionOrder)
     
     % actually launch the acquisition, and label that acquisition according
     % to where we are in the for-loop
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', protocolParams.acquisitionNumber,'verbose',protocolParams.verbose);
 end
 
 %% Resume dropBox syncing
