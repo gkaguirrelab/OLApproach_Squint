@@ -96,90 +96,11 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
 
     %% Open the OneLight
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
-    
-    %% Let user get the radiometer set up
-    radiometerPauseDuration = 0;
-    ol.setAll(true);
-    commandwindow;
-    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-    input('');
     ol.setAll(false);
-    pause(radiometerPauseDuration);
     
-    %% Open the session
-    %
-    % The call to OLSessionLog sets up info in protocolParams for where
-    % the logs go.
-    protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
-    
-    %% Make the corrected modulation primaries
-    %
-    % Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
-    % in the direction parameters and as specified in protocol params here, if the former
-    % are part of the direction. Might have to pass protocol params down into the called
-    % routine. Could also do this in other routines below, I think.
-    OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
-    
-    % This routine is mainly to debug the correction procedure, not particularly
-    % useful once things are humming along.  One would use it if the validations
-    % are coming out badly and it was necessary to track things down.
-    % OLCheckPrimaryCorrection(protocolParams);
-    
-    %% Make the modulation starts and stops
-    OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
-    
-    %% Validate direction corrected primaries prior to experiemnt
-    OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
-    OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
-end
-
-%% Pre-Flight Routine
-
-% Check the microphone
-if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-    micCheckDoneFlag = false;
-    while ~micCheckDoneFlag
-        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
-        switch micCheckChoice
-            case 'y'
-                
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-                [plotFig] = testAudio(protocolParams);
-            case 'n'
-                micCheckDoneFlag = true;
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-            otherwise
-        end
-    end
-end
-
-% Check the video output
-if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-    testVideo(protocolParams);
-end
-
-% Check the EMG output
-if any(cellfun(@(x) sum(strcmp(x,'emg')),protocolParams.myActions))
-    emgCheckDoneFlag = false;
-    while ~emgCheckDoneFlag
-        emgCheckChoice = GetWithDefault('>> Test the EMG? [y/n]', 'y');
-        switch emgCheckChoice
-            case 'y'
-                
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-                [plotFig] = testEMG(protocolParams);
-            case 'n'
-                emgCheckDoneFlag = true;
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-            otherwise
-        end
-    end
     
 end
+
 
 % Get the satelittes to the "ready to launch" position
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
