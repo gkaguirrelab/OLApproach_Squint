@@ -54,7 +54,7 @@ UDPobj.lazyPollIntervalSeconds = lazyPollIntervalSeconds;
 % Establish the communication
     triggerMessage = 'Go!';
     allSatellitesAreAGOMessage = 'All Satellites Are Go!';
-    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSatellitesAreAGOMessage, 'beVerbose', protocolParams.verbose);
+    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSatellitesAreAGOMessage, maxAttemptsNum, 'beVerbose', protocolParams.verbose);
     % Report success
     if protocolParams.verbose
         fprintf('UDP communication established\n');
