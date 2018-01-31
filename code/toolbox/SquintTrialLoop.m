@@ -257,7 +257,7 @@ for trial = 1:protocolParams.nTrials
                 fprintf('[simulate] base speaking we are ready for trial\n');
             end
         else
-            Speak('Ready', [], speakRateDefault);
+            Speak('Press button to begin trial', [], speakRateDefault);
         end
         
         % Wait for button press from subject
