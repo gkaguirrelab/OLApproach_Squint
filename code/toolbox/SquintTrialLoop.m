@@ -48,7 +48,7 @@ else
 lazyPollIntervalSeconds = 10/1000;
 timeOutSecs = 50/1000;
 maxAttemptsNum = 20;
-UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose);
+UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose, 'transmissionMode', 'SINGLE_BYTES');
 UDPobj.lazyPollIntervalSeconds = lazyPollIntervalSeconds;
 
 % Establish the communication
