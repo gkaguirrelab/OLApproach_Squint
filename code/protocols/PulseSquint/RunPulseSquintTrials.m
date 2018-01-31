@@ -23,14 +23,14 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
-protocolParams.simulate.microphone = true;
-protocolParams.simulate.speaker = true;
-protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = true;
+protocolParams.simulate.microphone = false;
+protocolParams.simulate.speaker = false;
+protocolParams.simulate.emg = false;
+protocolParams.simulate.pupil = false;
 protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = true;
+protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
-protocolParams.simulate.makePlots = true;
+protocolParams.simulate.makePlots = false;
 
 
 
@@ -253,7 +253,7 @@ protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
 % Validation parameters
-protocolParams.nValidationsPerDirection = 1;
+protocolParams.nValidationsPerDirection = 5;
 
 %% Pre-experiment actions
 
@@ -401,7 +401,7 @@ end
 
 % define our acquisition order. Because deBruijn sequences were poorly
 % ordered with 2 labels, we decided to go with alternating order
-acquisitionOrder = {'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS'};
+acquisitionOrder = {'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS'};
 
 % set up some counters, so we know which deBruijn sequence to grab for the
 % relevant acquisition
