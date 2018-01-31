@@ -66,6 +66,15 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
     
+    % make sure we're resuming what we think we're resuming, specifically
+    % that the relevant session already exists
+    sessionDir = fullfile(getpref(protocolParams.protocol,'SessionRecordsBasePath'),protocolParams.observerID,protocolParams.todayDate, protocolParams.sessionName);
+    if exist(sessionDir,'dir')
+        fprintf('Found the relevant session folder.\n')
+    else
+        error('Could not find the relevant session folder')
+    end
+    
     %% Use these to test reporting on validation and spectrum seeking
     %
     % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
