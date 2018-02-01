@@ -236,6 +236,10 @@ deBruijnSequences = ...
     [3,     3,     1,     2,     1,     1,     3,     2,     2;
      3,     1,     2,     2,     1,     1,     3,     3,     2;
      2,     2,     3,     1,     1,     2,     1,     3,     3;
+     2,     3,     3,     1,     1,     2,     2,     1,     3;
+     3,     3,     1,     2,     1,     1,     3,     2,     2;
+     3,     1,     2,     2,     1,     1,     3,     3,     2;
+     2,     2,     3,     1,     1,     2,     1,     3,     3;
      2,     3,     3,     1,     1,     2,     2,     1,     3];
  % each row here refers to a differnt deBruijn sequence governing trial
  % order within each acquisition. Each different label refers (1, 2, or 3) to a
