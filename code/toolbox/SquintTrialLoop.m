@@ -248,7 +248,7 @@ for trial = 1:protocolParams.nTrials
 
         % Announce trial
         if (protocolParams.verbose)
-            fprintf('* Start trial %i/%i - %s,\n', trial, protocolParams.nTrials, stimulusStruct(trial).modulationData.modulationParams.direction);
+            fprintf('\n* <strong> Starting Trial %i/%i in Acquisition %i - %s,</strong>\n\n', trial, protocolParams.nTrials, protocolParams.acquisitionNumber, stimulusStruct(trial).modulationData.modulationParams.direction);
         end        
 
         % Alert the subject we are ready for the next trial
