@@ -68,6 +68,8 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
     protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
     
+    startingAcquisitionNumber = protocolParams.acquisitionNumber;
+    
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
     
     % make sure we're resuming what we think we're resuming, specifically
@@ -131,16 +133,38 @@ end
 
 %% Run experiment
 
-% define our acquisition order. Because deBruijn sequences were poorly
-% ordered with 2 labels, we decided to go with alternating order
-acquisitionOrder = {'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS', 'Mel', 'LMS'};
+triplets = ...
+    {'Mel', 'LMS', 'LightFlux'; ...
+    'Mel', 'LightFlux', 'LMS'; ...
+    'LightFlux', 'Mel', 'LMS'; ...
+    'LightFlux', 'LMS', 'Mel'; ...
+    'LMS', 'Mel', 'LightFlux'; ...
+    'LMS', 'LightFlux', 'Mel';};
+    
+
+if strcmp(protocolParams.sessionName, 'session_1')
+    acquisitionOrder = [triplets(1,:), triplets(2,:)];
+ 
+elseif strcmp(protocolParams.sessionName, 'session_2')
+    acquisitionOrder = [triplets(3,:), triplets(4,:)];
+    
+elseif strcmp(protocolParams.sessionName, 'session_3')
+    acquisitionOrder = [triplets(5,:), triplets(6,:)];
+    
+elseif strcmp(protocolParams.sessionName, 'session_4')
+    acquisitionOrder = [triplets(1,:), triplets(2,:)];
+    
+end
 
 % set up some counters, so we know which deBruijn sequence to grab for the
 % relevant acquisition
 nMelAcquisitions = 1;
 nLMSAcquisitions = 1;
-for aa = protocolParams.acquisitionNumber:length(acquisitionOrder)
-    
+nLightFluxAcquisitions = 1;
+
+
+for aa = startingAcquisitionNumber:length(acquisitionOrder)
+    protocolParams.acquisitionNumber = aa;
     if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
         % grab a specific deBruijn sequence, and append a duplicate of the
         % last trial as the first trial
@@ -156,6 +180,15 @@ for aa = protocolParams.acquisitionNumber:length(acquisitionOrder)
         protocolParams.trialTypeOrder = [deBruijnSequences(nLMSAcquisitions,length(deBruijnSequences(nLMSAcquisitions,:)))+3, deBruijnSequences(nLMSAcquisitions,:)+3];
         %update the counter
         nLMSAcquisitions = nLMSAcquisitions + 1;
+    elseif strcmp(acquisitionOrder{aa}, 'LightFlux')
+         % grab a specific deBruijn sequence, and append a duplicate of the
+        % last trial as the first trial
+        % the +3 gives LMS modulations, rather than Mel modulations (the
+        % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
+        % flux)
+        protocolParams.trialTypeOrder = [deBruijnSequences(nLightFluxAcquisitions,length(deBruijnSequences(nLightFluxAcquisitions,:)))+6, deBruijnSequences(nLightFluxAcquisitions,:)+6];
+        %update the counter
+        nLightFluxAcquisitions = nLightFluxAcquisitions + 1;
     end
     protocolParams.nTrials = length(protocolParams.trialTypeOrder);
     
