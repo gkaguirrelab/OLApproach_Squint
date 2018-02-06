@@ -362,7 +362,7 @@ for trial = 1:protocolParams.nTrials
             %t = linspace(0, 1, 2400);
             %y = sin(160*2*pi*t)*3;
             %sound(y, 16000);
-            Speak('Respond', [], speakRateDefault);
+            Speak('Rating', [], speakRateDefault);
         end
         
         % Wait for the duration of the response time. Could add in the
