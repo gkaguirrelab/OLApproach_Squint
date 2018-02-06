@@ -441,48 +441,58 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         acquisitionOrder = [triplets(1,:), triplets(2,:)];
         
     end
+    % set up some counters, so we know which deBruijn sequence to grab for the
+    % relevant acquisition
+    nMelAcquisitions = 1;
+    nLMSAcquisitions = 1;
+    nLightFluxAcquisitions = 1;
 end
 
-% set up some counters, so we know which deBruijn sequence to grab for the
-% relevant acquisition
-nMelAcquisitions = 1;
-nLMSAcquisitions = 1;
-nLightFluxAcquisitions = 1;
+
 
 protocolParams.acquisitionNumber = 1;
 
 for aa = 1:6
     protocolParams.acquisitionNumber = aa;
     
-    if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
-        % grab a specific deBruijn sequence, and append a duplicate of the
-        % last trial as the first trial
-        protocolParams.trialTypeOrder = [deBruijnSequences(nMelAcquisitions,length(deBruijnSequences(nMelAcquisitions,:))), deBruijnSequences(nMelAcquisitions,:)];
-        % update the counter
-        nMelAcquisitions = nMelAcquisitions + 1;
-    elseif strcmp(acquisitionOrder{aa}, 'LMS')
-        % grab a specific deBruijn sequence, and append a duplicate of the
-        % last trial as the first trial
-        % the +3 gives LMS modulations, rather than Mel modulations (the
-        % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
-        % flux)
-        protocolParams.trialTypeOrder = [deBruijnSequences(nLMSAcquisitions,length(deBruijnSequences(nLMSAcquisitions,:)))+3, deBruijnSequences(nLMSAcquisitions,:)+3];
-        %update the counter
-        nLMSAcquisitions = nLMSAcquisitions + 1;
-    elseif strcmp(acquisitionOrder{aa}, 'LightFlux')
-        % grab a specific deBruijn sequence, and append a duplicate of the
-        % last trial as the first trial
-        % the +3 gives LMS modulations, rather than Mel modulations (the
-        % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
-        % flux)
-        protocolParams.trialTypeOrder = [deBruijnSequences(nLightFluxAcquisitions,length(deBruijnSequences(nLightFluxAcquisitions,:)))+6, deBruijnSequences(nLightFluxAcquisitions,:)+6];
-        %update the counter
-        nLightFluxAcquisitions = nLightFluxAcquisitions + 1;
+    if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
+        if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
+            % grab a specific deBruijn sequence, and append a duplicate of the
+            % last trial as the first trial
+            protocolParams.trialTypeOrder = [deBruijnSequences(nMelAcquisitions,length(deBruijnSequences(nMelAcquisitions,:))), deBruijnSequences(nMelAcquisitions,:)];
+            % update the counter
+            nMelAcquisitions = nMelAcquisitions + 1;
+        elseif strcmp(acquisitionOrder{aa}, 'LMS')
+            % grab a specific deBruijn sequence, and append a duplicate of the
+            % last trial as the first trial
+            % the +3 gives LMS modulations, rather than Mel modulations (the
+            % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
+            % flux)
+            protocolParams.trialTypeOrder = [deBruijnSequences(nLMSAcquisitions,length(deBruijnSequences(nLMSAcquisitions,:)))+3, deBruijnSequences(nLMSAcquisitions,:)+3];
+            %update the counter
+            nLMSAcquisitions = nLMSAcquisitions + 1;
+        elseif strcmp(acquisitionOrder{aa}, 'LightFlux')
+            % grab a specific deBruijn sequence, and append a duplicate of the
+            % last trial as the first trial
+            % the +3 gives LMS modulations, rather than Mel modulations (the
+            % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
+            % flux)
+            protocolParams.trialTypeOrder = [deBruijnSequences(nLightFluxAcquisitions,length(deBruijnSequences(nLightFluxAcquisitions,:)))+6, deBruijnSequences(nLightFluxAcquisitions,:)+6];
+            %update the counter
+            nLightFluxAcquisitions = nLightFluxAcquisitions + 1;
+        end
+        
     end
-    protocolParams.nTrials = length(protocolParams.trialTypeOrder);
     
-    % actually launch the acquisition, and label that acquisition according
-    % to where we are in the for-loop
+    % the base computer needs to know more information than the satellites
+    % do -- what modulation to give for each trial, for example. Since the
+    % satellites don't need to know all of this, and in fact would require
+    % some additional input (like session_number), we're going to give the
+    % satellites the minimal amount of information they need to run
+    % this means some stuff has to be hard-coded: nTrials, below; and the
+    % number of acquisitions in a given session (hard-coded at the start of
+    % the for-loop)
+    protocolParams.nTrials = 10;
     ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
 end
 
