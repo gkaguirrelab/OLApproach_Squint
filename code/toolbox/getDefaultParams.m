@@ -27,7 +27,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 
 % set some basics about our hardware
 protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
-protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,3)';
+protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,2)';
 
 % set up some information about our stimuli
 protocolParams.modulationNames = { ...
