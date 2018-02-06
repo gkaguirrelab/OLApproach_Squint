@@ -359,9 +359,10 @@ for trial = 1:protocolParams.nTrials
                 fprintf('[simulate] base alerting subject time to respond\n');
             end
         else
-            t = linspace(0, 1, 2400);
-            y = sin(160*2*pi*t)*3;
-            sound(y, 16000);
+            %t = linspace(0, 1, 2400);
+            %y = sin(160*2*pi*t)*3;
+            %sound(y, 16000);
+            Speak('Respond', [], speakRateDefault);
         end
         
         % Wait for the duration of the response time. Could add in the
