@@ -34,9 +34,12 @@ audioRecObj = eval(protocolParams.audioRecordObjCommand);
 record(audioRecObj,protocolParams.trialResponseWindowTimeSec);
 
 % make beep
-t = linspace(0, 1, 2400);
-y = sin(160*2*pi*t)*0.5;
-sound(y, 16000);
+%t = linspace(0, 1, 2400);
+%y = sin(160*2*pi*t)*0.5;
+%sound(y, 16000);
+% say "Rating"
+speakRateDefault = getpref(protocolParams.approach, 'SpeakRateDefault');
+Speak('Rating', [], speakRateDefault);
 
 % pause for the 4 second recording window
 mglWaitSecs(protocolParams.trialResponseWindowTimeSec);
