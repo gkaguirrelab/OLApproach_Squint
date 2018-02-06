@@ -59,7 +59,7 @@ if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will execute
     % all actions in this routine.
     protocolParams.myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
-
+    
 else
     % Get local computer name
     localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
@@ -249,21 +249,21 @@ protocolParams.attentionTask = false;
 % the order of trial types within a given acquisition
 deBruijnSequences = ...
     [3,     3,     1,     2,     1,     1,     3,     2,     2;
-     3,     1,     2,     2,     1,     1,     3,     3,     2;
-     2,     2,     3,     1,     1,     2,     1,     3,     3;
-     2,     3,     3,     1,     1,     2,     2,     1,     3;
-     3,     3,     1,     2,     1,     1,     3,     2,     2;
-     3,     1,     2,     2,     1,     1,     3,     3,     2;
-     2,     2,     3,     1,     1,     2,     1,     3,     3;
-     2,     3,     3,     1,     1,     2,     2,     1,     3];
- % each row here refers to a differnt deBruijn sequence governing trial
- % order within each acquisition. Each different label refers (1, 2, or 3) to a
- % different contrast level
- 
- % when it comes time to actually run an acquisition below, we'll grab a
- % row from this deBruijnSequences matrix, and use that row to provide the
- % trial order for that acqusition.
-    
+    3,     1,     2,     2,     1,     1,     3,     3,     2;
+    2,     2,     3,     1,     1,     2,     1,     3,     3;
+    2,     3,     3,     1,     1,     2,     2,     1,     3;
+    3,     3,     1,     2,     1,     1,     3,     2,     2;
+    3,     1,     2,     2,     1,     1,     3,     3,     2;
+    2,     2,     3,     1,     1,     2,     1,     3,     3;
+    2,     3,     3,     1,     1,     2,     2,     1,     3];
+% each row here refers to a differnt deBruijn sequence governing trial
+% order within each acquisition. Each different label refers (1, 2, or 3) to a
+% different contrast level
+
+% when it comes time to actually run an acquisition below, we'll grab a
+% row from this deBruijnSequences matrix, and use that row to provide the
+% trial order for that acqusition.
+
 
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
@@ -314,7 +314,7 @@ end
 
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
-
+    
     %% Open the OneLight
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
     
@@ -352,6 +352,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %% Validate direction corrected primaries prior to experiemnt
     OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
     OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
+    
 end
 
 %% Pre-Flight Routine
@@ -405,7 +406,7 @@ end
 % Get the satelittes to the "ready to launch" position
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     if protocolParams.verbose
-            fprintf('Satellite is ready to launch.\n')
+        fprintf('Satellite is ready to launch.\n')
     end
 end
 
@@ -425,20 +426,21 @@ triplets = ...
     'LightFlux', 'LMS', 'Mel'; ...
     'LMS', 'Mel', 'LightFlux'; ...
     'LMS', 'LightFlux', 'Mel';};
-    
 
-if strcmp(protocolParams.sessionName, 'session_1')
-    acquisitionOrder = [triplets(1,:), triplets(2,:)];
- 
-elseif strcmp(protocolParams.sessionName, 'session_2')
-    acquisitionOrder = [triplets(3,:), triplets(4,:)];
-    
-elseif strcmp(protocolParams.sessionName, 'session_3')
-    acquisitionOrder = [triplets(5,:), triplets(6,:)];
-    
-elseif strcmp(protocolParams.sessionName, 'session_4')
-    acquisitionOrder = [triplets(1,:), triplets(2,:)];
-    
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
+    if strcmp(protocolParams.sessionName, 'session_1')
+        acquisitionOrder = [triplets(1,:), triplets(2,:)];
+        
+    elseif strcmp(protocolParams.sessionName, 'session_2')
+        acquisitionOrder = [triplets(3,:), triplets(4,:)];
+        
+    elseif strcmp(protocolParams.sessionName, 'session_3')
+        acquisitionOrder = [triplets(5,:), triplets(6,:)];
+        
+    elseif strcmp(protocolParams.sessionName, 'session_4')
+        acquisitionOrder = [triplets(1,:), triplets(2,:)];
+        
+    end
 end
 
 % set up some counters, so we know which deBruijn sequence to grab for the
@@ -449,8 +451,9 @@ nLightFluxAcquisitions = 1;
 
 protocolParams.acquisitionNumber = 1;
 
-for aa = 1:length(acquisitionOrder)
+for aa = 1:6
     protocolParams.acquisitionNumber = aa;
+    
     if strcmp(acquisitionOrder{aa}, 'Mel') % If the acqusition is Mel
         % grab a specific deBruijn sequence, and append a duplicate of the
         % last trial as the first trial
@@ -458,7 +461,7 @@ for aa = 1:length(acquisitionOrder)
         % update the counter
         nMelAcquisitions = nMelAcquisitions + 1;
     elseif strcmp(acquisitionOrder{aa}, 'LMS')
-         % grab a specific deBruijn sequence, and append a duplicate of the
+        % grab a specific deBruijn sequence, and append a duplicate of the
         % last trial as the first trial
         % the +3 gives LMS modulations, rather than Mel modulations (the
         % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
@@ -467,7 +470,7 @@ for aa = 1:length(acquisitionOrder)
         %update the counter
         nLMSAcquisitions = nLMSAcquisitions + 1;
     elseif strcmp(acquisitionOrder{aa}, 'LightFlux')
-         % grab a specific deBruijn sequence, and append a duplicate of the
+        % grab a specific deBruijn sequence, and append a duplicate of the
         % last trial as the first trial
         % the +3 gives LMS modulations, rather than Mel modulations (the
         % order of modulations is 1-3 is Mel, 4-6 is LMS, and 7-9 is light
