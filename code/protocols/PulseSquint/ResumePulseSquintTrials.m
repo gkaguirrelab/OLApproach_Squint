@@ -64,13 +64,13 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     
     [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
     if ~isfield(protocolParams, 'observerID')
-        protocolParams.acquisitionNumber = observerID;
+        protocolParams.observerID = observerID;
     end
 %     if ~isfield(protocolParams, 'observerAge')
 %         protocolParams.acquisitionNumber = [];
 %     end
     if ~isfield(protocolParams, 'sessionName')
-        protocolParams.acquisitionNumber = sessionName;
+        protocolParams.sessionName = sessionName;
     end
     if ~isfield(protocolParams, 'acquisitionNumber')
         protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
