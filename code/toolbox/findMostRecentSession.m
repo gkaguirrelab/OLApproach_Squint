@@ -20,11 +20,15 @@ sessionNumber = sessionDirContent(index).name;
 % find most recent acquisition
 dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber);
 dataDirContent = dir(fullfile(dataDir, '*.mat'));
-[value, index] = max([dataDirContent(:).datenum]);
-acquisitionFile = dataDirContent(index).name;
-splits = strsplit(acquisitionFile, 'acquisition');
-acquisitionNumber = strsplit(splits{2}, '_');
-acquisitionNumber = str2num(acquisitionNumber{1});
+if length(dataDirContent) == 0
+    acquisitionNumber = 0;
+else
+    [value, index] = max([dataDirContent(:).datenum]);
+    acquisitionFile = dataDirContent(index).name;
+    splits = strsplit(acquisitionFile, 'acquisition');
+    acquisitionNumber = strsplit(splits{2}, '_');
+    acquisitionNumber = str2num(acquisitionNumber{1});
+end
 
 
 end
