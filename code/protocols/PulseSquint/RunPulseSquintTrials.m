@@ -26,8 +26,8 @@ protocolParams.simulate.oneLight = true;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = false;
-protocolParams.simulate.udp = false;
+protocolParams.simulate.pupil = true;
+protocolParams.simulate.udp = true;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
@@ -48,7 +48,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 % in the terminal. Identify which device number we want, and place that in
 % the quotes after the -i in the command stem below.
 % GKA NOTE: do we also need the argument -pixel_format uyvy422  ?
-protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -pix_fmt uyvy4ss -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
 protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,2)';
 
 % Establish myRole and myActions
