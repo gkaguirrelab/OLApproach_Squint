@@ -62,7 +62,7 @@ ol = [];
 % Role dependent actions - base
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     
-    [ observerID, sessionName, acquisitionNumber ] = findMostRecentSession(protocolParams);
+    [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
     if ~isfield(protocolParams, 'observerID')
         protocolParams.acquisitionNumber = observerID;
     end
@@ -73,7 +73,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         protocolParams.acquisitionNumber = sessionName;
     end
     if ~isfield(protocolParams, 'acquisitionNumber')
-        protocolParams.acquisitionNumber = acquisitionNumber;
+        protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
     end
     
     % Information we prompt for and related
@@ -136,9 +136,12 @@ end
 % they really just need which acquisition we're starting with, the other
 % stuff will be provided by the base
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+    
+    [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+
     % see if the acquisitionNumber is already in our protocolParams
     if ~isfield(protocolParams, 'acquisitionNumber')
-        protocolParams.acquisitionNumber = [];
+        protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
     end
     
     protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
