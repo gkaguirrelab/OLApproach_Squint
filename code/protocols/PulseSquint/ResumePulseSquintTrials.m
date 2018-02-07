@@ -82,10 +82,17 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
     protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
     protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+    protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+    
+    % use session number to get some information about which log we're
+    % writing to
+    protocolParams.sessionLogOutDir = fullfile(getpref(protocolParams.protocol,'SessionRecordsBasePath'),protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
+    fileName = [protocolParams.observerID '_' protocolParams.sessionName '.log'];
+    protocolParams.fullFileName = fullfile(protocolParams.sessionLogOutDir,fileName);
     
     startingAcquisitionNumber = protocolParams.acquisitionNumber;
     
-    protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+    
     
     % make sure we're resuming what we think we're resuming, specifically
     % that the relevant session already exists
