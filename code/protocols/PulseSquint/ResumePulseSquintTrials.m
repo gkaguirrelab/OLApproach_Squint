@@ -119,6 +119,9 @@ end
 
 % Get the satelittes to the "ready to launch" position
 if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+    protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+    
+    startingAcquisitionNumber = protocolParams.acquisitionNumber;
     if protocolParams.verbose
             fprintf('Satellite is ready to launch.\n')
     end
