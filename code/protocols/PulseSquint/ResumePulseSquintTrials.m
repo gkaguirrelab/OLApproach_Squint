@@ -61,23 +61,25 @@ ol = [];
 
 % Role dependent actions - base
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+    
+    [ observerID, sessionName, acquisitionNumber ] = findMostRecentSession(protocolParams);
     if ~isfield(protocolParams, 'observerID')
-        protocolParams.acquisitionNumber = [];
+        protocolParams.acquisitionNumber = observerID;
     end
-    if ~isfield(protocolParams, 'observerAge')
-        protocolParams.acquisitionNumber = [];
-    end
+%     if ~isfield(protocolParams, 'observerAge')
+%         protocolParams.acquisitionNumber = [];
+%     end
     if ~isfield(protocolParams, 'sessionName')
-        protocolParams.acquisitionNumber = [];
+        protocolParams.acquisitionNumber = sessionName;
     end
     if ~isfield(protocolParams, 'acquisitionNumber')
-        protocolParams.acquisitionNumber = [];
+        protocolParams.acquisitionNumber = acquisitionNumber;
     end
     
     % Information we prompt for and related
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
-    protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
+    %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
     protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
     protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
     
