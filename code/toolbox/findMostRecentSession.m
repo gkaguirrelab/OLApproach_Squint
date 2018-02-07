@@ -18,7 +18,7 @@ sessionDirContent = sessionDirContent(~ismember({sessionDirContent.name}, {'.','
 sessionNumber = sessionDirContent(index).name;
 
 % find most recent acquisition
-dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber)
+dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber);
 dataDirContent = dir(fullfile(dataDir, '*.mat'));
 [value, index] = max([dataDirContent(:).datenum]);
 acquisitionFile = dataDirContent(index).name;
