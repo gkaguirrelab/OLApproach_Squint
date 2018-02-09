@@ -223,6 +223,7 @@ protocolParams.trialMaxJitterTimeSec = 1.5;
 protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 4;
+protocolParams.trialJitterRecordingDurationSec = 0.5;
 
 %% Attention task parameters
 %

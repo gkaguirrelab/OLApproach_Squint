@@ -221,6 +221,7 @@ for trial = 1:protocolParams.nTrials
                 
         % Calculate how long the satellites should record data
         dataRecordingTimeSec = ...
+            protocolParams.trialJitterRecordingDurationSec + ...
             protocolParams.trialBackgroundTimeSec + ...
             stimulusStruct(trial).modulationData.modulationParams.stimulusDuration + ...
             protocolParams.trialISITimeSec;
@@ -283,7 +284,7 @@ for trial = 1:protocolParams.nTrials
         % Wait for jitter period
         jitterTimeSec  = protocolParams.trialMinJitterTimeSec + (protocolParams.trialMaxJitterTimeSec-protocolParams.trialMinJitterTimeSec).*rand(1);
         events(trial).jitterTimeSec = jitterTimeSec;
-        mglWaitSecs(jitterTimeSec);
+        mglWaitSecs(jitterTimeSec - protocolParams.trialJitterRecordingDurationSec);
 
         % Inform the satellites that it is time to record
         if protocolParams.simulate.udp
@@ -322,7 +323,7 @@ for trial = 1:protocolParams.nTrials
         events(trial).tBackgroundStart = mglGetSecs;
 
         % Wait for the duration of the background period
-        mglWaitSecs(protocolParams.trialBackgroundTimeSec);
+        mglWaitSecs(protocolParams.trialBackgroundTimeSec + protocolParams.trialJitterRecordingDurationSec);
                 
         % Record start time of the stimulus.
         events(trial).tStimulusStart = mglGetSecs;
