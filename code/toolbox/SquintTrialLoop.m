@@ -431,6 +431,7 @@ for trial = 1:protocolParams.nTrials
         
         % Record start/finish time as well as other information as we go.
         events(trial).tRecordingStart = mglGetSecs;
+        events(trial).tRecordingStartClock = clock;
         
         % ACTIONS -- emg
         if any(cellfun(@(x) sum(strcmp(x,'emg')), protocolParams.myActions))
@@ -469,6 +470,7 @@ for trial = 1:protocolParams.nTrials
         
         % Record start/finish time as well as other information as we go.
         events(trial).tRecordingEnd = mglGetSecs;
+        events(trial).tRecordingEndClock = clock;
                 
     end % satellite actions
     
