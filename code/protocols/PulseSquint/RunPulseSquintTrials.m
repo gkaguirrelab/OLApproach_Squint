@@ -286,6 +286,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
     protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
+    protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
     
     %% Use these to test reporting on validation and spectrum seeking
