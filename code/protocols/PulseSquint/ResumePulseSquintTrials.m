@@ -86,9 +86,12 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     
     % use session number to get some information about which log we're
     % writing to
-    protocolParams.sessionLogOutDir = fullfile(getpref(protocolParams.protocol,'SessionRecordsBasePath'),protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
-    fileName = [protocolParams.observerID '_' protocolParams.sessionName '.log'];
-    protocolParams.fullFileName = fullfile(protocolParams.sessionLogOutDir,fileName);
+    
+    protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+    
+    %protocolParams.sessionLogOutDir = fullfile(getpref(protocolParams.protocol,'SessionRecordsBasePath'),protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
+    %fileName = [protocolParams.observerID '_' protocolParams.sessionName '.log'];
+    %protocolParams.fullFileName = fullfile(protocolParams.sessionLogOutDir,fileName);
     
     startingAcquisitionNumber = protocolParams.acquisitionNumber;
     
