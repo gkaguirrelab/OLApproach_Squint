@@ -13,7 +13,7 @@
 approachParams.approach = 'OLApproach_Squint';
 
 % List of all calibrations used in this approach
-approachParams.calibrationTypes = {'BoxARandomizedLongCableAEyePiece1_ND01'};
+approachParams.calibrationTypes = {'BoxAShortCableCEyePiece1_ND05'};
 
 % List of all backgrounds used in this approach
 approachParams.backgroundNames = {'MelanopsinDirected_275_60_667', 'LMSDirected_275_60_667', 'LightFlux_540_380_50'};
