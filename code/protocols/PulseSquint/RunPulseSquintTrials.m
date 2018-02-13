@@ -268,7 +268,7 @@ deBruijnSequences = ...
 
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
-protocolParams.calibrationType = 'BoxARandomizedLongCableAEyePiece1_ND01';
+protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
