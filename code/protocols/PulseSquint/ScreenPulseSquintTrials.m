@@ -86,9 +86,13 @@ end
 
 protocolParams.modulationNames = { ...
     'MaxContrast4sPulse' ...
+    'MaxContrast4sPulse' ...
+    'MaxContrast4sPulse' ...
     };
 
 protocolParams.directionNames = {...
+    'MaxMel_unipolar_275_60_667' ...
+    'MaxLMS_unipolar_275_60_667'...    
     'LightFlux_540_380_50' ...
     };
 
@@ -104,6 +108,8 @@ protocolParams.directionNames = {...
 % the kind of spectrum seeking we actually will want to perform
 protocolParams.doCorrectionAndValidationFlag = {...
     true, ...
+    true, ...
+    true, ...
     };
 
 
@@ -115,6 +121,8 @@ protocolParams.doCorrectionAndValidationFlag = {...
 % working with you don't need the extra precision provided by spectrum
 % correction.
 protocolParams.correctBySimulation = [...
+    false ...
+    false ...
     false ...
     ];
 
@@ -128,6 +136,8 @@ protocolParams.correctBySimulation = [...
 
 
 protocolParams.trialTypeParams = [...
+    struct('contrast',1) ...
+    struct('contrast',1) ...
     struct('contrast',1) ...
     ];
 
@@ -181,35 +191,9 @@ protocolParams.trialResponseWindowTimeSec = 0;
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = false;
 
-%% Set trial sequence
-%
-% 12/12/17: these are now to be set within the loop around acquisition,
-% because each acquisition will need to have a different trial order
-
-
-% deBruijn sequences: we want to use deBruijn sequences to counter-balance
-% the order of trial types within a given acquisition
-deBruijnSequences = ...
-    [3,     3,     1,     2,     1,     1,     3,     2,     2;
-     3,     1,     2,     2,     1,     1,     3,     3,     2;
-     2,     2,     3,     1,     1,     2,     1,     3,     3;
-     2,     3,     3,     1,     1,     2,     2,     1,     3;
-     3,     3,     1,     2,     1,     1,     3,     2,     2;
-     3,     1,     2,     2,     1,     1,     3,     3,     2;
-     2,     2,     3,     1,     1,     2,     1,     3,     3;
-     2,     3,     3,     1,     1,     2,     2,     1,     3];
- % each row here refers to a differnt deBruijn sequence governing trial
- % order within each acquisition. Each different label refers (1, 2, or 3) to a
- % different contrast level
- 
- % when it comes time to actually run an acquisition below, we'll grab a
- % row from this deBruijnSequences matrix, and use that row to provide the
- % trial order for that acqusition.
-    
-
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
-protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND05';
+protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -307,8 +291,9 @@ end
 
 %% Run experiment
 
-protocolParams.trialTypeOrder = ones(1,5000);
-protocolParams.nTrials = length(protocolParams.trialTypeOrder);
+protocolParams.trialTypeOrder = GetWithDefault('>> Enter <strong>trial type</strong>', 1);
+
+protocolParams.nTrials = 1;
 ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose);
 
 %% Resume dropBox syncing
