@@ -22,13 +22,13 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = true;
+protocolParams.simulate.oneLight = false;
 protocolParams.simulate.microphone = true;
-protocolParams.simulate.speaker = true;
+protocolParams.simulate.speaker = false;
 protocolParams.simulate.emg = true;
 protocolParams.simulate.pupil = true;
 protocolParams.simulate.udp = true;
-protocolParams.simulate.observer = true;
+protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
 protocolParams.simulate.makePlots = true;
 
@@ -195,7 +195,7 @@ protocolParams.attentionTask = false;
 
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
-protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND05';
+protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -290,19 +290,23 @@ dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
-
+protocolParams.acquisitionNumber = 1;
 %% Run experiment
 nAcquisitions = 100;
 
-for aa = 1:nAcquisitions
+startingAcquisitionNumber = protocolParams.acquisitionNumber;
+for aa = startingAcquisitionNumber:nAcquisitions
+    protocolParams.acquisitionNumber = aa;
+    fprintf('\n')
     for dd = 1:length(protocolParams.directionNames)
         fprintf('%d: %s, ', dd, protocolParams.directionNames{dd})
     end
     fprintf('\n')
+    fprintf('\n')
     protocolParams.trialTypeOrder = GetWithDefault('>> Enter <strong>trial type</strong>', 1);
     
     protocolParams.nTrials = 1;
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', protocolParams.acquisitionNumber,'verbose',protocolParams.verbose);
 end
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
