@@ -22,9 +22,9 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = false;
+protocolParams.simulate.oneLight = true;
 protocolParams.simulate.microphone = true;
-protocolParams.simulate.speaker = false;
+protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
 protocolParams.simulate.pupil = true;
 protocolParams.simulate.udp = true;
@@ -175,6 +175,8 @@ protocolParams.trialMaxJitterTimeSec = 1.5;
 protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 0;
+protocolParams.trialJitterRecordingDurationSec = 0;
+
 
 %% Attention task parameters
 %
@@ -193,7 +195,7 @@ protocolParams.attentionTask = false;
 
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
-protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND05';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -290,12 +292,18 @@ if protocolParams.verbose
 end
 
 %% Run experiment
+nAcquisitions = 100;
 
-protocolParams.trialTypeOrder = GetWithDefault('>> Enter <strong>trial type</strong>', 1);
-
-protocolParams.nTrials = 1;
-ApproachEngine(ol,protocolParams,'acquisitionNumber', 1,'verbose',protocolParams.verbose);
-
+for aa = 1:nAcquisitions
+    for dd = 1:length(protocolParams.directionNames)
+        fprintf('%d: %s, ', dd, protocolParams.directionNames{dd})
+    end
+    fprintf('\n')
+    protocolParams.trialTypeOrder = GetWithDefault('>> Enter <strong>trial type</strong>', 1);
+    
+    protocolParams.nTrials = 1;
+    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+end
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
 if protocolParams.verbose
