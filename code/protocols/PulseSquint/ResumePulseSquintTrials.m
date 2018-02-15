@@ -106,16 +106,6 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         error('Could not find the relevant session folder')
     end
     
-    %% Use these to test reporting on validation and spectrum seeking
-    %
-    % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
-    % Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
-    % protocolParams.observerID = 'tired';
-    % protocolParams.observerAgeInYrs = 32;
-    % protocolParams.todayDate = '2017-09-01';
-    % protocolParams.sessionName = 'session_1';
-    % protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
-    % protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
     
     %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
     if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
@@ -127,6 +117,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         error('Modulation and direction names cell arrays must have same length');
     end
     
+    %% Make sure we can find modulations
     
     
 end
