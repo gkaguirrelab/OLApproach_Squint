@@ -1,4 +1,4 @@
-function ApproachEngine(ol,protocolParams,varargin)
+function ApproachEngine(ol,protocolParams, trialList, varargin)
 %% ApproachEngine - Run a squint protcol experiment.
 %
 % Usage:
@@ -10,6 +10,7 @@ function ApproachEngine(ol,protocolParams,varargin)
 % Input:
 %    ol (object)              An open OneLight object.
 %    protocolParams (struct)  The protocol parameters structure.
+%    trialList                Struct array defining each trial
 %
 % Output:
 %    None.
@@ -26,13 +27,7 @@ p.addParameter('acquisitionNumber',[],@isnumeric);
 
 p.parse(varargin{:});
 
-
-
-
 %% Perform pre trial loop actions
-
-% Set block to empty. If we act as the base, something will be put in here.
-stimulusStruct = [];
 
 % Role dependent actions - base
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
@@ -55,31 +50,10 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %% Start session log
     % Add protocol output name and acquisition number
     protocolParams = OLSessionLog(protocolParams,'Experiment','StartEnd','start');
-    
-    %% Get the modulation starts/stops for each trial type
-    % Get path and filenames.  Check that someone has not
-    % done something unexpected in the calling program.
-    modulationDir = fullfile(getpref(protocolParams.protocol, 'ModulationStartsStopsBasePath'), protocolParams.observerID,protocolParams.todayDate,protocolParams.sessionName);
-    for mm = 1:length(protocolParams.modulationNames)
-        fullModulationNames = sprintf('ModulationStartsStops_%s_%s', protocolParams.modulationNames{mm}, protocolParams.directionNames{mm});
-        fullModulationNames = strcat(fullModulationNames, sprintf('_trialType_%s',num2str(mm)));
-        pathToModFile = [fullModulationNames '.mat'];
-        modulationRead = load(fullfile(modulationDir, pathToModFile));
-        modulationData(mm)= modulationRead.modulationData;
-        modulation{mm} = modulationData(mm).modulation;
-        frameDuration(mm) = modulationData(mm).modulationParams.timeStep;
-    end
-    
-    %% Put together the block struct array.
-    % This describes what happens on each trial of the session.
-    % Once this is done we don't need the modulation data and we
-    % clear that just to make sure we don't use it by accident.
-    stimulusStruct = InitializeBlockStructArray(protocolParams,modulationData);
-    clear modulationData;
-        
+      
     %% Set the background
     % Use the background for the first trial as the background to set.
-    ol.setMirrors(stimulusStruct(1).modulationData.modulation.background.starts, stimulusStruct(1).modulationData.modulation.background.stops);
+    ol.setMirrors(trialList(1).modulationData.modulation.background.starts, trialList(1).modulationData.modulation.background.stops);
     if (p.Results.verbose), fprintf('Setting OneLight to background.\n'); end
     
     %% Adapt to background
@@ -114,7 +88,7 @@ end
 % information passed to them from the base via UDP which will be added to
 % the protocolParams variable.
 tic
-[responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,stimulusStruct,ol,'verbose',protocolParams.verbose);
+[responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,trialList,ol,'verbose',protocolParams.verbose);
 toc
 
 

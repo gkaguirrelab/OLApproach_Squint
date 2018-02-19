@@ -32,8 +32,6 @@ protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
 protocolParams.simulate.makePlots = true;
 
-
-
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
@@ -79,115 +77,6 @@ else
         protocolParams.myActions={protocolParams.myActions};
     end
 end
-
-
-
-%% Modulations used in this experiment
-%
-% The set of arrays in this cell should have the same length, the entries get paired.
-%
-% Do not change the order of these directions without also fixing up
-% the Demo and Experimental programs, which are counting on this order.
-%
-% The first trial type has its contrast set to 0 below, and is a blank
-% trial, despite the fact that you might think it involved a modulation.
-%       % Does this have to be the case? As currently constructed, the
-%       first modulation below we plan to not have contrast set to 0. Do we
-%       need this 0 contrast modulation for some reason?
-
-% We want 9 different modulations: Mel, LMS, and light flux each at 3
-% different contrast levels
-protocolParams.modulationNames = { ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    };
-
-protocolParams.directionNames = {...
-    'MaxMel_unipolar_275_60_667' ...
-    'MaxMel_unipolar_275_60_667' ...
-    'MaxMel_unipolar_275_60_667' ...
-    'MaxLMS_unipolar_275_60_667'...
-    'MaxLMS_unipolar_275_60_667'...
-    'MaxLMS_unipolar_275_60_667'...
-    'LightFlux_540_380_50' ...
-    'LightFlux_540_380_50' ...
-    'LightFlux_540_380_50' ...
-    };
-
-% Flag as to whether to run the correction/validation at all for each direction.
-% You set to true here entries for the unique directions, so as not
-% to re-correct the same file more than once. This saves time.
-%
-% Note that, for obscure and boring reasons, the first entry in this cell array
-% needs to be true.  That should never be a problem, because we always want to
-% validate each direction once and only once, and it is as easy to validate the
-% first occurrance of a direction as a subsequent one.
-
-% the kind of spectrum seeking we actually will want to perform
-protocolParams.doCorrectionAndValidationFlag = {...
-    true, ...
-    false, ...
-    false, ...
-    true, ...
-    false, ...
-    false, ...
-    true, ...
-    false, ...
-    false, ...
-    };
-
-
-% This is also related to directions.  This determines whether the
-% correction gets done using the radiometer (set to false) or just by
-% simulation (set to true, just uses nominal spectra on each iteration of
-% the correction.) Usually you will want all of these to be false, unless
-% you've determined that for the particular box and directions you're
-% working with you don't need the extra precision provided by spectrum
-% correction.
-protocolParams.correctBySimulation = [...
-    false ...
-    false ...
-    false ...
-    false ...
-    false ...
-    false ...
-    false ...
-    false ...
-    false ...
-    ];
-
-% Could add a validate by simulation flag here, if we ever get to a point
-% where we want to trust the nominal spectra.
-
-% Contrasts to use, relative to the powerLevel = 1 modulation in the
-% directions file.
-%
-% Setting a contrast to 0 provides a blank trial type.
-
-% Here are the modulations we want:
-% Mel @ 400%, 200%, and 100%
-% LMS @ 400%, 100%, 25%
-% Light flux @ 400%, 100%, 25% -- note that we're not currently planning on
-% using light flux, but it's here in the code in case we change our mind
-
-protocolParams.trialTypeParams = [...
-    struct('contrast',1) ...
-    struct('contrast',0.5) ...
-    struct('contrast',0.25) ...
-    struct('contrast',1) ...
-    struct('contrast',0.5) ...
-    struct('contrast',0.25) ...
-    struct('contrast',1) ...
-    struct('contrast',0.5) ...
-    struct('contrast',0.25) ...
-    ];
 
 %% Field size and pupil size.
 %
@@ -272,6 +161,9 @@ protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
+% Get calibration
+calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibrationType,'CalibrationDate','latest');
+
 % Validation parameters
 protocolParams.nValidationsPerDirection = 5;
 
@@ -288,30 +180,6 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
     protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
-    
-    %% Use these to test reporting on validation and spectrum seeking
-    %
-    % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
-    % Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
-    % protocolParams.observerID = 'tired';
-    % protocolParams.observerAgeInYrs = 32;
-    % protocolParams.todayDate = '2017-09-01';
-    % protocolParams.sessionName = 'session_1';
-    % protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
-    % protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
-    
-    %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
-    if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
-        error('Calibration file prefs not set up as expected for an approach');
-    end
-    
-    % Sanity check on modulations
-    if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
-        error('Modulation and direction names cell arrays must have same length');
-    end
-    
-    
-    
 end
 
 % Role dependent actions - oneLight
@@ -321,13 +189,18 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
     
     %% Let user get the radiometer set up
-    radiometerPauseDuration = 0;
-    ol.setAll(true);
-    commandwindow;
-    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-    input('');
-    ol.setAll(false);
-    pause(radiometerPauseDuration);
+    if ~protocolParams.simulate.radiometer
+        radiometerPauseDuration = 0;
+        ol.setAll(true);
+        commandwindow;
+        fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+        input('');
+        ol.setAll(false);
+        pause(radiometerPauseDuration);
+        radiometer = OLOpenSpectroRadiometerObj('PR-670');
+    else
+        radiometer = [];
+    end
     
     %% Open the session
     %
@@ -335,26 +208,64 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % the logs go.
     protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
     
-    %% Make the corrected modulation primaries
-    %
-    % Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
-    % in the direction parameters and as specified in protocol params here, if the former
-    % are part of the direction. Might have to pass protocol params down into the called
-    % routine. Could also do this in other routines below, I think.
-    OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
+    %% Make nominal directionStructs, containing nominal primaries
+    % First we get the parameters for the directions from the dictionary
+    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667');
+    MaxMelDirectionStruct = OLDirectionNominalStructFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     
-    % This routine is mainly to debug the correction procedure, not particularly
-    % useful once things are humming along.  One would use it if the validations
-    % are coming out badly and it was necessary to track things down.
-    % OLCheckPrimaryCorrection(protocolParams);
+    %% Correct the directionStructs, containing corrected primaries
+    MaxMelDirectionStruct = OLCorrectDirection(MaxMelDirectionStruct,calibration,ol,radiometer);
+    %save(filename,'MaxMelDirectionStruct')
+    
+    %% Validate the directionStructs
+    receptors = MaxMelDirectionStruct.describe.nominal.directionParams.T_receptors;
+    receptorStrings = MaxMelDirectionStruct.describe.nominal.directionParams.photoreceptorClasses;
+    for i = 1:protocolParams.nValidationsPerDirection
+        MaxMelDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(MaxMelDirectionStruct,calibration,ol,radiometer,...
+            'receptors',receptors,'receptorStrings',receptorStrings);
+    end
+    
+    %% Make waveform
+    waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
+    waveformParams.stimulusDuration = 4; % 4 second pulses
+    [Pulse400Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+    Pulse200Waveform = Pulse400Waveform / 2;
+    Pulse100Waveform = Pulse400Waveform / 4;
     
     %% Make the modulation starts and stops
-    OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
+    Mel400PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse400Waveform, calibration);
+    [Mel400PulseModulation.background.starts, Mel400PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel400PulseModulation.primaryValues(:,1), calibration);
+    Mel200PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse200Waveform, calibration);
+    [Mel200PulseModulation.background.starts, Mel200PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel200PulseModulation.primaryValues(:,1), calibration);
+    Mel100PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse100Waveform, calibration);
+    [Mel100PulseModulation.background.starts, Mel100PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel100PulseModulation.primaryValues(:,1), calibration);
     
-    %% Validate direction corrected primaries prior to experiemnt
-    OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
-    OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
+    %% Define all modulations
+    % we need modulationData to contain:
+    % .modulation.starts
+    % .modulation.stops
+    % .modulation.background.starts
+    % .modulation.background.stops
+    % .modulationParams.direction (name)
+    % .modulationParams.stimulusDuration
+    % .modulationParams.timeStep
+    Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+    Mel400PulseModulationData.modulation = Mel400PulseModulation;
+    Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
+    Mel200PulseModulationData.modulationParams.direction = "Melanopsin 200% contrast";
+    Mel200PulseModulationData.modulation = Mel200PulseModulation;
+    Mel200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    Mel100PulseModulationData.modulationParams.direction = "Melanopsin 100% contrast";
+    Mel100PulseModulationData.modulation = Mel100PulseModulation;
+    Mel100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % Concatenate
+    modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData];
 end
 
 %% Pre-Flight Routine
@@ -495,7 +406,14 @@ for aa = 1:6
     % number of acquisitions in a given session (hard-coded at the start of
     % the for-loop)
     protocolParams.nTrials = 10;
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+    
+    % Put together the block struct array.
+    % This describes what happens on each trial of the session.
+    % Once this is done we don't need the modulation data and we
+    % clear that just to make sure we don't use it by accident.
+    trialList = InitializeBlockStructArray(protocolParams,modulationData);
+    
+    ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
 
 %% Resume dropBox syncing
