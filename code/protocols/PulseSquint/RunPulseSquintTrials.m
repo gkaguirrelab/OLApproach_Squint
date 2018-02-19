@@ -30,6 +30,7 @@ protocolParams.simulate.pupil = false;
 protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
+protocolParams.simulate.radiometer = true;
 protocolParams.simulate.makePlots = true;
 
 % define the identities of the base computer (which oversees the
