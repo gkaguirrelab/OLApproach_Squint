@@ -234,9 +234,38 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     %% Make the modulation starts and stops
     Mel400PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse400Waveform, calibration);
+    [Mel400PulseModulation.background.starts, Mel400PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel400PulseModulation.primaryValues(:,1), calibration);
     Mel200PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse200Waveform, calibration);
+    [Mel200PulseModulation.background.starts, Mel200PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel200PulseModulation.primaryValues(:,1), calibration);
     Mel100PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse100Waveform, calibration);
+    [Mel100PulseModulation.background.starts, Mel100PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel100PulseModulation.primaryValues(:,1), calibration);
     
+    %% Define all modulations
+    % we need modulationData to contain:
+    % .modulation.starts
+    % .modulation.stops
+    % .modulation.background.starts
+    % .modulation.background.stops
+    % .modulationParams.direction (name)
+    % .modulationParams.stimulusDuration
+    % .modulationParams.timeStep
+    Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+    Mel400PulseModulationData.modulation = Mel400PulseModulation;
+    Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    Mel200PulseModulationData.modulationParams.direction = "Melanopsin 200% contrast";
+    Mel200PulseModulationData.modulation = Mel200PulseModulation;
+    Mel200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    Mel100PulseModulationData.modulationParams.direction = "Melanopsin 100% contrast";
+    Mel100PulseModulationData.modulation = Mel100PulseModulation;
+    Mel100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % Concatenate
+    modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData];
 end
 
 %% Pre-Flight Routine
@@ -377,7 +406,14 @@ for aa = 1:6
     % number of acquisitions in a given session (hard-coded at the start of
     % the for-loop)
     protocolParams.nTrials = 10;
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', aa,'verbose',protocolParams.verbose);
+    
+    % Put together the block struct array.
+    % This describes what happens on each trial of the session.
+    % Once this is done we don't need the modulation data and we
+    % clear that just to make sure we don't use it by accident.
+    trialList = InitializeBlockStructArray(protocolParams,modulationData);
+    
+    ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
 
 %% Resume dropBox syncing
