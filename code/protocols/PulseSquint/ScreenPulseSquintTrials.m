@@ -222,7 +222,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     %% Correct the directionStructs, containing corrected primaries
     MaxMelDirectionStruct = OLCorrectDirection(MaxMelDirectionStruct,calibration,ol,radiometer);
-    %save(filename,'MaxMelDirectionStruct')
+
     MaxLMSDirectionStruct = OLCorrectDirection(MaxLMSDirectionStruct,calibration,ol,radiometer);
     
     LightFluxDirectionStruct = OLCorrectDirection(LightFluxDirectionStruct,calibration,ol,radiometer);
@@ -239,6 +239,15 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         LightFluxDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(LightFluxDirectionStruct,calibration,ol,radiometer,...
             'receptors',receptors,'receptorStrings',receptorStrings);
     end
+    
+    %% Save directionStructs
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionStructs', protocolParams.observerID, protocolParams.todayDate);
+    if ~exist(savePath,'dir')
+            mkdir(savePath);
+    end
+    save(fullfile(savePath, 'MaxMelDirectionStruct.mat'), 'MaxMelDirectionStruct');
+    save(fullfile(savePath, 'MaxLMSDirectionStruct.mat'), 'MaxLMSDirectionStruct');
+    save(fullfile(savePath, 'LightFluxDirectionStruct.mat'), 'LightFluxDirectionStruct');
     
     %% Make waveform
     waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
@@ -276,6 +285,17 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
     LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
    
+    % save modulations
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, protocolParams.todayDate);
+    if ~exist(savePath,'dir')
+        mkdir(savePath);
+    end
+    save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
+    
+    save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
+     
+    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+        
     % Concatenate
     modulationData = [Mel400PulseModulationData; LMS400PulseModulationData; LightFlux400PulseModulationData];
 end
