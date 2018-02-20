@@ -109,7 +109,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         outputFile = fullfile(savePath,[protocolParams.sessionName sprintf('_acquisition%02d.mat',protocolParams.acquisitionNumber)]);
     end
     responseStruct.acquisitionNumber = protocolParams.acquisitionNumber;
-    save(outputFile,'protocolParams', 'stimulusStruct', 'responseStruct');
+    save(outputFile,'protocolParams', 'trialList', 'responseStruct');
     
     % Close Session Log
     OLSessionLog(protocolParams,'Experiment','StartEnd','end');
