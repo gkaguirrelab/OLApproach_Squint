@@ -22,14 +22,14 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = true;
-protocolParams.simulate.radiometer = true;
+protocolParams.simulate.oneLight = false;
+protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
 protocolParams.simulate.pupil = true;
 protocolParams.simulate.udp = true;
-protocolParams.simulate.observer = true;
+protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
 
@@ -158,7 +158,7 @@ deBruijnSequences = ...
 
 %% OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBRandomizedLongCableBEyePiece2_ND01';
+protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
