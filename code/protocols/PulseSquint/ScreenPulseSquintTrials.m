@@ -22,17 +22,16 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = false;
+protocolParams.simulate.oneLight = true;
+protocolParams.simulate.radiometer = true;
 protocolParams.simulate.microphone = true;
-protocolParams.simulate.speaker = false;
+protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
 protocolParams.simulate.pupil = true;
 protocolParams.simulate.udp = true;
-protocolParams.simulate.observer = false;
-protocolParams.simulate.operator = false;
+protocolParams.simulate.observer = true;
+protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
-
-
 
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
@@ -48,7 +47,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 % in the terminal. Identify which device number we want, and place that in
 % the quotes after the -i in the command stem below.
 % GKA NOTE: do we also need the argument -pixel_format uyvy422  ?
-protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -pix_fmt uyvy422 -copyts -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
 protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,2)';
 
 % Establish myRole and myActions
@@ -59,7 +58,7 @@ if protocolParams.simulate.udp
     % If we are simulating the UDP connection stream, then we will execute
     % all actions in this routine.
     protocolParams.myActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'};
-
+    
 else
     % Get local computer name
     localHostName = UDPBaseSatelliteCommunicator.getLocalHostName();
@@ -79,67 +78,6 @@ else
         protocolParams.myActions={protocolParams.myActions};
     end
 end
-
-
-
-%% Modulations used in this experiment
-
-protocolParams.modulationNames = { ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    'MaxContrast4sPulse' ...
-    };
-
-protocolParams.directionNames = {...
-    'MaxMel_unipolar_275_60_667' ...
-    'MaxLMS_unipolar_275_60_667'...    
-    'LightFlux_540_380_50' ...
-    };
-
-% Flag as to whether to run the correction/validation at all for each direction.
-% You set to true here entries for the unique directions, so as not
-% to re-correct the same file more than once. This saves time.
-%
-% Note that, for obscure and boring reasons, the first entry in this cell array
-% needs to be true.  That should never be a problem, because we always want to
-% validate each direction once and only once, and it is as easy to validate the
-% first occurrance of a direction as a subsequent one.
-
-% the kind of spectrum seeking we actually will want to perform
-protocolParams.doCorrectionAndValidationFlag = {...
-    true, ...
-    true, ...
-    true, ...
-    };
-
-
-% This is also related to directions.  This determines whether the
-% correction gets done using the radiometer (set to false) or just by
-% simulation (set to true, just uses nominal spectra on each iteration of
-% the correction.) Usually you will want all of these to be false, unless
-% you've determined that for the particular box and directions you're
-% working with you don't need the extra precision provided by spectrum
-% correction.
-protocolParams.correctBySimulation = [...
-    false ...
-    false ...
-    false ...
-    ];
-
-% Could add a validate by simulation flag here, if we ever get to a point
-% where we want to trust the nominal spectra.
-
-% Contrasts to use, relative to the powerLevel = 1 modulation in the
-% directions file.
-%
-% Setting a contrast to 0 provides a blank trial type.
-
-
-protocolParams.trialTypeParams = [...
-    struct('contrast',1) ...
-    struct('contrast',1) ...
-    struct('contrast',1) ...
-    ];
 
 %% Field size and pupil size.
 %
@@ -174,9 +112,8 @@ protocolParams.trialMinJitterTimeSec = 0.5;
 protocolParams.trialMaxJitterTimeSec = 1.5;
 protocolParams.trialBackgroundTimeSec = 1;
 protocolParams.trialISITimeSec = 12;
-protocolParams.trialResponseWindowTimeSec = 0;
-protocolParams.trialJitterRecordingDurationSec = 0;
-
+protocolParams.trialResponseWindowTimeSec = 4;
+protocolParams.trialJitterRecordingDurationSec = 0.5;
 
 %% Attention task parameters
 %
@@ -193,11 +130,40 @@ protocolParams.trialJitterRecordingDurationSec = 0;
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = false;
 
+%% Set trial sequence
+%
+% 12/12/17: these are now to be set within the loop around acquisition,
+% because each acquisition will need to have a different trial order
+
+
+% deBruijn sequences: we want to use deBruijn sequences to counter-balance
+% the order of trial types within a given acquisition
+deBruijnSequences = ...
+    [3,     3,     1,     2,     1,     1,     3,     2,     2;
+    3,     1,     2,     2,     1,     1,     3,     3,     2;
+    2,     2,     3,     1,     1,     2,     1,     3,     3;
+    2,     3,     3,     1,     1,     2,     2,     1,     3;
+    3,     3,     1,     2,     1,     1,     3,     2,     2;
+    3,     1,     2,     2,     1,     1,     3,     3,     2;
+    2,     2,     3,     1,     1,     2,     1,     3,     3;
+    2,     3,     3,     1,     1,     2,     2,     1,     3];
+% each row here refers to a differnt deBruijn sequence governing trial
+% order within each acquisition. Each different label refers (1, 2, or 3) to a
+% different contrast level
+
+% when it comes time to actually run an acquisition below, we'll grab a
+% row from this deBruijnSequences matrix, and use that row to provide the
+% trial order for that acqusition.
+
+
 %% OneLight parameters
 protocolParams.boxName = 'BoxA';
 protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
+
+% Get calibration
+calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibrationType,'CalibrationDate','latest');
 
 % Validation parameters
 protocolParams.nValidationsPerDirection = 5;
@@ -213,47 +179,29 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     commandwindow;
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
     protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
+    protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
     protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
-    
-    %% Use these to test reporting on validation and spectrum seeking
-    %
-    % Spectrum Seeking: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionCorrectedPrimaries/Jimbo/081117/session_1/...
-    % Validation: /MELA_data/Experiments/OLApproach_Psychophysics/DirectionValidationFiles/Jimbo/081117/session_1/...
-    % protocolParams.observerID = 'tired';
-    % protocolParams.observerAgeInYrs = 32;
-    % protocolParams.todayDate = '2017-09-01';
-    % protocolParams.sessionName = 'session_1';
-    % protocolParams.sessionLogDir = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1';
-    % protocolParams.fullFileName = '/Users1/Dropbox (Aguirre-Brainard Lab)/MELA_data/Experiments/OLApproach_TrialSequenceMR/MRContrastResponseFunction/SessionRecords/michael/2017-09-01/session_1/david_session_1.log';
-    
-    %% Check that prefs are as expected, as well as some parameter sanity checks/adjustments
-    if (~strcmp(getpref('OneLightToolbox','OneLightCalData'),getpref(protocolParams.approach,'OneLightCalDataPath')))
-        error('Calibration file prefs not set up as expected for an approach');
-    end
-    
-    % Sanity check on modulations
-    if (length(protocolParams.modulationNames) ~= length(protocolParams.directionNames))
-        error('Modulation and direction names cell arrays must have same length');
-    end
-    
-    
-    
 end
 
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
-
+    
     %% Open the OneLight
     ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
     
     %% Let user get the radiometer set up
-    radiometerPauseDuration = 0;
-    ol.setAll(true);
-    commandwindow;
-    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-    input('');
-    ol.setAll(false);
-    pause(radiometerPauseDuration);
+    if ~protocolParams.simulate.radiometer
+        radiometerPauseDuration = 0;
+        ol.setAll(true);
+        commandwindow;
+        fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+        input('');
+        ol.setAll(false);
+        pause(radiometerPauseDuration);
+        radiometer = OLOpenSpectroRadiometerObj('PR-670');
+    else
+        radiometer = [];
+    end
     
     %% Open the session
     %
@@ -261,35 +209,77 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % the logs go.
     protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
     
-    %% Make the corrected modulation primaries
-    %
-    % Could add check to OLMakeDirectionCorrectedPrimaries that pupil and field size match
-    % in the direction parameters and as specified in protocol params here, if the former
-    % are part of the direction. Might have to pass protocol params down into the called
-    % routine. Could also do this in other routines below, I think.
-    OLMakeDirectionCorrectedPrimaries(ol,protocolParams,'verbose',protocolParams.verbose);
+    %% Make nominal directionStructs, containing nominal primaries
+    % First we get the parameters for the directions from the dictionary
+    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667');
+    MaxMelDirectionStruct = OLDirectionNominalStructFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     
-    % This routine is mainly to debug the correction procedure, not particularly
-    % useful once things are humming along.  One would use it if the validations
-    % are coming out badly and it was necessary to track things down.
-    % OLCheckPrimaryCorrection(protocolParams);
+    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667');
+    MaxLMSDirectionStruct = OLDirectionNominalStructFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+    
+    LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
+    LightFluxDirectionStruct = OLDirectionNominalStructFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+    
+    %% Correct the directionStructs, containing corrected primaries
+    MaxMelDirectionStruct = OLCorrectDirection(MaxMelDirectionStruct,calibration,ol,radiometer);
+    %save(filename,'MaxMelDirectionStruct')
+    MaxLMSDirectionStruct = OLCorrectDirection(MaxLMSDirectionStruct,calibration,ol,radiometer);
+    
+    LightFluxDirectionStruct = OLCorrectDirection(LightFluxDirectionStruct,calibration,ol,radiometer);
+    
+    
+    %% Validate the directionStructs
+    receptors = MaxMelDirectionStruct.describe.nominal.directionParams.T_receptors;
+    receptorStrings = MaxMelDirectionStruct.describe.nominal.directionParams.photoreceptorClasses;
+    for i = 1:protocolParams.nValidationsPerDirection
+        MaxMelDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(MaxMelDirectionStruct,calibration,ol,radiometer,...
+            'receptors',receptors,'receptorStrings',receptorStrings);
+        MaxLMSlDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(MaxLMSDirectionStruct,calibration,ol,radiometer,...
+            'receptors',receptors,'receptorStrings',receptorStrings);
+        LightFluxDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(LightFluxDirectionStruct,calibration,ol,radiometer,...
+            'receptors',receptors,'receptorStrings',receptorStrings);
+    end
+    
+    %% Make waveform
+    waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
+    waveformParams.stimulusDuration = 4; % 4 second pulses
+    [Pulse400Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+    Pulse200Waveform = Pulse400Waveform / 2;
+    Pulse100Waveform = Pulse400Waveform / 4;
     
     %% Make the modulation starts and stops
-    OLMakeModulationStartsStops(protocolParams.modulationNames,protocolParams.directionNames, protocolParams,'verbose',protocolParams.verbose);
+    Mel400PulseModulation = OLAssembleModulation(MaxMelDirectionStruct, Pulse400Waveform, calibration);
+    [Mel400PulseModulation.background.starts, Mel400PulseModulation.background.stops] = OLPrimaryToStartsStops(Mel400PulseModulation.primaryValues(:,1), calibration);
+
+    LMS400PulseModulation = OLAssembleModulation(MaxLMSDirectionStruct, Pulse400Waveform, calibration);
+    [LMS400PulseModulation.background.starts, LMS400PulseModulation.background.stops] = OLPrimaryToStartsStops(LMS400PulseModulation.primaryValues(:,1), calibration);
+
+    LightFlux400PulseModulation = OLAssembleModulation(LightFluxDirectionStruct, Pulse400Waveform, calibration);
+    [LightFlux400PulseModulation.background.starts, LightFlux400PulseModulation.background.stops] = OLPrimaryToStartsStops(LightFlux400PulseModulation.primaryValues(:,1), calibration);
     
-    %% Validate direction corrected primaries prior to experiemnt
-    OLValidateDirectionCorrectedPrimaries(ol,protocolParams,'Pre');
-    OLAnalyzeDirectionCorrectedPrimaries(protocolParams,'Pre');
+ %% Define all modulations
+    % Mel modulations
+    Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+    Mel400PulseModulationData.modulation = Mel400PulseModulation;
+    Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % LMS modulations
+    LMS400PulseModulationData.modulationParams.direction = "LMS 400% contrast";
+    LMS400PulseModulationData.modulation = LMS400PulseModulation;
+    LMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+
+    % Light Flux Modulations
+    LightFlux400PulseModulationData.modulationParams.direction = "Light Flux 400% contrast";
+    LightFlux400PulseModulationData.modulation = LightFlux400PulseModulation;
+    LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+   
+    % Concatenate
+    modulationData = [Mel400PulseModulationData; LMS400PulseModulationData; LightFlux400PulseModulationData];
 end
 
-
-
-
-%% Pause dropBox syncing
-dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
-if protocolParams.verbose
-    fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
-end
 protocolParams.acquisitionNumber = 1;
 %% Run experiment
 nAcquisitions = 100;
@@ -298,15 +288,16 @@ startingAcquisitionNumber = protocolParams.acquisitionNumber;
 for aa = startingAcquisitionNumber:nAcquisitions
     protocolParams.acquisitionNumber = aa;
     fprintf('\n')
-    for dd = 1:length(protocolParams.directionNames)
-        fprintf('%d: %s, ', dd, protocolParams.directionNames{dd})
+    for dd = 1:length(modulationData)
+        fprintf('%d: %s \n', dd, modulationData(dd).modulationParams.direction)
     end
     fprintf('\n')
     fprintf('\n')
     protocolParams.trialTypeOrder = GetWithDefault('>> Enter <strong>trial type</strong>', 1);
     
     protocolParams.nTrials = 1;
-    ApproachEngine(ol,protocolParams,'acquisitionNumber', protocolParams.acquisitionNumber,'verbose',protocolParams.verbose);
+    trialList = InitializeBlockStructArray(protocolParams,modulationData);
+    ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', protocolParams.acquisitionNumber,'verbose',protocolParams.verbose);
 end
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
