@@ -243,9 +243,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     if ~exist(savePath,'dir')
             mkdir(savePath);
     end
-    save(fullfile(savePath, 'MaxMelDirectionStruct.mat'), 'MaxMelDirectionStruct')
+    save(fullfile(savePath, 'MaxMelDirectionStruct.mat'), 'MaxMelDirectionStruct');
     save(fullfile(savePath, 'MaxLMSDirectionStruct.mat'), 'MaxLMSDirectionStruct');
-    save(fullfile(savePath, 'LightFluxDirectionStruct.mat'), 'LightFluxDirectionStruct')
+    save(fullfile(savePath, 'LightFluxDirectionStruct.mat'), 'LightFluxDirectionStruct');
 
     %% Make waveform
     waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
@@ -323,6 +323,23 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     LightFlux100PulseModulationData.modulation = LightFlux100PulseModulation;
     LightFlux100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
     LightFlux100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % save modulations
+     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, protocolParams.todayDate);
+    if ~exist(savePath,'dir')
+        mkdir(savePath);
+    end
+    save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
+    save(fullfile(savePath, 'Mel200PulseModulationData.mat'), 'Mel200PulseModulationData');
+    save(fullfile(savePath, 'Mel100PulseModulationData.mat'), 'Mel100PulseModulationData');
+    
+    save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
+    save(fullfile(savePath, 'LMS200PulseModulationData.mat'), 'LMS200PulseModulationData');
+    save(fullfile(savePath, 'LMS100PulseModulationData.mat'), 'LMS100PulseModulationData');
+    
+    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+    save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
+    save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
     
     % Concatenate
     modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
