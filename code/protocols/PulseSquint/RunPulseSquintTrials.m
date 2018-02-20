@@ -23,13 +23,14 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
-protocolParams.simulate.microphone = false;
-protocolParams.simulate.speaker = false;
-protocolParams.simulate.emg = false;
-protocolParams.simulate.pupil = false;
-protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = false;
-protocolParams.simulate.operator = false;
+protocolParams.simulate.radiometer = false;
+protocolParams.simulate.microphone = true;
+protocolParams.simulate.speaker = true;
+protocolParams.simulate.emg = true;
+protocolParams.simulate.pupil = true;
+protocolParams.simulate.udp = true;
+protocolParams.simulate.observer = true;
+protocolParams.simulate.operator = true;
 protocolParams.simulate.radiometer = true;
 protocolParams.simulate.makePlots = true;
 
@@ -320,7 +321,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % Concatenate
     modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
                       LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
-                      LightFlux400PulseModulationData; LightFlux200PulseModulation, LightFlux100PulseModulation];
+                      LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
 end
 
 %% Pre-Flight Routine
