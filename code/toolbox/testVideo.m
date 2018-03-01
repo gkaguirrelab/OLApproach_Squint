@@ -35,7 +35,7 @@ counter = 1;
             case 'y'
                 pupilVideoSaveDirectoryPath = outDir;
                 duration = 60;
-                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('calibration_%03d_%s.avi',counter, subject)); 
+                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('calibration_%03d_%s.mp4',counter, subject)); 
                 videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(duration) ' "' videoOutFile '"'];
                 [recordErrorFlag,consoleOutput]=system([videoRecordCommand , ' &']);
                 % audio routine to guide subject

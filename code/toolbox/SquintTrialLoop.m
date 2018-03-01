@@ -456,7 +456,7 @@ for trial = 1:protocolParams.nTrials
                     fprintf('[simulate] Video file recorded and saved\n');
                 end
             else
-                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.avi',trial)); 
+                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('trial_%03d.mp4',trial)); 
                 videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(theMessageReceived.data.duration) ' "' videoOutFile '"'];
                 [recordErrorFlag,consoleOutput]=system(videoRecordCommand);
                 if recordErrorFlag
