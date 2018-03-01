@@ -31,6 +31,8 @@ for vv = 1:length(potentialValidations)
     validation.LMinusMContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrastPostReceptoral(2,1);
     validation.SMinusLMContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrastPostReceptoral(3,1);
     
+     %validation.backgroundLuminance(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualBackgroundLuminance;
+
     validation.backgroundLuminance(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualLuminances(1);
 end
 
