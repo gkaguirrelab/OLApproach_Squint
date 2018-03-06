@@ -27,8 +27,8 @@ protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = true;
-protocolParams.simulate.udp = true;
+protocolParams.simulate.pupil = false;
+protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
@@ -474,6 +474,15 @@ for aa = 1:6
             nLightFluxAcquisitions = nLightFluxAcquisitions + 1;
         end
         
+        % Put together the block struct array.
+    % This describes what happens on each trial of the session.
+    % Once this is done we don't need the modulation data and we
+    % clear that just to make sure we don't use it by accident.
+        trialList = InitializeBlockStructArray(protocolParams,modulationData);
+    else
+        % if you're not the base controlling the onelight, you don't need a
+        % real trialList
+        trialList = [];
     end
     
     % the base computer needs to know more information than the satellites
@@ -486,11 +495,7 @@ for aa = 1:6
     % the for-loop)
     protocolParams.nTrials = 10;
     
-    % Put together the block struct array.
-    % This describes what happens on each trial of the session.
-    % Once this is done we don't need the modulation data and we
-    % clear that just to make sure we don't use it by accident.
-    trialList = InitializeBlockStructArray(protocolParams,modulationData);
+    
     
     ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
