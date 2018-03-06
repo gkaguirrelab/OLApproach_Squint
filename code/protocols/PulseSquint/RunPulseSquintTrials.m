@@ -47,7 +47,7 @@ protocolParams.hostActions = {{'operator','observer','oneLight'}, 'pupil', 'emg'
 % in the terminal. Identify which device number we want, and place that in
 % the quotes after the -i in the command stem below.
 % GKA NOTE: do we also need the argument -pixel_format uyvy422  ?
-protocolParams.videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -pix_fmt uyvy422 -copyts -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+protocolParams.videoRecordSystemCommandStem=['ffmpeg -hide_banner -video_size 1280x720 -pix_fmt uyvy422 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1 -t 17 -vf "settb=AVTB, setpts=', '''trunc(PTS/1K)*1K+st(1,trunc(RTCTIME/1K))-1K*trunc(ld(1)/1K)''', ', drawtext=fontfile=/Library/Fonts/Arial.ttf: text=''', '%{localtime}.%{eif\:1M*t-1K*trunc(t*1K)\:d}:''', ' x=5: y=5: fontsize=16: fontcolor=yellow@0.9: box=1: boxcolor=blue@0.6"'];
 protocolParams.audioRecordObjCommand='audiorecorder(16000,8,1,2)';
 
 % Establish myRole and myActions
