@@ -79,7 +79,7 @@ else
     end
 end
 
-%% Field size and pupil size.
+% Field size and pupil size.
 %
 % These are used to construct photoreceptors for validation for directions
 % (e.g. light flux) where they are not available in the direction file.
@@ -88,7 +88,7 @@ end
 protocolParams.fieldSizeDegrees = 27.5;
 protocolParams.pupilDiameterMm = 6;
 
-%% Trial timing parameters.
+% Trial timing parameters.
 %
 % A trial is composed of the following elements:
 % - [trialMinJitterTimeSec, trialMaxJitterTimeSec] defines the bounds on a
@@ -115,7 +115,7 @@ protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 4;
 protocolParams.trialJitterRecordingDurationSec = 0.5;
 
-%% Attention task parameters
+% Attention task parameters
 %
 % Currently, if you have an attention event then all trial types
 % must have the same duration, and the attention event duration
@@ -130,7 +130,7 @@ protocolParams.trialJitterRecordingDurationSec = 0.5;
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = false;
 
-%% Set trial sequence
+% Set trial sequence
 %
 % 12/12/17: these are now to be set within the loop around acquisition,
 % because each acquisition will need to have a different trial order
@@ -156,7 +156,7 @@ deBruijnSequences = ...
 % trial order for that acqusition.
 
 
-%% OneLight parameters
+% OneLight parameters
 protocolParams.boxName = 'BoxA';
 protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
@@ -168,7 +168,7 @@ calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibra
 % Validation parameters
 protocolParams.nValidationsPerDirection = 5;
 
-%% Pre-experiment actions
+%% Pre-experiment actions: make nominal structs, correct the structs, validate the structs
 
 % Set the ol variable to empty. It will be filled if we are the base.
 ol = [];
