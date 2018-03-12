@@ -115,6 +115,8 @@ protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 4;
 protocolParams.trialJitterRecordingDurationSec = 0.5;
 
+protocolParams.nTrials = 10;
+
 % Attention task parameters
 %
 % Currently, if you have an attention event then all trial types
@@ -241,7 +243,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %% Save directionStructs
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionStructs', protocolParams.observerID, protocolParams.todayDate);
     if ~exist(savePath,'dir')
-            mkdir(savePath);
+        mkdir(savePath);
     end
     save(fullfile(savePath, 'MaxMelDirectionStruct.mat'), 'MaxMelDirectionStruct');
     save(fullfile(savePath, 'MaxLMSDirectionStruct.mat'), 'MaxLMSDirectionStruct');
@@ -535,10 +537,10 @@ for aa = 1:6
         
         % Put together the block struct array.
     % This describes what happens on each trial of the session.
-    % Once this is done we don't need the modulation data and we
-    % clear that just to make sure we don't use it by accident.
+
         trialList = InitializeBlockStructArray(protocolParams,modulationData);
     else
+        
         % if you're not the base controlling the onelight, you don't need a
         % real trialList
         trialList = [];
