@@ -433,6 +433,9 @@ for trial = 1:protocolParams.nTrials
         events(trial).tRecordingStart = mglGetSecs;
         events(trial).tRecordingStartClock = clock;
         
+        % turn on IR LED for 4-s
+        u3IR('open_sendTTL');
+        
         % ACTIONS -- emg
         if any(cellfun(@(x) sum(strcmp(x,'emg')), protocolParams.myActions))
             dataStruct(trial).emg = SquintRecordEMG(...
