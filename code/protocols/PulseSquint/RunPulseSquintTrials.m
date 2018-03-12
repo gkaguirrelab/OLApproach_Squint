@@ -79,7 +79,7 @@ else
     end
 end
 
-%% Field size and pupil size.
+% Field size and pupil size.
 %
 % These are used to construct photoreceptors for validation for directions
 % (e.g. light flux) where they are not available in the direction file.
@@ -88,7 +88,7 @@ end
 protocolParams.fieldSizeDegrees = 27.5;
 protocolParams.pupilDiameterMm = 6;
 
-%% Trial timing parameters.
+% Trial timing parameters.
 %
 % A trial is composed of the following elements:
 % - [trialMinJitterTimeSec, trialMaxJitterTimeSec] defines the bounds on a
@@ -115,7 +115,7 @@ protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 4;
 protocolParams.trialJitterRecordingDurationSec = 0.5;
 
-%% Attention task parameters
+% Attention task parameters
 %
 % Currently, if you have an attention event then all trial types
 % must have the same duration, and the attention event duration
@@ -130,7 +130,7 @@ protocolParams.trialJitterRecordingDurationSec = 0.5;
 % to handle this if that assumption is not valid.
 protocolParams.attentionTask = false;
 
-%% Set trial sequence
+% Set trial sequence
 %
 % 12/12/17: these are now to be set within the loop around acquisition,
 % because each acquisition will need to have a different trial order
@@ -156,7 +156,7 @@ deBruijnSequences = ...
 % trial order for that acqusition.
 
 
-%% OneLight parameters
+% OneLight parameters
 protocolParams.boxName = 'BoxA';
 protocolParams.calibrationType = 'BoxAShortCableCEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
@@ -168,7 +168,7 @@ calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibra
 % Validation parameters
 protocolParams.nValidationsPerDirection = 5;
 
-%% Pre-experiment actions
+%% Pre-experiment actions: make nominal structs, correct the structs, validate the structs
 
 % Set the ol variable to empty. It will be filled if we are the base.
 ol = [];
@@ -409,7 +409,66 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+resume = 0;
 %% Run experiment
+
+% check if we're starting a session from scratch, or resuming after a crash
+% or with the same directionStructs
+if resume ~= 0
+    % make sure the base has the information it needs to start the session
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        if ~isfield(protocolParams, 'observerID')
+            protocolParams.observerID = observerID;
+        end
+        %     if ~isfield(protocolParams, 'observerAge')
+        %         protocolParams.acquisitionNumber = [];
+        %     end
+        if ~isfield(protocolParams, 'sessionName')
+            protocolParams.sessionName = sessionName;
+        end
+        if ~isfield(protocolParams, 'acquisitionNumber')
+            protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
+        end
+        
+        % Information we prompt for and related
+        commandwindow;
+        protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
+        %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
+        protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
+        protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+        protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+        
+        protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+        
+        startingAcquisitionNumber = protocolParams.acquisitionNumber;
+    end
+    
+    % make sure the satellites have the information they need about the
+    % session
+    if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+        
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        
+        % see if the acquisitionNumber is already in our protocolParams
+        if ~isfield(protocolParams, 'acquisitionNumber')
+            protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
+        end
+        
+        protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+        
+        startingAcquisitionNumber = protocolParams.acquisitionNumber;
+        if protocolParams.verbose
+            fprintf('Satellite is ready to launch.\n')
+        end
+    end
+
+end
+
+% clear out resume variable, so if we have to resume past this point we'll
+% be prompted to get the subject information within this block
+resume = [];
 
 triplets = ...
     {'Mel', 'LMS', 'LightFlux'; ...
