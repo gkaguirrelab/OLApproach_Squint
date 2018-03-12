@@ -409,7 +409,66 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+resume = 0;
 %% Run experiment
+
+% check if we're starting a session from scratch, or resuming after a crash
+% or with the same directionStructs
+if resume ~= 0
+    % make sure the base has the information it needs to start the session
+    if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
+        
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        if ~isfield(protocolParams, 'observerID')
+            protocolParams.observerID = observerID;
+        end
+        %     if ~isfield(protocolParams, 'observerAge')
+        %         protocolParams.acquisitionNumber = [];
+        %     end
+        if ~isfield(protocolParams, 'sessionName')
+            protocolParams.sessionName = sessionName;
+        end
+        if ~isfield(protocolParams, 'acquisitionNumber')
+            protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
+        end
+        
+        % Information we prompt for and related
+        commandwindow;
+        protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
+        %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
+        protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
+        protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+        protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
+        
+        protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+        
+        startingAcquisitionNumber = protocolParams.acquisitionNumber;
+    end
+    
+    % make sure the satellites have the information they need about the
+    % session
+    if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
+        
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        
+        % see if the acquisitionNumber is already in our protocolParams
+        if ~isfield(protocolParams, 'acquisitionNumber')
+            protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
+        end
+        
+        protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
+        
+        startingAcquisitionNumber = protocolParams.acquisitionNumber;
+        if protocolParams.verbose
+            fprintf('Satellite is ready to launch.\n')
+        end
+    end
+
+end
+
+% clear out resume variable, so if we have to resume past this point we'll
+% be prompted to get the subject information within this block
+resume = [];
 
 triplets = ...
     {'Mel', 'LMS', 'LightFlux'; ...
