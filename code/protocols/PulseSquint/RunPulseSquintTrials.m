@@ -240,6 +240,16 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
             'receptors',receptors,'receptorStrings',receptorStrings);
     end
     
+    % summarize validation
+    if ~protocolParams.simulate.radiometer % only if we've actually validated
+        melFig = figure;
+        summarizeValidation(MaxMelDirectionStruct);
+        LMSFig = figure;
+        summarizeValidation(MaxLMSDirectionStruct);
+        LightFluxFig = figure;
+        summarizeValidation(LightFluxDirectionStruct);
+    end
+
     %% Save directionStructs
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionStructs', protocolParams.observerID, protocolParams.todayDate);
     if ~exist(savePath,'dir')
