@@ -506,7 +506,6 @@ end
 
 
 
-protocolParams.acquisitionNumber = 1;
 
 for aa = startingAcquisitionNumber:6
     protocolParams.acquisitionNumber = aa;
