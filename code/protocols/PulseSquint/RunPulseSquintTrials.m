@@ -473,7 +473,7 @@ end
 
 % clear out resume variable, so if we have to resume past this point we'll
 % be prompted to get the subject information within this block
-resume = [];
+resume = 1;
 
 triplets = ...
     {'Mel', 'LMS', 'LightFlux'; ...
