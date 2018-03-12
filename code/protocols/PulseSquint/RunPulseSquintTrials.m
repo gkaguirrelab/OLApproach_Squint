@@ -465,6 +465,9 @@ if resume ~= 0
             fprintf('Satellite is ready to launch.\n')
         end
     end
+    
+else
+    startingAcquisitionNumber = 1;
 
 end
 
@@ -505,7 +508,7 @@ end
 
 protocolParams.acquisitionNumber = 1;
 
-for aa = 1:6
+for aa = startingAcquisitionNumber:6
     protocolParams.acquisitionNumber = aa;
     
     if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
