@@ -295,8 +295,11 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.theCommunicationStatus = 'simulated';
             events(trial).udpEvents.roundTripDelayMilliSecs = 'simulated';
         else
-            u3IR('open_sendTTL')
+            
             for ss=1:numSatellites
+                if ss == 2
+                    u3IR('open_sendTTL')
+                end
                 satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
                 [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
                     UDPobj.communicate(trial, trialPacketFromBase.(satelliteAction), ...
