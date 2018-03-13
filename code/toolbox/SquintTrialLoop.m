@@ -301,7 +301,7 @@ for trial = 1:protocolParams.nTrials
                     u3IR('open_sendTTL')
                 end
                 satelliteAction = protocolParams.hostActions{satelliteIdx(ss)};
-                [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs] = ...
+                [theMessageReceived, theCommunicationStatus, roundTripDelayMilliSecs, attemptsNo] = ...
                     UDPobj.communicate(trial, trialPacketFromBase.(satelliteAction), ...
                     'beVerbose', protocolParams.verbose, ...
                     'displayPackets', protocolParams.verbose,...
@@ -312,6 +312,8 @@ for trial = 1:protocolParams.nTrials
             events(trial).udpEvents.theMessageReceived = theMessageReceived;
             events(trial).udpEvents.theCommunicationStatus = theCommunicationStatus;
             events(trial).udpEvents.roundTripDelayMilliSecs = roundTripDelayMilliSecs;
+            events(trial).udpEvents.attemptsNo = attemptsNo;
+
             
             switch theCommunicationStatus
                 case 'BAD_TRANSMISSION'
