@@ -15,7 +15,11 @@ sessionDir = fullfile(dataFilesDir, '..', 'SessionRecords', subjectID, todayDate
 sessionDirContent = dir(sessionDir);
 sessionDirContent = sessionDirContent(~ismember({sessionDirContent.name}, {'.','..', '.DS_Store'}));
 [value, index] = max([sessionDirContent(:).datenum]);
-sessionNumber = sessionDirContent(index).name;
+if length(sessionDirContent) == 0
+    sessionNumber = [];
+else
+    sessionNumber = sessionDirContent(index).name;
+end
 
 % find most recent acquisition
 dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber);
