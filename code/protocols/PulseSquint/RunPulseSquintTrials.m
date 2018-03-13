@@ -353,7 +353,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
     save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
     
-    
+    % with modulations created, have OneLight display Light Flux background
+    % as we wait
+    ol.setMirrors(LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops);
 end
 
 %% Pre-Flight Routine
