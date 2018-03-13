@@ -353,10 +353,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
     save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
     
-    % Concatenate
-    modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
-                      LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
-                      LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+    
 end
 
 %% Pre-Flight Routine
@@ -549,7 +546,10 @@ for aa = startingAcquisitionNumber:6
         
         % Put together the block struct array.
     % This describes what happens on each trial of the session.
-
+        % Concatenate
+        modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+            LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+            LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
         trialList = InitializeBlockStructArray(protocolParams,modulationData);
     else
         
