@@ -23,7 +23,7 @@ protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
-protocolParams.simulate.radiometer = true;
+protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = false;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = false;
@@ -160,7 +160,7 @@ deBruijnSequences = ...
 
 % OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBShortLiquidLightGuideDEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxBShortRandomizedCableAEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
