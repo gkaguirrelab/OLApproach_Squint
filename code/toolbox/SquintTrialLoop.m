@@ -474,6 +474,10 @@ for trial = 1:protocolParams.nTrials
                 dataStruct(trial).pupil.videoRecordCommand=videoRecordCommand;
                 dataStruct(trial).pupil.recordErrorFlag=recordErrorFlag;
                 dataStruct(trial).pupil.consoleOutput=consoleOutput;
+                
+                % grab timebase from the video file
+                [ timebase ]  = extractTimebaseFromVideo(videoOutFile);
+                dataStruct(trial).pupil.timebase = timebase;
             end
         end
         
