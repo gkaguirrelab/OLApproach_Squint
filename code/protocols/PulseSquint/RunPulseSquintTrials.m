@@ -160,7 +160,7 @@ deBruijnSequences = ...
 
 % OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxBShortLiquidLightGuideDEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -223,9 +223,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     LightFluxDirectionStruct = OLDirectionNominalStructFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     
     %% Correct the directionStructs, containing corrected primaries
-    MaxMelDirectionStruct = OLCorrectDirection(MaxMelDirectionStruct,calibration,ol,radiometer);
-    MaxLMSDirectionStruct = OLCorrectDirection(MaxLMSDirectionStruct,calibration,ol,radiometer);    
-    LightFluxDirectionStruct = OLCorrectDirection(LightFluxDirectionStruct,calibration,ol,radiometer);
+    %MaxMelDirectionStruct = OLCorrectDirection(MaxMelDirectionStruct,calibration,ol,radiometer);
+    %MaxLMSDirectionStruct = OLCorrectDirection(MaxLMSDirectionStruct,calibration,ol,radiometer);    
+    %LightFluxDirectionStruct = OLCorrectDirection(LightFluxDirectionStruct,calibration,ol,radiometer);
     
     
     %% Validate the directionStructs
