@@ -170,7 +170,7 @@ if any(strcmp('satellite',protocolParams.myRoles))
     if any(cellfun(@(x) sum(strcmp(x,'pupil')), protocolParams.myActions))
         % Create a directory in which to save pupil videos
         
-        pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.todayDate, protocolParams.sessionName, sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
+        pupilVideoSaveDirectoryPath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName], sprintf('videoFiles_acquisition_%02d',protocolParams.acquisitionNumber));
         
         if ~exist(pupilVideoSaveDirectoryPath,'dir')
             mkdir(pupilVideoSaveDirectoryPath);
