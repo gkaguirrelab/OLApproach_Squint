@@ -229,8 +229,17 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     
     %% Validate the directionStructs
-    receptors = MaxMelDirectionStruct.describe.directionParams.T_receptors;
-    receptorStrings = MaxMelDirectionStruct.describe.directionParams.photoreceptorClasses;
+    
+    % where we find the T_receptors is different depending on whether
+    % correction has occured
+    if isfield(DirectionStruct.describe, 'nominal')
+        receptors = MaxMelDirectionStruct.describe.nominal.directionParams.T_receptors;
+        receptorStrings = MaxMelDirectionStruct.describe.nominal.directionParams.photoreceptorClasses;
+    else
+        receptors = MaxMelDirectionStruct.describe.directionParams.T_receptors;
+        receptorStrings = MaxMelDirectionStruct.describe.directionParams.photoreceptorClasses;
+    end
+        
     for i = 1:protocolParams.nValidationsPerDirection
         MaxMelDirectionStruct.describe.(sprintf('validatePre%d',i)) = OLValidateDirection(MaxMelDirectionStruct,calibration,ol,radiometer,...
             'receptors',receptors,'receptorStrings',receptorStrings);
