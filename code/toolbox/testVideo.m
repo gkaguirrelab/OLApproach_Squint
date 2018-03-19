@@ -22,7 +22,7 @@ sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', sessio
 
 
 todayDate = datestr(now, 'yyyy-mm-dd');
-outDir = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'), subject, todayDate, sessionName, 'pupilCalibration');
+outDir = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'), subject, [todayDate, '_', sessionName], 'pupilCalibration');
 if ~exist(outDir)
     mkdir(outDir); 
 end
