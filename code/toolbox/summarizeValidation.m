@@ -14,7 +14,7 @@ p.parse(varargin{:});
 potentialValidations = fieldnames(DirectionStruct.describe);
 
 for ii = 1:length(potentialValidations)
-    if strcmp(potentialValidations{ii}, 'nominal') || strcmp(potentialValidations{ii}, 'correction')
+    if strcmp(potentialValidations{ii}, 'nominal') || strcmp(potentialValidations{ii}, 'correction') || strcmp(potentialValidations{ii}, 'observerAge') || strcmp(potentialValidations{ii}, 'directionParams') || strcmp(potentialValidations{ii}, 'SPDAmbient') || strcmp(potentialValidations{ii}, 'NominalSPDBackground') || strcmp(potentialValidations{ii}, 'NominalSPDPositiveModulation') || strcmp(potentialValidations{ii}, 'NominalSPDNegativeModulation')
         potentialValidations{ii} = [];
     end
 end
@@ -45,19 +45,24 @@ if strcmp(p.Results.plot, 'on')
     LMinusMContrastVector = cell2mat({validation.LMinusMContrast});
     MelanopsinContrastVector = cell2mat({validation.MelanopsinContrast});
     
+    if isfield(DirectionStruct.describe, 'nominal')
+        directionName = DirectionStruct.describe.nominal.directionParams.name;
+    else
+        directionName = DirectionStruct.describe.directionParams.name;
+    end
     
-    title(DirectionStruct.describe.nominal.directionParams.name, 'Interpreter', 'none');
+    title(directionName, 'Interpreter', 'none');
     
     
     
     % determine the appropriate y-axis limits
-    if strcmp(DirectionStruct.describe.nominal.directionParams.name, 'MaxLMS_unipolar_275_60_667')
+    if strcmp(directionName, 'MaxLMS_unipolar_275_60_667')
         intendedContrastVector = LMSContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector MelanopsinContrastVector];
-    elseif strcmp(DirectionStruct.describe.nominal.directionParams.name, 'MaxMel_unipolar_275_60_667')
+    elseif strcmp(directionName, 'MaxMel_unipolar_275_60_667')
         intendedContrastVector = MelanopsinContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector LMSContrastVector];
-    elseif strcmp(DirectionStruct.describe.nominal.directionParams.name, 'LightFlux_540_380_50')
+    elseif strcmp(directionName, 'LightFlux_540_380_50')
         intendedContrastVector = LMSContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector MelanopsinContrastVector];
     end
