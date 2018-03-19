@@ -251,7 +251,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     end
 
     %% Save directionStructs
-    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionStructs', protocolParams.observerID, protocolParams.todayDate);
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionStructs', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
     if ~exist(savePath,'dir')
         mkdir(savePath);
     end
