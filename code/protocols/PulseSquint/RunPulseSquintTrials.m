@@ -25,12 +25,12 @@ protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
 protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = false;
-protocolParams.simulate.speaker = true;
+protocolParams.simulate.speaker = false;
 protocolParams.simulate.emg = false;
 protocolParams.simulate.pupil = false;
 protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = true;
-protocolParams.simulate.operator = true;
+protocolParams.simulate.observer = false;
+protocolParams.simulate.operator = false;
 protocolParams.simulate.makePlots = true;
 
 % define the identities of the base computer (which oversees the
