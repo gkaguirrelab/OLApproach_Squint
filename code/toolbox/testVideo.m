@@ -24,82 +24,87 @@ sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', sessio
 todayDate = datestr(now, 'yyyy-mm-dd');
 outDir = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'), subject, [todayDate, '_', sessionName], 'pupilCalibration');
 if ~exist(outDir)
-    mkdir(outDir); 
+    mkdir(outDir);
 end
 
 calibrationDoneFlag = false;
 counter = 1;
-    while ~calibrationDoneFlag
-        micCheckChoice = GetWithDefault('>> Run pupil calibration?? [y/n]', 'y');
-        switch micCheckChoice
-            case 'y'
-                pupilVideoSaveDirectoryPath = outDir;
-                duration = 60;
-                videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('calibration_%03d_%s.mp4',counter, subject)); 
-                videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(duration) ' "' videoOutFile '"'];
-                [recordErrorFlag,consoleOutput]=system([videoRecordCommand , ' &']);
-                % audio routine to guide subject
-                Speak('Center');
-                pause(2);
-                Speak('Up');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Right');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Down');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Left');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Up');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Right');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Down');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Left');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Up');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Right');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Down');
-                pause(2);
-                Speak('Center');
-                pause(2);
-                Speak('Left');
-                pause(2);
-               
-                
-                
-                counter = counter + 1;
-                
-                playCommand = ['/Applications/VLC\ 2.app/Contents/MacOS/VLC play ' videoOutFile ' &'];
-                [recordErrorFlag,consoleOutput]=system(playCommand);
-                
-            case 'n'
-                calibrationDoneFlag = true;
-                
-            otherwise
-        end
+while ~calibrationDoneFlag
+    micCheckChoice = GetWithDefault('>> Run pupil calibration?? [y/n]', 'y');
+    switch micCheckChoice
+        case 'y'
+            pupilVideoSaveDirectoryPath = outDir;
+            duration = 60;
+            videoOutFile = fullfile(pupilVideoSaveDirectoryPath, sprintf('calibration_%03d_%s.mp4',counter, subject));
+            videoRecordCommand = [protocolParams.videoRecordSystemCommandStem ' -t ' num2str(duration) ' "' videoOutFile '"'];
+            [recordErrorFlag,consoleOutput]=system([videoRecordCommand , ' &']);
+            % audio routine to guide subject
+            Speak('Center');
+            pause(2);
+            Speak('Up');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Right');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Down');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Left');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Up');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Right');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Down');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Left');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Up');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Right');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Down');
+            pause(2);
+            Speak('Center');
+            pause(2);
+            Speak('Left');
+            pause(2);
+            
+            
+            
+            counter = counter + 1;
+            
+            playCommand = ['/Applications/VLC\ 2.app/Contents/MacOS/VLC play ' videoOutFile ' &'];
+            [recordErrorFlag,consoleOutput]=system(playCommand);
+            
+        case 'n'
+            calibrationDoneFlag = true;
+            
+        otherwise
     end
+end
+
+% enter distance from corneal apex to camera lens:
+distance = GetWithDefault('>> Enter distance from corneal apex to camera lens', []);
+save(fullfile(outDir, 'distance.mat'), 'distanceFromCornealApexToIRLens');
+
 
 end
