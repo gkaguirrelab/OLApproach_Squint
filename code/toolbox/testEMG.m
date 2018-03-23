@@ -10,13 +10,13 @@ plotFig = figure('name', 'plotFig');
 subplot(1,2,1)
 plot(emgOutput.timebase, emgOutput.response(1,:));
 xlabel('Time (s)')
-ylabel('Voltage ***?')
-title('*** Leads')
+ylabel('Voltage (mV)')
+title('Right Leads')
 
 subplot(1,2,2)
-plot(emgOutput.timebase, emgOutput.response(1,:));
+plot(emgOutput.timebase, emgOutput.response(2,:));
 xlabel('Time (s)')
-ylabel('Voltage ***?')
-title('*** Leads')
+ylabel('Voltage (mV)')
+title('Left Leads')
             
 end
