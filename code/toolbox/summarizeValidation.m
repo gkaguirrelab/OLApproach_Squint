@@ -12,28 +12,27 @@ p.parse(varargin{:});
 
 
 potentialValidations = length(DirectionObject.describe.validation);
-
-for ii = 1:length(potentialValidations)
-    if strcmp(potentialValidations{ii}, 'nominal') || strcmp(potentialValidations{ii}, 'correction') || strcmp(potentialValidations{ii}, 'observerAge') || strcmp(potentialValidations{ii}, 'directionParams') || strcmp(potentialValidations{ii}, 'SPDAmbient') || strcmp(potentialValidations{ii}, 'NominalSPDBackground') || strcmp(potentialValidations{ii}, 'NominalSPDPositiveModulation') || strcmp(potentialValidations{ii}, 'NominalSPDNegativeModulation')
-        potentialValidations{ii} = [];
+validationIndices = [];
+for ii = 1:potentialValidations
+    if contains(DirectionObject.describe.validation(ii).label, p.Results.whichValidationPrefix) || strcmp(p.Results.whichValidationPrefix, 'all')
+        validationIndices = [validationIndices, ii];
     end
 end
-potentialValidations  = potentialValidations(~cellfun('isempty', potentialValidations));
 
-for vv = 1:length(potentialValidations)
+for vv = 1:potentialValidations
     
-    validation.LConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(1,1);
-    validation.MConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(2,1);
-    validation.SConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(3,1);
-    validation.MelanopsinContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(4,1);
+    validation.LConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(1,1);
+    validation.MConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(2,1);
+    validation.SConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(3,1);
+    validation.MelanopsinContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(4,1);
     
-    validation.LMSContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(1,1);
-    validation.LMinusMContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(2,1);
-    validation.SMinusLMContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(3,1);
+    validation.LMSContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(1,1);
+    validation.LMinusMContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(2,1);
+    validation.SMinusLMContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(3,1);
     
-     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
-
-    validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualLuminances(1);
+    %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
+    
+    validation.backgroundLuminance(vv) = DirectionObject.describe.validation(vv).luminanceActual(1);
 end
 
 if strcmp(p.Results.plot, 'on')
@@ -45,11 +44,9 @@ if strcmp(p.Results.plot, 'on')
     LMinusMContrastVector = cell2mat({validation.LMinusMContrast});
     MelanopsinContrastVector = cell2mat({validation.MelanopsinContrast});
     
-    if isfield(DirectionObject.describe, 'nominal')
-        directionName = DirectionObject.describe.nominal.directionParams.name;
-    else
-        directionName = DirectionObject.describe.directionParams.name;
-    end
+    
+    directionName = DirectionObject.describe.directionParams.name;
+    
     
     title(directionName, 'Interpreter', 'none');
     
@@ -62,9 +59,9 @@ if strcmp(p.Results.plot, 'on')
     elseif strcmp(directionName, 'MaxMel_unipolar_275_60_667')
         intendedContrastVector = MelanopsinContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector LMSContrastVector];
-    elseif strcmp(directionName, 'LightFlux_540_380_50')
-        intendedContrastVector = LMSContrastVector;
-        splatterVectors = [SConeContrastVector LMinusMContrastVector MelanopsinContrastVector];
+    elseif strcmp(directionName, 'MaxMelLMS_unipolar_275_60_667')
+        intendedContrastVector = [LMSContrastVector MelanopsinContrastVector];
+        splatterVectors = [SConeContrastVector LMinusMContrastVector];
     end
     
     % for the direction of interest, the y axis will be bounded
@@ -113,23 +110,33 @@ if strcmp(p.Results.plot, 'on')
     % function
     data = horzcat({100*SConeContrastVector', 100*LMinusMContrastVector', 100*LMSContrastVector', 100*MelanopsinContrastVector'});
     
-    % some flexibility with plotting depending on which validation
-    % measurements we're looking at
-    if length(potentialValidations) == 5;
-        catIdxInstance = zeros(1,5);
-        catIdx = horzcat(catIdxInstance, catIdxInstance, catIdxInstance, catIdxInstance)';
-        [test] = plotSpread(data, 'distributionMarkers', 'o', 'xNames', {'S Cone', 'L-M', 'LMS', 'Melanopsin'});
-        preOrPost = extractAfter(potentialValidations{1}, 'validate');
-        preOrPost = preOrPost(1:end-1);
-        text(0.25, (yIntendedMax+yIntendedMin)/2, sprintf('o: %s-Experiment', preOrPost))
-
-
-    elseif length(potentialValidations) == 10;
-        catIdxInstance = horzcat(zeros(1,5), ones(1,5));
-        catIdx = horzcat(catIdxInstance, catIdxInstance, catIdxInstance, catIdxInstance)';
-        [test] = plotSpread(data, 'categoryIdx', catIdx, 'categoryMarkers', {'o', '+'}, 'categoryLabels', {'Pre-Experiment', 'Post-Experiment'}, 'xNames', {'S Cone', 'L-M', 'LMS', 'Melanopsin'}, 'showMM', 3);
-        text(0.25, (yIntendedMax+yIntendedMin)/2, sprintf('o: Pre-Experiment \n+: Post-Experiment'))
+    % determine how many stimulus labels we are working with
+    for ii = 1:potentialValidations
+        labelsArray{ii} = DirectionObject.describe.validation(ii).label;
     end
+    uniqueLabels = unique(labelsArray);
+    
+    catIdxInstance = [];
+    for ii = 1:potentialValidations
+        for ll = 1:length(uniqueLabels)
+            if strcmp(DirectionObject.describe.validation(ii).label, uniqueLabels{ll})
+                catIdxInstance(ii) = ll-1;
+            end
+        end
+    end
+    
+    markers = {'o', '+', '.', '*', 'o', '+', '.', '*', 'o', '+', '.', '*'};
+    catIdx = horzcat(catIdxInstance, catIdxInstance, catIdxInstance, catIdxInstance)';
+    [test] = plotSpread(data, 'categoryIdx', catIdx,  'categoryMarkers', {markers{1:length(uniqueLabels)}}, 'categoryLabels', uniqueLabels, 'xNames', {'S Cone', 'L-M', 'LMS', 'Melanopsin'});
+    
+    textString = [];
+    for ll = 1:length(uniqueLabels)
+        textString = [textString, markers{ll}, ': ', uniqueLabels{ll}, '\n'];
+    end
+        
+    text(0.25, (yIntendedMax+yIntendedMin)/2, sprintf(textString))
+
+    
     if yIntendedMin - ySplatterMax < 100
     else
         
