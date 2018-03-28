@@ -160,7 +160,7 @@ deBruijnSequences = ...
 
 % OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxBShortLiquidLightGuideDEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -227,15 +227,15 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % directions without it then we'll just grab them
     T_receptors = MaxMelLMSDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
     for ii = 1:protocolParams.nValidationsPerDirection
-        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'precorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'precorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         
-        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'precorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -246,16 +246,16 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
     
     %% Validate the direction objects after direction correction
-    for ii = length(MaxMelDirection.describe.validation):length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
-      OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+    for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
+      OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         
-        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
