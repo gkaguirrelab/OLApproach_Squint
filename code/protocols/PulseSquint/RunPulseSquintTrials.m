@@ -22,8 +22,8 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = true;
-protocolParams.simulate.radiometer = true;
+protocolParams.simulate.oneLight = false;
+protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
@@ -246,7 +246,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
     
     %% Validate the direction objects after direction correction
-    for ii = 1:protocolParams.nValidationsPerDirection
+    for ii = length(MaxMelDirection.describe.validation):length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
       OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
