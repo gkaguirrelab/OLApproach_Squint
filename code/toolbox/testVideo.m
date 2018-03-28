@@ -103,7 +103,7 @@ while ~calibrationDoneFlag
 end
 
 % enter distance from corneal apex to camera lens:
-distance = GetWithDefault('>> Enter distance from corneal apex to camera lens', []);
+distanceFromCornealApexToIRLens = GetWithDefault('>> Enter distance from corneal apex to camera lens', []);
 save(fullfile(outDir, 'distance.mat'), 'distanceFromCornealApexToIRLens');
 
 
