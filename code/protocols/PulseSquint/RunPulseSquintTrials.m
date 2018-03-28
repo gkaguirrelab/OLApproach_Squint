@@ -226,10 +226,19 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % Direction correction doesn't always seem to help, so if we can make good
     % directions without it then we'll just grab them
     T_receptors = MaxMelLMSDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
-    OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors);
-    OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors);
-    OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors);
-    
+    for ii = 1:protocolParams.nValidationsPerDirection
+        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        
+        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        
+        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('precorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+    end
     
     %% Correct the direction objects
     OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
@@ -237,10 +246,19 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
     
     %% Validate the direction objects after direction correction
-    OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors);
-    OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors);
-    OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors);
-    
+    for ii = 1:protocolParams.nValidationsPerDirection
+      OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        
+        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        
+        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', sprintf('postcorrection_%d', ii));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+        MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+    end
     
     %% Save directionStructs
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
