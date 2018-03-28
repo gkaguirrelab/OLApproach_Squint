@@ -1,9 +1,9 @@
-function validation = summarizeValidation(DirectionStruct, varargin)
+function validation = summarizeValidation(DirectionObject, varargin)
 
 %% Parse input
 p = inputParser; p.KeepUnmatched = true;
 
-p.addParameter('whichValidation','combined',@ischar);
+p.addParameter('whichValidationPrefix','all',@ischar);
 p.addParameter('plot','on',@ischar);
 p.addParameter('verbose','off',@ischar);
 
@@ -11,7 +11,7 @@ p.addParameter('verbose','off',@ischar);
 p.parse(varargin{:});
 
 
-potentialValidations = fieldnames(DirectionStruct.describe);
+potentialValidations = length(DirectionObject.describe.validation);
 
 for ii = 1:length(potentialValidations)
     if strcmp(potentialValidations{ii}, 'nominal') || strcmp(potentialValidations{ii}, 'correction') || strcmp(potentialValidations{ii}, 'observerAge') || strcmp(potentialValidations{ii}, 'directionParams') || strcmp(potentialValidations{ii}, 'SPDAmbient') || strcmp(potentialValidations{ii}, 'NominalSPDBackground') || strcmp(potentialValidations{ii}, 'NominalSPDPositiveModulation') || strcmp(potentialValidations{ii}, 'NominalSPDNegativeModulation')
@@ -22,18 +22,18 @@ potentialValidations  = potentialValidations(~cellfun('isempty', potentialValida
 
 for vv = 1:length(potentialValidations)
     
-    validation.LConeContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrast(1,1);
-    validation.MConeContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrast(2,1);
-    validation.SConeContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrast(3,1);
-    validation.MelanopsinContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrast(4,1);
+    validation.LConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(1,1);
+    validation.MConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(2,1);
+    validation.SConeContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(3,1);
+    validation.MelanopsinContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrast(4,1);
     
-    validation.LMSContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrastPostReceptoral(1,1);
-    validation.LMinusMContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrastPostReceptoral(2,1);
-    validation.SMinusLMContrast(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualContrastPostReceptoral(3,1);
+    validation.LMSContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(1,1);
+    validation.LMinusMContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(2,1);
+    validation.SMinusLMContrast(vv) = DirectionObject.describe.(potentialValidations{vv}).actualContrastPostReceptoral(3,1);
     
-     %validation.backgroundLuminance(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualBackgroundLuminance;
+     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
 
-    validation.backgroundLuminance(vv) = DirectionStruct.describe.(potentialValidations{vv}).actualLuminances(1);
+    validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualLuminances(1);
 end
 
 if strcmp(p.Results.plot, 'on')
@@ -45,10 +45,10 @@ if strcmp(p.Results.plot, 'on')
     LMinusMContrastVector = cell2mat({validation.LMinusMContrast});
     MelanopsinContrastVector = cell2mat({validation.MelanopsinContrast});
     
-    if isfield(DirectionStruct.describe, 'nominal')
-        directionName = DirectionStruct.describe.nominal.directionParams.name;
+    if isfield(DirectionObject.describe, 'nominal')
+        directionName = DirectionObject.describe.nominal.directionParams.name;
     else
-        directionName = DirectionStruct.describe.directionParams.name;
+        directionName = DirectionObject.describe.directionParams.name;
     end
     
     title(directionName, 'Interpreter', 'none');
