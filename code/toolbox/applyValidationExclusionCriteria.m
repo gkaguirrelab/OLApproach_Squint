@@ -59,7 +59,7 @@ if isequal(targetedReceptors, [4]) % mel pulses
             sprintf('Melanopsin contrast for Melanopsin stimulation too low')
         end
     end
-    if abs(median(validation.SMinusLM)) > splatterLimit
+    if abs(median(validation.SMinusLMContrast)) > splatterLimit
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
