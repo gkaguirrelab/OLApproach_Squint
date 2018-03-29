@@ -16,7 +16,7 @@ sessionDirContent = dir(sessionDir);
 sessionDirContent = sessionDirContent(~ismember({sessionDirContent.name}, {'.','..', '.DS_Store'}));
 [value, index] = max([sessionDirContent(:).datenum]);
 if length(sessionDirContent) == 0
-    sessionNumber = [];
+    sessionNumber = 'session_1';
 else
     sessionNumber = sessionDirContent(index).name;
 end
