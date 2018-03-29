@@ -111,8 +111,10 @@ if strcmp(p.Results.plot, 'on')
     data = horzcat({100*SConeContrastVector', 100*LMinusMContrastVector', 100*LMSContrastVector', 100*MelanopsinContrastVector'});
     
     % determine how many stimulus labels we are working with
-    for ii = 1:length(validationIndices)
-        labelsArray{ii} = DirectionObject.describe.validation(ii).label;
+    counter = 1;
+    for ii = validationIndices
+        labelsArray{counter} = DirectionObject.describe.validation(ii).label;
+        counter = counter + 1;
     end
     uniqueLabels = unique(labelsArray);
     
