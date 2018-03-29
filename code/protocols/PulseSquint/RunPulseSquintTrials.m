@@ -240,26 +240,86 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
     
-    %% Correct the direction objects
-    OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
-    OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
-    OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
+    %% Check if these nominal spectra meet exclusion criteria
+    % if they don't (meaning the data can be included), we don't have to
+    % correct the directions
     
-    %% Validate the direction objects after direction correction
-    for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
-      OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
-        
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
-        
-        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+    melFigure = figure;
+    MelValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'precorrection');
+    MelPassStatus = applyValidationExclusionCriteria(MelValidation, MaxMelDirection);
+    
+    LMSFigure = figure;
+    LMSValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'precorrection');
+    LMSPassStatus = applyValidationExclusionCriteria(LMSValidation, MaxLMSDirection);
+    
+    melLMSFigure = figure;
+    MelLMSValidation = summarizeValidation(MaxMelLMSDirection, 'whichValidationPrefix', 'precorrection');
+    MelLMSPassStatus = applyValidationExclusionCriteria(MelLMSValidation, MaxMelLMSDirection);
+    
+    
+    %% Correct the direction objects
+    % then validate
+    
+    if MelPassStatus == 0
+        OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
+        for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
+            MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        melPostFigure = figure;
+        MelValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection');
+        MelPassStatus = applyValidationExclusionCriteria(MelValidation, MaxMelDirection);
     end
     
+    if LMSPassStatus == 0
+        OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
+        for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+            MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        LMSPostFigure = figure;
+        LMSValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection');
+        LMSPassStatus = applyValidationExclusionCriteria(LMSValidation, MaxLMSDirection);
+    end
+    
+    if MelLMSPassStatus == 0
+        OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
+        for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+            MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        melLMSPostFigure = figure;
+        MelLMSValidation = summarizeValidation(MaxMelLMSDirection, 'whichValidationPrefix', 'postcorrection');
+        MelLMSPassStatus = applyValidationExclusionCriteria(MelLMSValidation, MaxMelLMSDirection);
+    end
+    
+%% Check that we have good modulations
+if MelPassStatus == 1
+    fprintf('Mel modulations are good\n');
+else
+    fprintf('<strong>Mel modulations are poor</strong>\n');
+end
+
+if LMSPassStatus == 1
+    fprintf('LMS modulations are good\n');
+else
+    fprintf('<strong>LMS modulations are poor</strong>\n');
+end
+
+if MelLMSPassStatus == 1
+    fprintf('Mel/LMS combined modulations are good\n');
+else
+    fprintf('<strong>Mel/LMS combined modulations are poor</strong>\n');
+end
+    
+if MelPassStatus == 1 && LMSPassStatus == 1 && MelLMSPassStatus == 1
+    fprintf('***We have good modulations and are ready for the experiment***\n');
+else
+    fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');
+end
     %% Save directionStructs
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
     if ~exist(savePath,'dir')
