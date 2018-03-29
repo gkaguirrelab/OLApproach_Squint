@@ -22,8 +22,8 @@ protocolParams.protocolOutputName = 'StP';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = true;
-protocolParams.simulate.radiometer = true;
+protocolParams.simulate.oneLight = false;
+protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
@@ -297,7 +297,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         end
         melLMSPostFigure = figure;
         MelLMSPostValidation = summarizeValidation(MaxMelLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-        MelLMSPassStatus = applyValidationExclusionCriteria(MelPostLMSValidation, MaxMelLMSDirection);
+        MelLMSPassStatus = applyValidationExclusionCriteria(MelLMSPostValidation, MaxMelLMSDirection);
         MelLMSPostValidation = summarizeValidation(MaxMelLMSDirection);
         
     end
