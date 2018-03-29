@@ -160,7 +160,7 @@ deBruijnSequences = ...
 
 % OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBShortLiquidLightGuideDEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -268,8 +268,10 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
             MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
         melPostFigure = figure;
-        MelValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection');
-        MelPassStatus = applyValidationExclusionCriteria(MelValidation, MaxMelDirection);
+        MelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        MelPassStatus = applyValidationExclusionCriteria(MelPostValidation, MaxMelDirection);
+        MelPostValidation = summarizeValidation(MaxMelDirection);
+        
     end
     
     if LMSPassStatus == 0
@@ -280,8 +282,10 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
             MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
         LMSPostFigure = figure;
-        LMSValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection');
-        LMSPassStatus = applyValidationExclusionCriteria(LMSValidation, MaxLMSDirection);
+        LMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        LMSPassStatus = applyValidationExclusionCriteria(LMSPostValidation, MaxLMSDirection);
+        LMSPostValidation = summarizeValidation(MaxLMSDirection);
+        
     end
     
     if MelLMSPassStatus == 0
@@ -292,8 +296,10 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
             MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
         melLMSPostFigure = figure;
-        MelLMSValidation = summarizeValidation(MaxMelLMSDirection, 'whichValidationPrefix', 'postcorrection');
-        MelLMSPassStatus = applyValidationExclusionCriteria(MelLMSValidation, MaxMelLMSDirection);
+        MelLMSPostValidation = summarizeValidation(MaxMelLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        MelLMSPassStatus = applyValidationExclusionCriteria(MelPostLMSValidation, MaxMelLMSDirection);
+        MelLMSPostValidation = summarizeValidation(MaxMelLMSDirection);
+        
     end
     
 %% Check that we have good modulations
