@@ -24,14 +24,14 @@ protocolParams.verbose = true;
 protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
 protocolParams.simulate.radiometer = false;
-protocolParams.simulate.microphone = true;
-protocolParams.simulate.speaker = true;
-protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = true;
-protocolParams.simulate.udp = true;
-protocolParams.simulate.observer = true;
-protocolParams.simulate.operator = true;
-protocolParams.simulate.makePlots = true;
+protocolParams.simulate.microphone = false;
+protocolParams.simulate.speaker = false;
+protocolParams.simulate.emg = false;
+protocolParams.simulate.pupil = false;
+protocolParams.simulate.udp = false;
+protocolParams.simulate.observer = false;
+protocolParams.simulate.operator = false;
+protocolParams.simulate.makePlots = false;
 
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
