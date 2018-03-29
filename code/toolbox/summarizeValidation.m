@@ -19,7 +19,7 @@ for ii = 1:potentialValidations
     end
 end
 
-for vv = 1:potentialValidations
+for vv = 1:length(validationIndices)
     
     validation.LConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(1,1);
     validation.MConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(2,1);
@@ -111,13 +111,13 @@ if strcmp(p.Results.plot, 'on')
     data = horzcat({100*SConeContrastVector', 100*LMinusMContrastVector', 100*LMSContrastVector', 100*MelanopsinContrastVector'});
     
     % determine how many stimulus labels we are working with
-    for ii = 1:potentialValidations
+    for ii = 1:length(validationIndices)
         labelsArray{ii} = DirectionObject.describe.validation(ii).label;
     end
     uniqueLabels = unique(labelsArray);
     
     catIdxInstance = [];
-    for ii = 1:potentialValidations
+    for ii = 1:length(validationIndices)
         for ll = 1:length(uniqueLabels)
             if strcmp(DirectionObject.describe.validation(ii).label, uniqueLabels{ll})
                 catIdxInstance(ii) = ll-1;
@@ -125,7 +125,7 @@ if strcmp(p.Results.plot, 'on')
         end
     end
     
-    markers = {'o', '+', '.', '*', 'o', '+', '.', '*', 'o', '+', '.', '*'};
+    markers = {'+', 'o', '.', '*', 'o', '+', '.', '*', 'o', '+', '.', '*'};
     catIdx = horzcat(catIdxInstance, catIdxInstance, catIdxInstance, catIdxInstance)';
     [test] = plotSpread(data, 'categoryIdx', catIdx,  'categoryMarkers', {markers{1:length(uniqueLabels)}}, 'categoryLabels', uniqueLabels, 'xNames', {'S Cone', 'L-M', 'LMS', 'Melanopsin'});
     
