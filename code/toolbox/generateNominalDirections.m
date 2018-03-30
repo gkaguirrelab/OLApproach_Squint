@@ -52,8 +52,7 @@ MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667');
 [MaxLMSDirection, MaxLMSBackground] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
 
 LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
-%LightFluxDirection = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
-
+[LightFluxDirection, LightFluxBackground] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
 
 %% Simulate validation to easily determine the contrast in our nominal
 % OLDirections
@@ -65,12 +64,12 @@ MaxMelDirection.describe.validation = OLValidateDirection(MaxMelDirection,MaxMel
     'receptors',receptors);
 MaxLMSDirection.describe.validation = OLValidateDirection(MaxLMSDirection,MaxLMSBackground,ol,radiometer,...
     'receptors',receptors);
-% LightFluxDirection.describe.validation = OLValidateDirection(LightFluxDirection,calibration,ol,radiometer,...
-%     'receptors',receptors,'receptorStrings',receptorStrings);
+LightFluxDirection.describe.validation = OLValidateDirection(LightFluxDirection,LightFluxBackground,ol,radiometer,...
+     'receptors',receptors);
 
 %% Report on these nominal contrasts
 postreceptoralStrings = {'L+M+S', 'L-M', 'S-(L+M)'};
-directions = {'MaxMelDirection', 'MaxLMSDirection'};%, 'LightFluxDirectionStruct'};
+directions = {'MaxMelDirection', 'MaxLMSDirection', 'LightFluxDirection'};
 
 % loop over directions
 for dd = 1:length(directions)
