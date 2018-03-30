@@ -1,4 +1,4 @@
-function [ MaxLMSDirectionStruct, MaxMelDirectionStruct, LightFluxDirectionStruct ] = generateNominalDirectionStructs(calibrationType, observerAge)
+function [ MaxLMSDirection, MaxMelDirection, LightFluxDirection ] = generateNominalDirections(calibrationType, observerAge)
 % Function to compute nominal backgrounds and directions based on
 % calibration type and subject age
 
@@ -33,7 +33,7 @@ calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibra
 protocolParams.observerID = '';
 protocolParams.observerAgeInYrs = observerAge;
 
-% to make these nominal directionStructs, we'll need to simulate the
+% to make these nominal OLDirections we'll need to simulate the
 % OneLight and the radiometer. Set that up here
 radiometer = [];
 protocolParams.simulate.oneLight = true;
@@ -44,43 +44,45 @@ ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',p
 
 %% Make nominal directionStructs, containing nominal primaries
 % First we get the parameters for the directions from the dictionary. Then
-% generate the directionStruct
+% generate the OLDirections
 MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667');
-MaxMelDirectionStruct = OLDirectionNominalStructFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+[MaxMelDirection, MaxMelBackground] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
 
 MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667');
-MaxLMSDirectionStruct = OLDirectionNominalStructFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+[MaxLMSDirection, MaxLMSBackground] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
 
 LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
-LightFluxDirectionStruct = OLDirectionNominalStructFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+%LightFluxDirection = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
 
 
-%% fake validate to easily determine the contrast in our nominal
-% directionStructs
+%% Simulate validation to easily determine the contrast in our nominal
+% OLDirections
 %
-receptors = MaxLMSDirectionStruct.describe.directionParams.T_receptors;
-receptorStrings = MaxLMSDirectionStruct.describe.directionParams.photoreceptorClasses;
+receptors = MaxLMSDirection.describe.directionParams.T_receptors;
+receptorStrings = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
 
-MaxMelDirectionStruct.describe.validation = OLValidateDirection(MaxMelDirectionStruct,calibration,ol,radiometer,...
-    'receptors',receptors,'receptorStrings',receptorStrings);
-MaxLMSDirectionStruct.describe.validation = OLValidateDirection(MaxLMSDirectionStruct,calibration,ol,radiometer,...
-    'receptors',receptors,'receptorStrings',receptorStrings);
-LightFluxDirectionStruct.describe.validation = OLValidateDirection(LightFluxDirectionStruct,calibration,ol,radiometer,...
-    'receptors',receptors,'receptorStrings',receptorStrings);
+MaxMelDirection.describe.validation = OLValidateDirection(MaxMelDirection,MaxMelBackground,ol,radiometer,...
+    'receptors',receptors);
+MaxLMSDirection.describe.validation = OLValidateDirection(MaxLMSDirection,MaxLMSBackground,ol,radiometer,...
+    'receptors',receptors);
+% LightFluxDirection.describe.validation = OLValidateDirection(LightFluxDirection,calibration,ol,radiometer,...
+%     'receptors',receptors,'receptorStrings',receptorStrings);
 
 %% Report on these nominal contrasts
 postreceptoralStrings = {'L+M+S', 'L-M', 'S-(L+M)'};
-directions = {'MaxMelDirectionStruct', 'MaxLMSDirectionStruct', 'LightFluxDirectionStruct'};
+directions = {'MaxMelDirection', 'MaxLMSDirection'};%, 'LightFluxDirectionStruct'};
 
 % loop over directions
 for dd = 1:length(directions)
-    directionStruct = eval(directions{dd});
+    direction = eval(directions{dd});
+    background = eval(strrep(directions{dd},'Direction','Background'));
     
     fprintf('<strong>%s</strong>\n', directions{dd});
     
-    % grab the relevant contrast information from the directionStruct
-    receptorContrasts = directionStruct.describe.validation.predictedContrast;
-    postreceptoralContrasts = directionStruct.describe.validation.predictedContrastPostReceptoral;
+    % grab the relevant contrast information from the OLDirection
+    receptorContrasts = direction.ToDesiredReceptorContrast(background,receptors);
+    %receptorContrasts = direction.describe.validation.contrastDesired;
+    postreceptoralContrasts = direction.describe.validation.postreceptoralContrastDesired;
     
     % report of receptoral contrast
     for j = 1:size(receptors,1)
@@ -95,7 +97,3 @@ for dd = 1:length(directions)
     end
     fprintf('\n\n');
 end
-
-
-
-
