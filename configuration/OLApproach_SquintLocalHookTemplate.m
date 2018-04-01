@@ -1,11 +1,11 @@
 function OLApproach_SquintLocalHook
-% OLApproach_PsychophysicsLocalHook - Configure things for working on OneLight projects.
+% Oonfigure things for working on OneLight projects.
 %
 % For use with the ToolboxToolbox.  If you copy this into your
 % ToolboxToolbox localToolboxHooks directory (by default,
 % ~/localToolboxHooks) and delete "LocalHooksTemplate" from the filename,
 % this will get run when you execute
-%   tbUseProject('OLApproach_PsychophysicsLocalHook')
+%   tbUseProject('OLApproach_Squint')
 % to set up for this project.  You then edit your local copy to match your local machine.
 %
 % The main thing that this does is define Matlab preferences that specify input and output
