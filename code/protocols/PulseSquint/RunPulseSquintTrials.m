@@ -24,14 +24,14 @@ protocolParams.verbose = true;
 protocolParams.setup = false;
 protocolParams.simulate.oneLight = false;
 protocolParams.simulate.radiometer = false;
-protocolParams.simulate.microphone = false;
-protocolParams.simulate.speaker = false;
-protocolParams.simulate.emg = false;
-protocolParams.simulate.pupil = false;
-protocolParams.simulate.udp = false;
-protocolParams.simulate.observer = false;
-protocolParams.simulate.operator = false;
-protocolParams.simulate.makePlots = false;
+protocolParams.simulate.microphone = true;
+protocolParams.simulate.speaker = true;
+protocolParams.simulate.emg = true;
+protocolParams.simulate.pupil = true;
+protocolParams.simulate.udp = true;
+protocolParams.simulate.observer = true;
+protocolParams.simulate.operator = true;
+protocolParams.simulate.makePlots = true;
 
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
@@ -160,7 +160,7 @@ deBruijnSequences = ...
 
 % OneLight parameters
 protocolParams.boxName = 'BoxB';
-protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
+protocolParams.calibrationType = 'BoxBShortLiquidLightGuideDEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
 protocolParams.takeTemperatureMeasurements = false;
 
@@ -260,8 +260,8 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %% Correct the direction objects
     % then validate
     
-    if MelPassStatus == 0
-        OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
+    %if MelPassStatus == 0
+        OLCorrectDirection_oldSpectrumSeeking(MaxMelDirection, MaxMelBackground, ol, radiometer);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -272,10 +272,10 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         MelPassStatus = applyValidationExclusionCriteria(MelPostValidation, MaxMelDirection);
         MelPostValidation = summarizeValidation(MaxMelDirection);
         
-    end
+    %end
     
-    if LMSPassStatus == 0
-        OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
+    %if LMSPassStatus == 0
+        OLCorrectDirection_oldSpectrumSeeking(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -286,10 +286,10 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         LMSPassStatus = applyValidationExclusionCriteria(LMSPostValidation, MaxLMSDirection);
         LMSPostValidation = summarizeValidation(MaxLMSDirection);
         
-    end
+    %end
     
-    if MelLMSPassStatus == 0
-        OLCorrectDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
+    %if MelLMSPassStatus == 0
+        OLCorrectDirection_oldSpectrumSeeking(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer);
         for ii = length(MaxMelLMSDirection.describe.validation)+1:length(MaxMelLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -300,7 +300,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         MelLMSPassStatus = applyValidationExclusionCriteria(MelLMSPostValidation, MaxMelLMSDirection);
         MelLMSPostValidation = summarizeValidation(MaxMelLMSDirection);
         
-    end
+    %end
     
 %% Check that we have good modulations
 if MelPassStatus == 1
