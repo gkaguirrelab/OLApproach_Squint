@@ -11,6 +11,11 @@
 % collect EMG and pupil response data.
 
 %% Clear
+if exist('radiometer', 'var')
+    try 
+        radiometer.shutDown 
+    end
+end
 clear; close all;
 
 %% Set the parameter structure here
