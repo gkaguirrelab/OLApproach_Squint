@@ -1,4 +1,4 @@
-function [DirectionObject, BackgroundObject] = applyCorrectedCachetoDirectionObjects(cacheData, DirectionObject, BackgroundObject)
+function applyCorrectedCachetoDirectionObjects(cacheData, DirectionObject, BackgroundObject)
 
 observerAge = DirectionObject.describe.observerAge;
 
