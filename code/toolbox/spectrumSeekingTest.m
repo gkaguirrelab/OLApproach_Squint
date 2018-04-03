@@ -1,3 +1,8 @@
+protocolParams.simulate.oneLight = false;
+protocolParams.simulate.radiometer = false;
+protocolParams.simulate.makePlots = false;
+
+
 protocolParams.boxName = 'BoxB';
 protocolParams.calibrationType = 'BoxBRandomizedLongCableAEyePiece1_ND04';
 protocolParams.takeCalStateMeasurements = true;
