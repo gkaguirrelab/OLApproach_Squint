@@ -19,10 +19,7 @@ fprintf('Running OLApproach_Squint local hook\n');
 theApproach = 'OLApproach_Squint';
 
 %% Define protocols for this approach
-theProtocols = { ...
-    'SquintToPulse' ...
-    };
-
+theProtocols = DefineProtocolNames;
 %% Remove old preferences
 if (ispref(theApproach))
     rmpref(theApproach);
