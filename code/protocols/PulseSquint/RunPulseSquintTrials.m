@@ -339,6 +339,9 @@ end
     save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
     save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
     save(fullfile(savePath, 'MaxMelLMSDirection.mat'), 'MaxMelLMSDirection');
+    save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
+    save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
+    save(fullfile(savePath, 'MaxMelLMSBackground.mat'), 'MaxMelLMSBackground');
     
     %% Make waveform
     waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
