@@ -388,19 +388,19 @@ end
     % Mel LMS Modulations
     LightFlux400PulseModulationData.modulationParams.direction = "Light Flux 400% contrast";
     LightFlux400PulseModulationData.modulation =LightFlux400PulseModulation;
-    [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
     LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
     LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
     LightFlux200PulseModulationData.modulationParams.direction = "Light Flux 200% contrast";
     LightFlux200PulseModulationData.modulation = LightFlux200PulseModulation;
-    [LightFlux200PulseModulationData.modulation.background.starts, LightFlux200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    [LightFlux200PulseModulationData.modulation.background.starts, LightFlux200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
     LightFlux200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
     LightFlux200PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
     LightFlux100PulseModulationData.modulationParams.direction = "Light Flux 100% contrast";
     LightFlux100PulseModulationData.modulation = LightFlux100PulseModulation;
-    [LightFlux100PulseModulationData.modulation.background.starts, LightFlux100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    [LightFlux100PulseModulationData.modulation.background.starts, LightFlux100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
     LightFlux100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
     LightFlux100PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
