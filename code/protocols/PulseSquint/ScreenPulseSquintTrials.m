@@ -26,8 +26,8 @@ protocolParams.protocolOutputName = 'Screening';
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
-protocolParams.simulate.oneLight = true;
-protocolParams.simulate.radiometer = true;
+protocolParams.simulate.oneLight = false;
+protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
@@ -201,6 +201,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
+    LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     %% Validate the direction objects before direction correction
     % Direction correction doesn't always seem to help, so if we can make good
     % directions without it then we'll just grab them
@@ -233,14 +234,14 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     LightFluxFigure = figure;
     LightFluxValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'precorrection');
-    LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, LightFluxLMSDirection);
+    LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, LightFluxDirection);
     
     
     %% Correct the direction objects
     % then validate
     
     %if MelPassStatus == 0
-        OLCorrectDirection_oldSpectrumSeeking(MaxMelDirection, MaxMelBackground, ol, radiometer);
+        OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -254,7 +255,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %end
     
     %if LMSPassStatus == 0
-        OLCorrectDirection_oldSpectrumSeeking(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
+        OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -268,7 +269,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %end
     
     %if MelLMSPassStatus == 0
-        OLCorrectDirection_oldSpectrumSeeking(LightFluxDirection, LightFluxBackground, ol, radiometer);
+        OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -295,15 +296,15 @@ else
 end
 
 if LightFluxPassStatus == 1
-    fprintf('Mel/LMS combined modulations are good\n');
+    fprintf('Light Flux  modulations are good\n');
 else
-    fprintf('<strong>Mel/LMS combined modulations are poor</strong>\n');
+    fprintf('<strong>Light Flux  modulations are poor</strong>\n');
 end
     
 if LightFluxPassStatus == 1 && LMSPassStatus == 1 && MelLMSPassStatus == 1
-    fprintf('***We have good modulations and are ready for the experiment***\n');
+    fprintf('*** We have good modulations and are ready for the experiment ***\n');
 else
-    fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');
+    fprintf('<strong>*** Modulations are poor, we have to figure something out ***</strong>\n');
 end
     %% Save directionStructs
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
@@ -312,7 +313,10 @@ end
     end
     save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
     save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
-    save(fullfile(savePath, 'MaxMelLMSDirection.mat'), 'MaxMelLMSDirection');
+    save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
+    save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
+    save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
+    save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
     
     %% Make waveform
     waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
@@ -330,9 +334,9 @@ end
     LMS200PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
     LMS100PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
     
-    MelLMS400PulseModulation = OLAssembleModulation([MaxMelLMSBackground, MaxMelLMSDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
-    MelLMS200PulseModulation = OLAssembleModulation([MaxMelLMSBackground, MaxMelLMSDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
-    MelLMS100PulseModulation = OLAssembleModulation([MaxMelLMSBackground, MaxMelLMSDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
+    LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+    LightFlux200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
+    LightFlux100PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
     
     %% Define all modulations
     % Mel modulations
@@ -374,23 +378,23 @@ end
     LMS100PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
     % Mel LMS Modulations
-    MelLMS400PulseModulationData.modulationParams.direction = "Mel LMS 400% contrast";
-    MelLMS400PulseModulationData.modulation = MelLMS400PulseModulation;
-    [MelLMS400PulseModulationData.modulation.background.starts, MelLMS400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
-    MelLMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    MelLMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    LightFlux400PulseModulationData.modulationParams.direction = "Light Flux 400% contrast";
+    LightFlux400PulseModulationData.modulation =LightFlux400PulseModulation;
+    [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
-    MelLMS200PulseModulationData.modulationParams.direction = "Mel LMS 200% contrast";
-    MelLMS200PulseModulationData.modulation = MelLMS200PulseModulation;
-    [MelLMS200PulseModulationData.modulation.background.starts, MelLMS200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
-    MelLMS200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    MelLMS200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    LightFlux200PulseModulationData.modulationParams.direction = "Light Flux 200% contrast";
+    LightFlux200PulseModulationData.modulation = LightFlux200PulseModulation;
+    [LightFlux200PulseModulationData.modulation.background.starts, LightFlux200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    LightFlux200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux200PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
-    MelLMS100PulseModulationData.modulationParams.direction = "Mel LMS 100% contrast";
-    MelLMS100PulseModulationData.modulation = MelLMS100PulseModulation;
-    [MelLMS100PulseModulationData.modulation.background.starts, MelLMS100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
-    MelLMS100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    MelLMS100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    LightFlux100PulseModulationData.modulationParams.direction = "Light Flux 100% contrast";
+    LightFlux100PulseModulationData.modulation = LightFlux100PulseModulation;
+    [LightFlux100PulseModulationData.modulation.background.starts, LightFlux100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelLMSBackground.differentialPrimaryValues, calibration);
+    LightFlux100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux100PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
     % save modulations
     savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, protocolParams.todayDate);
@@ -405,10 +409,10 @@ end
     save(fullfile(savePath, 'LMS200PulseModulationData.mat'), 'LMS200PulseModulationData');
     save(fullfile(savePath, 'LMS100PulseModulationData.mat'), 'LMS100PulseModulationData');
     
-    save(fullfile(savePath, 'MelLMS400PulseModulationData.mat'), 'MelLMS400PulseModulationData');
-    save(fullfile(savePath, 'MelLMS200PulseModulationData.mat'), 'MelLMS200PulseModulationData');
-    save(fullfile(savePath, 'MelLMS100PulseModulationData.mat'), 'MelLMS100PulseModulationData');
-    ol.setMirrors(MelLMS400PulseModulationData.modulation.background.starts, MelLMS400PulseModulationData.modulation.background.stops);
+    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFluxPulseModulationData');
+    save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFluxPulseModulationData');
+    save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFluxPulseModulationData');
+    ol.setMirrors(LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops);
 end
 
 %% Pre-Flight Routine
@@ -531,7 +535,7 @@ for aa = startingAcquisitionNumber:1
         % Concatenate
         modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
             LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
-            MelLMS400PulseModulationData; MelLMS200PulseModulationData; MelLMS100PulseModulationData];
+            LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
         trialList = InitializeBlockStructArray(protocolParams,modulationData);
     else
         
