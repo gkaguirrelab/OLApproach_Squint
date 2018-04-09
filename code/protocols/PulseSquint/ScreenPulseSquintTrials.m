@@ -200,11 +200,11 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     
     LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
-    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge', protocolParams.observerAgeInYrs);
+    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
     %% Validate the direction objects before direction correction
     % Direction correction doesn't always seem to help, so if we can make good
     % directions without it then we'll just grab them
-    T_receptors = MaxMelLMSDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
+    T_receptors = MaxMelDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
     for ii = 1:protocolParams.nValidationsPerDirection
         OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'precorrection');
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -215,7 +215,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         
         OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'precorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFlux.describe.validation(ii).contrastActual(1:3,1));
+        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
         LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
     
