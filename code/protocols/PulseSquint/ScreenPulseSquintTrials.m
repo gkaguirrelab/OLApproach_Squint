@@ -233,7 +233,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
     LightFluxFigure = figure;
     LightFluxValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'precorrection');
-    LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, LightFluxLMSDirection);
+    LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, LightFluxDirection);
     
     
     %% Correct the direction objects
