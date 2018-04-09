@@ -16,107 +16,138 @@ minTargetedContrast = 3.5;
 
 failStatus = 0;
 %% apply the failure criteria
-targetedReceptors = DirectionObject.describe.directionParams.whichReceptorsToIsolate;
-
-if isequal(targetedReceptors, [1, 2, 3]) % LMS pulses
+if strcmp(DirectionObject.describe.directionParams.baseName, 'LightFlux') % light flux pulses
     if abs(median(validation.LMSContrast)) < minTargetedContrast
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
-            sprintf('LMS contrast for LMS stimulation too low')
+            sprintf('LMS contrast for Light Flux stimulation too low')
         end
     end
     if abs(median(validation.SMinusLMContrast)) > splatterLimit
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
-            sprintf('SCone contrast for LMS stimulation too high')
+            sprintf('SCone contrast for Light Flux stimulation too high')
         end
     end
     if abs(median(validation.LMinusMContrast)) > splatterLimit
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
-            sprintf('L-M contrast for LMS stimulation too high')
+            sprintf('L-M contrast for Light Flux stimulation too high')
         end
     end
-    if abs(median(validation.MelanopsinContrast)) > splatterLimit
+    if abs(median(validation.MelanopsinContrast)) > minTargetedContrast
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
-            sprintf('Melanopsin contrast for LMS stimulation too high')
+            sprintf('Melanopsin contrast for Light Flux stimulation too high')
         end
     end
-end
-
-% for melanopsin stimuli, apply the exlcusion criteria
-if isequal(targetedReceptors, [4]) % mel pulses
+else
+    targetedReceptors = DirectionObject.describe.directionParams.whichReceptorsToIsolate;
     
-    if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('Melanopsin contrast for Melanopsin stimulation too low')
+    if isequal(targetedReceptors, [1, 2, 3]) % LMS pulses
+        if abs(median(validation.LMSContrast)) < minTargetedContrast
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('LMS contrast for LMS stimulation too low')
+            end
+        end
+        if abs(median(validation.SMinusLMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('SCone contrast for LMS stimulation too high')
+            end
+        end
+        if abs(median(validation.LMinusMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('L-M contrast for LMS stimulation too high')
+            end
+        end
+        if abs(median(validation.MelanopsinContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('Melanopsin contrast for LMS stimulation too high')
+            end
         end
     end
-    if abs(median(validation.SMinusLMContrast)) > splatterLimit
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('SCone contrast for Melanopsin stimulation too high')
-        end
-        
-    end
-    if abs(median(validation.LMinusMContrast)) > splatterLimit
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('L-M contrast for Melanopsin stimulation too high')
-        end
-        
-    end
-    if abs(median(validation.LMSContrast)) > splatterLimit
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('LMS contrast for Melanopsin stimulation too high')
-        end
-        
-    end
-end
-
-if isequal(targetedReceptors, [1, 2, 3, 4]) % mel/LMS combined pulses
     
-    if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
+    % for melanopsin stimuli, apply the exlcusion criteria
+    if isequal(targetedReceptors, [4]) % mel pulses
+        
+        if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('Melanopsin contrast for Melanopsin stimulation too low')
+            end
+        end
+        if abs(median(validation.SMinusLMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('SCone contrast for Melanopsin stimulation too high')
+            end
             
-            sprintf('Melanopsin contrast for Mel/LMS combined stimulation too low')
+        end
+        if abs(median(validation.LMinusMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('L-M contrast for Melanopsin stimulation too high')
+            end
+            
+        end
+        if abs(median(validation.LMSContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('LMS contrast for Melanopsin stimulation too high')
+            end
+            
         end
     end
-    if abs(median(validation.SMinusLMContrast)) > splatterLimit
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('SCone contrast for Mel/LMS combined stimulation too high')
-        end
+    
+    if isequal(targetedReceptors, [1, 2, 3, 4]) % mel/LMS combined pulses
         
-    end
-    if abs(median(validation.LMinusMContrast)) > splatterLimit
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
-            
-            sprintf('L-M contrast for Mel/LMS combined stimulation too high')
+        if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('Melanopsin contrast for Mel/LMS combined stimulation too low')
+            end
         end
-        
-    end
-    if abs(median(validation.LMSContrast)) < minTargetedContrast
-        failStatus = failStatus + 1;
-        if strcmp(p.Results.verbose, 'on')
+        if abs(median(validation.SMinusLMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('SCone contrast for Mel/LMS combined stimulation too high')
+            end
             
-            sprintf('LMS contrast for Mel/LMS combined stimulation too low')
         end
-        
+        if abs(median(validation.LMinusMContrast)) > splatterLimit
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('L-M contrast for Mel/LMS combined stimulation too high')
+            end
+            
+        end
+        if abs(median(validation.LMSContrast)) < minTargetedContrast
+            failStatus = failStatus + 1;
+            if strcmp(p.Results.verbose, 'on')
+                
+                sprintf('LMS contrast for Mel/LMS combined stimulation too low')
+            end
+            
+        end
     end
 end
 

@@ -62,6 +62,9 @@ if strcmp(p.Results.plot, 'on')
     elseif strcmp(directionName, 'MaxMelLMS_unipolar_275_60_667')
         intendedContrastVector = [LMSContrastVector MelanopsinContrastVector];
         splatterVectors = [SConeContrastVector LMinusMContrastVector];
+    elseif strcmp(directionName, 'LightFlux_540_380_50')
+        intendedContrastVector = [LMSContrastVector MelanopsinContrastVector];
+        splatterVectors = [SConeContrastVector LMinusMContrastVector];
     end
     
     % for the direction of interest, the y axis will be bounded
