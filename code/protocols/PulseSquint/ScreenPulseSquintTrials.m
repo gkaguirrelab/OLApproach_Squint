@@ -194,14 +194,22 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % First we get the parameters for the directions from the dictionary
     MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667');
     [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
-    
+    MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
     
     MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667');
     [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+    MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    MaxLMSDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    MaxLMSDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
     
     LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
+
     %% Validate the direction objects before direction correction
     % Direction correction doesn't always seem to help, so if we can make good
     % directions without it then we'll just grab them
