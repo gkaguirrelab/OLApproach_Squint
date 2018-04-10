@@ -31,8 +31,8 @@ protocolParams.simulate.radiometer = false;
 protocolParams.simulate.microphone = true;
 protocolParams.simulate.speaker = true;
 protocolParams.simulate.emg = true;
-protocolParams.simulate.pupil = true;
-protocolParams.simulate.udp = true;
+protocolParams.simulate.pupil = false;
+protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = true;
 protocolParams.simulate.operator = true;
 protocolParams.simulate.makePlots = true;
@@ -417,9 +417,9 @@ end
     save(fullfile(savePath, 'LMS200PulseModulationData.mat'), 'LMS200PulseModulationData');
     save(fullfile(savePath, 'LMS100PulseModulationData.mat'), 'LMS100PulseModulationData');
     
-    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFluxPulseModulationData');
-    save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFluxPulseModulationData');
-    save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFluxPulseModulationData');
+    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+    save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
+    save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
     ol.setMirrors(LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops);
 end
 
