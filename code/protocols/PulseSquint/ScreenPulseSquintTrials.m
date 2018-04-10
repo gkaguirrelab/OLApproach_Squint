@@ -425,25 +425,6 @@ end
 
 %% Pre-Flight Routine
 
-% Check the microphone
-if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
-    micCheckDoneFlag = false;
-    while ~micCheckDoneFlag
-        micCheckChoice = GetWithDefault('>> Test the microphone? [y/n]', 'y');
-        switch micCheckChoice
-            case 'y'
-                
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-                [plotFig] = testAudio(protocolParams);
-            case 'n'
-                micCheckDoneFlag = true;
-                existingFig = findobj('type','figure','name','plotFig');
-                close(existingFig);
-            otherwise
-        end
-    end
-end
 
 % Check the video output
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
