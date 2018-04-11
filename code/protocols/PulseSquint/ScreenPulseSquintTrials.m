@@ -119,7 +119,7 @@ protocolParams.trialISITimeSec = 12;
 protocolParams.trialResponseWindowTimeSec = 0;
 protocolParams.trialJitterRecordingDurationSec = 0.5;
 
-protocolParams.nTrials = 6;
+protocolParams.nTrials = 9;
 
 % Attention task parameters
 %
@@ -248,7 +248,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     %% Correct the direction objects
     % then validate
     
-    %if MelPassStatus == 0
+    if MelPassStatus == 0
         OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -260,9 +260,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         MelPassStatus = applyValidationExclusionCriteria(MelPostValidation, MaxMelDirection);
         MelPostValidation = summarizeValidation(MaxMelDirection);
         
-    %end
+    end
     
-    %if LMSPassStatus == 0
+    if LMSPassStatus == 0
         OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -274,9 +274,9 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         LMSPassStatus = applyValidationExclusionCriteria(LMSPostValidation, MaxLMSDirection);
         LMSPostValidation = summarizeValidation(MaxLMSDirection);
         
-    %end
+    end
     
-    %if MelLMSPassStatus == 0
+    if MelLMSPassStatus == 0
         OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -288,7 +288,7 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidation, LightFluxDirection);
         LightFluxPostValidation = summarizeValidation(LightFluxDirection);
         
-    %end
+    end
     
 %% Check that we have good modulations
 if MelPassStatus == 1
@@ -517,7 +517,7 @@ for aa = startingAcquisitionNumber:1
     
     if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
         
-            protocolParams.trialTypeOrder = [1, 1, 4, 4, 7, 7];
+            protocolParams.trialTypeOrder = [1, 1, 1, 4, 4, 4, 7, 7, 7];
         
         % Put together the block struct array.
         % This describes what happens on each trial of the session.
