@@ -95,6 +95,10 @@ while ~calibrationDoneFlag
             playCommand = ['/Applications/VLC\ 2.app/Contents/MacOS/VLC play ' videoOutFile ' &'];
             [recordErrorFlag,consoleOutput]=system(playCommand);
             
+            % enter distance from corneal apex to camera lens:
+            distanceFromCornealApexToIRLens = GetWithDefault('>> Enter distance from corneal apex to camera lens', []);
+            save(fullfile(outDir, 'distance.mat'), 'distanceFromCornealApexToIRLens');
+            
         case 'n'
             calibrationDoneFlag = true;
             
@@ -102,9 +106,7 @@ while ~calibrationDoneFlag
     end
 end
 
-% enter distance from corneal apex to camera lens:
-distanceFromCornealApexToIRLens = GetWithDefault('>> Enter distance from corneal apex to camera lens', []);
-save(fullfile(outDir, 'distance.mat'), 'distanceFromCornealApexToIRLens');
+
 
 
 end
