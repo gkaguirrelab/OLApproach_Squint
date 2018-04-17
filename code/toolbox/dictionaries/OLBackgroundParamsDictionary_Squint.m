@@ -232,42 +232,42 @@ if OLBackgroundParamsValidate(params)
     dictionary(params.name) = params;
 end
 
-%% LightFlux_UnipolarBase
-%
-% Base params for unipolar light flux modulation backgrounds
-params = OLBackgroundParams_LightFluxChrom;
-params.baseName = 'LightFlux';
-params.polarType = 'unipolar';
-params.desiredxy = [0.595,0.375];
-params.whichXYZ = 'xyzCIEPhys10';
-params.desiredMaxContrast = 4;
+% %% LightFlux_UnipolarBase
+% %
+% % Base params for unipolar light flux modulation backgrounds
+% params = OLBackgroundParams_LightFluxChrom;
+% params.baseName = 'LightFlux';
+% params.polarType = 'unipolar';
+% params.desiredxy = [0.595,0.375];
+% params.whichXYZ = 'xyzCIEPhys10';
+% params.desiredMaxContrast = 4;
+% 
+% % These are the options that go to OLPrimaryInvSolveChrom
+% params.search.primaryHeadRoom = 0.005;
+% params.search.primaryTolerance = 1e-6;
+% params.search.checkPrimaryOutOfRange = true;
+% params.search.initialLuminanceFactor = 0.2;
+% params.search.lambda = 0;
+% params.search.spdToleranceFraction = 0.005;
+% params.search.chromaticityTolerance = 0.0001;
+% params.search.optimizationTarget = 'maxLum';
+% params.search.primaryHeadroomForInitialMax = 0.005;
+% params.search.maxScaleDownForStart = 2;
+% params.search.maxSearchIter = 300;
+% params.search.verbose = false;
+% 
+% params.name = 'LightFlux_UnipolarBase';
+% if OLBackgroundParamsValidate(params)
+%     % All validations OK. Add entry to the dictionary.
+%     dictionary(params.name) = params;
+% end
 
-% These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadRoom = 0.005;
-params.search.primaryTolerance = 1e-6;
-params.search.checkPrimaryOutOfRange = true;
-params.search.initialLuminanceFactor = 0.2;
-params.search.lambda = 0;
-params.search.spdToleranceFraction = 0.005;
-params.search.chromaticityTolerance = 0.0001;
-params.search.optimizationTarget = 'maxLum';
-params.search.primaryHeadroomForInitialMax = 0.005;
-params.search.maxScaleDownForStart = 2;
-params.search.maxSearchIter = 300;
-params.search.verbose = false;
-
-params.name = 'LightFlux_UnipolarBase';
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
-
-%% LightFlux_540_380_50
+%% LightFlux_540_375_50
 % Background at xy = [0.54,0.38] that allows light flux pulses to increase
 % a factor of 5 within gamut
 params = OLBackgroundParams_LightFluxChrom;
 params.baseName = 'LightFlux';
-params.lightFluxDesiredXY = [0.54,0.38];
+params.lightFluxDesiredXY = [0.54,0.375];
 params.lightFluxDownFactor = 5;
 params.primaryHeadRoom = 0.00;
 params.name = OLBackgroundNameFromParams(params);
