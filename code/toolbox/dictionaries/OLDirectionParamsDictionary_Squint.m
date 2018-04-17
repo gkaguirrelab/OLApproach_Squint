@@ -359,35 +359,35 @@ if OLDirectionParamsValidate(params)
     % All validations OK. Add entry to the dictionary.
     dictionary(params.name) = params;
 end
-% %% LightFlux_UnipolarBase
-% %
-% % Base params for unipolar light flux directions
-% params = OLDirectionParams_LightFluxChrom;
-% params.baseName = 'LightFlux';
-% params.polarType = 'unipolar';
-% params.desiredxy = [0.595,0.375];
-% params.whichXYZ = 'xyzCIEPhys10';
-% params.desiredMaxContrast = 4;
-% params.name = 'LightFlux_UnipolarBase';
-% params.backgroundName = 'LightFlux_UnipolarBase';
-% if OLDirectionParamsValidate(params)
-%     % All validations OK. Add entry to the dictionary.
-%     dictionary(params.name) = params;
-% end
-
-%% LightFlux_540_380_50
-% Direction for maximum light flux step
-%   CIE x = .54, y = .38
-%   Flux factor = 5
+%% LightFlux_UnipolarBase
+%
+% Base params for unipolar light flux directions
 params = OLDirectionParams_LightFluxChrom;
 params.baseName = 'LightFlux';
-params.lightFluxDesiredXY = [0.54,0.38];
-params.lightFluxDownFactor = 5;
-params.name = OLDirectionNameFromParams(params);
-params.backgroundName = 'LightFlux_540_380_50';
+params.polarType = 'unipolar';
+params.desiredxy = [0.595,0.375];
+params.whichXYZ = 'xyzCIEPhys10';
+params.desiredMaxContrast = 4;
+params.name = 'LightFlux_UnipolarBase';
+params.backgroundName = 'LightFlux_UnipolarBase';
 if OLDirectionParamsValidate(params)
     % All validations OK. Add entry to the dictionary.
     dictionary(params.name) = params;
 end
+
+% %% LightFlux_540_380_50
+% % Direction for maximum light flux step
+% %   CIE x = .54, y = .38
+% %   Flux factor = 5
+% params = OLDirectionParams_LightFluxChrom;
+% params.baseName = 'LightFlux';
+% params.lightFluxDesiredXY = [0.54,0.38];
+% params.lightFluxDownFactor = 5;
+% params.name = OLDirectionNameFromParams(params);
+% params.backgroundName = 'LightFlux_540_380_50';
+% if OLDirectionParamsValidate(params)
+%     % All validations OK. Add entry to the dictionary.
+%     dictionary(params.name) = params;
+% end
 
 end
