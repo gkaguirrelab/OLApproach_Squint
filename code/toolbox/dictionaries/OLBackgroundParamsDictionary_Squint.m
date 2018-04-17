@@ -238,7 +238,7 @@ end
 params = OLBackgroundParams_LightFluxChrom;
 params.baseName = 'LightFlux';
 params.polarType = 'unipolar';
-params.desiredxy = [0.595,0.375];
+params.desiredxy = [0.45,0.45];
 params.whichXYZ = 'xyzCIEPhys10';
 params.desiredMaxContrast = 4;
 
