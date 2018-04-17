@@ -5,7 +5,7 @@ function [ protocolParams ] = getDefaultParams(varargin)
 p = inputParser; p.KeepUnmatched = true;
 
 p.addParameter('calibrationType','BoxBShortLiquidLightGuideDEyePiece1_ND04',@ischar);
-p.addParameter('nTrials',10,@isnum);
+p.addParameter('nTrials',10,@isnumeric);
 p.addParameter('computerName','trashCan',@ischar);
 p.addParameter('protocol','SquintToPulse',@ischar);
 
@@ -27,6 +27,7 @@ end
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
 protocolParams.verbose = true;
 protocolParams.setup = false;
+protocolParams.resume = true;
 
 %% control simulation behavior
 % if we're using
