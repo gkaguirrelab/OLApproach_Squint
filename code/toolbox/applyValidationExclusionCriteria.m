@@ -38,11 +38,11 @@ if strcmp(DirectionObject.describe.directionParams.baseName, 'LightFlux') % ligh
             sprintf('L-M contrast for Light Flux stimulation too high')
         end
     end
-    if abs(median(validation.MelanopsinContrast)) > minTargetedContrast
+    if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
             
-            sprintf('Melanopsin contrast for Light Flux stimulation too high')
+            sprintf('Melanopsin contrast for Light Flux stimulation too low')
         end
     end
 else
