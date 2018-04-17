@@ -36,6 +36,9 @@ protocolParams.simulate.udp = false;
 protocolParams.simulate.observer = false;
 protocolParams.simulate.operator = false;
 protocolParams.simulate.makePlots = true;
+protocolParams.directionsDictionary = 'OLDirectionParamsDictionary_Squint';
+protocolParams.backgroundsDictionary = 'OLBackgroundParamsDictionary_Squint';
+
 
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
@@ -200,7 +203,8 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     
 
     
-    LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50');
+    LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    LightFluxParams.backgroundParams = OLBackgroundParamsFromName('LightFlux_540_375_50', 'alternateDictionaryFunc', protocolParams.backgroundsDictionary);
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
