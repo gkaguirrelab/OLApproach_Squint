@@ -1,4 +1,4 @@
-function [ trialList ] = prepExperiment(protocolParams, varargin)
+function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams, varargin)
 
 
 %% get information about the subject we're working with
@@ -30,7 +30,7 @@ else
 end
 
 %% open the session log
-OLSessionLog(protocolParams,'OLSessionInit')
+protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
 
 %% Make nominal direction objects, containing nominal primaries
 MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
@@ -45,8 +45,8 @@ MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
 MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
 MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
 
-LightFluxParams = OLDirectionParamsFromName('LightFlux_540_380_50', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-LightFluxParams.backgroundParams = OLBackgroundParamsFromName('LightFlux_540_375_50', 'alternateDictionaryFunc', protocolParams.backgroundsDictionary);
+LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+LightFluxParams.backgroundParams = OLBackgroundParamsFromName(LightFluxParams.backgroundName, 'alternateDictionaryFunc', protocolParams.backgroundsDictionary);
 [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
 LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
 LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
@@ -85,57 +85,60 @@ LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, Ligh
 
 %% Correct the direction objects
 
-if MaxMelPassStatus == 0
-    OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer);
-    for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+if ~(protocolParams.simulate.radiometer)
+    % only correct if we're not simulating the radiometer
+    if MaxMelPassStatus == 0
+        OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'legacyMode', true);
+        for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
+            MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        MaxMelPostFigure = figure;
+        MaxMelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
+        MaxMelPostValidation = summarizeValidation(MaxMelDirection);
+        
     end
-    MaxMelPostFigure = figure;
-    MaxMelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-    MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
-    MaxMelPostValidation = summarizeValidation(MaxMelDirection);
     
-end
-
-
-if MaxLMSPassStatus == 0
-    OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer);
-    for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+    
+    if MaxLMSPassStatus == 0
+        OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'legacyMode', true);
+        for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
+            MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        MaxLMSPostFigure = figure;
+        MaxLMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
+        MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
+        
     end
-    MaxLMSPostFigure = figure;
-    MaxLMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-    MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
-    MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
     
-end
-
-if LightFluxPassStatus == 0
-    OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer);
-    for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
-        LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+    if LightFluxPassStatus == 0
+        OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'legacyMode', true);
+        for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
+            OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
+            postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
+            LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        end
+        LightFluxPostFigure = figure;
+        LightFluxPostValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidation, LightFluxDirection);
+        LightFluxPostValidation = summarizeValidation(LightFluxDirection);
+        
     end
-    LightFluxPostFigure = figure;
-    LightFluxPostValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-    LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidation, LightFluxDirection);
-    LightFluxPostValidation = summarizeValidation(LightFluxDirection);
-    
 end
 
 %% Check if we have god modulations
-if MelPassStatus == 1
+if MaxMelPassStatus == 1
     fprintf('Mel modulations are good\n');
 else
     fprintf('<strong>Mel modulations are poor</strong>\n');
 end
 
-if LMSPassStatus == 1
+if MaxLMSPassStatus == 1
     fprintf('LMS modulations are good\n');
 else
     fprintf('<strong>LMS modulations are poor</strong>\n');
@@ -147,7 +150,7 @@ else
     fprintf('<strong>Light flux  modulations are poor</strong>\n');
 end
 
-if MelPassStatus == 1 && LMSPassStatus == 1 && LightFluxPassStatus == 1
+if MaxMelPassStatus == 1 && MaxLMSPassStatus == 1 && LightFluxPassStatus == 1
     fprintf('***We have good modulations and are ready for the experiment***\n');
 else
     fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');
@@ -263,9 +266,8 @@ save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100Pul
 %% Package up the output
 modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
             LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
-            MelLMS400PulseModulationData; MelLMS200PulseModulationData; MelLMS100PulseModulationData];
+            LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
         
-                trialList = InitializeBlockStructArray(protocolParams,modulationData);
 
 
 end % end function
