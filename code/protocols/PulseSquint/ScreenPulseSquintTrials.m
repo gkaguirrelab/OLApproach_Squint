@@ -316,7 +316,7 @@ end
 
 % Check the video output
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-    testVideo(protocolParams);
+    protocolParams = testVideo(protocolParams, 'label', 'pre');
 end
 
 % Get the satelittes to the "ready to launch" position
@@ -420,6 +420,12 @@ for aa = startingAcquisitionNumber:1
     end
      
     ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
+end
+
+%% Check if we need to run pupil calibration again
+% Check the video output
+if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    protocolParams = testVideo(protocolParams, 'label', 'post');
 end
 
 %% Resume dropBox syncing
