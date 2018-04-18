@@ -90,7 +90,7 @@ LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, Ligh
 if ~(protocolParams.simulate.radiometer)
     % only correct if we're not simulating the radiometer
     %if MaxMelPassStatus == 0
-        OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'legacyMode', true);
+        OLCorrectDirection_Squint(MaxMelDirection, MaxMelBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -105,7 +105,7 @@ if ~(protocolParams.simulate.radiometer)
     
     
     %if MaxLMSPassStatus == 0
-        OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'legacyMode', true);
+        OLCorrectDirection_Squint(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
@@ -119,7 +119,7 @@ if ~(protocolParams.simulate.radiometer)
     %end
     
     %if LightFluxPassStatus == 0
-        OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'legacyMode', true);
+        OLCorrectDirection_Squint(LightFluxDirection, LightFluxBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
