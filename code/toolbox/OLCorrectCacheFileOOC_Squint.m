@@ -1,5 +1,4 @@
-function [cacheData openSpectroRadiometerOBJ] = OLCorrectCacheFileOOC_Squint(cacheData, cal, emailRecipient, ...
-    meterType, spectroRadiometerOBJ, spectroRadiometerOBJWillShutdownAfterMeasurement, varargin)
+function [cacheData] = OLCorrectCacheFileOOC_Squint(cacheData, cal, ol, spectroRadiometerOBJ, varargin)
 % results = OLCorrectCacheFileOOC(cacheFileName, emailRecipient, ...
 %    meterType, spectroRadiometerOBJ, spectroRadiometerOBJWillShutdownAfterMeasurement, varargin)
 %
@@ -270,7 +269,7 @@ else
 end
 
 % Open up the OneLight
-ol = OneLight;
+%ol = OneLight;
 
 % Turn the mirrors full on so the user can focus the radiometer.
 if describe.NoAdjustment
