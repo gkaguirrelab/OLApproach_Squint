@@ -1,6 +1,8 @@
 function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams, varargin)
 
 
+
+
 %% get information about the subject we're working with
 commandwindow;
 protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
@@ -87,7 +89,7 @@ LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxValidation, Ligh
 
 if ~(protocolParams.simulate.radiometer)
     % only correct if we're not simulating the radiometer
-    if MaxMelPassStatus == 0
+    %if MaxMelPassStatus == 0
         OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -99,10 +101,10 @@ if ~(protocolParams.simulate.radiometer)
         MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
         MaxMelPostValidation = summarizeValidation(MaxMelDirection);
         
-    end
+   % end
     
     
-    if MaxLMSPassStatus == 0
+    %if MaxLMSPassStatus == 0
         OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -114,9 +116,9 @@ if ~(protocolParams.simulate.radiometer)
         MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
         MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
         
-    end
+    %end
     
-    if LightFluxPassStatus == 0
+    %if LightFluxPassStatus == 0
         OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'legacyMode', true);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postcorrection');
@@ -128,7 +130,7 @@ if ~(protocolParams.simulate.radiometer)
         LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidation, LightFluxDirection);
         LightFluxPostValidation = summarizeValidation(LightFluxDirection);
         
-    end
+    %end
 end
 
 %% Check if we have god modulations
