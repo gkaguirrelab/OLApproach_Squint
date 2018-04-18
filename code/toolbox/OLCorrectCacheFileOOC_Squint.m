@@ -76,9 +76,6 @@ describe = p.Results;
 powerLevels = describe.powerLevels;
 takeTemperatureMeasurements = describe.takeTemperatureMeasurements;
 
-if isempty(emailRecipient)
-    emailRecipient = GetWithDefault('Send status email to','igdalova@mail.med.upenn.edu');
-end
 
 % All variables assigned in the following if (isempty(..)) block (except
 % spectroRadiometerOBJ) must be declared as persistent
@@ -520,6 +517,7 @@ try
     ol.setAll(false);
     
     % Close the radiometer
+    spectroRadiometerOBJWillShutdownAfterMeasurement = false;
     if (spectroRadiometerOBJWillShutdownAfterMeasurement)
         if (~isempty(spectroRadiometerOBJ))
             spectroRadiometerOBJ.shutDown();
