@@ -37,23 +37,30 @@ switch userID
     case {'melanopsin' 'pupillab'}
         materialsBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_materials'];
         dataBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_data/'];
+        adminBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_admin/'];
+        
     case {'dhb'}
         materialsBasePath = ['/Users1'  '/Dropbox (Aguirre-Brainard Lab)/MELA_materials'];
-        dataBasePath = ['/Users1' '/Dropbox (Aguirre-Brainard Lab)/MELA_data/'];     
+        dataBasePath = ['/Users1' '/Dropbox (Aguirre-Brainard Lab)/MELA_data/'];
     case {'nicolas'}
         materialsBasePath = '/Volumes/Manta TM HD/Dropbox (Aguirre-Brainard Lab)/MELA_materials';
         dataBasePath = '/Volumes/Manta TM HD/Dropbox (Aguirre-Brainard Lab)/MELA_data';
     otherwise
         materialsBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_materials'];
         dataBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_data/'];
+        adminBasePath = ['/Users/' userID '/Dropbox (Aguirre-Brainard Lab)/MELA_admin/'];
+        
 end
 
 %% Set prefs for materials and data
 setpref(theApproach,'MaterialsPath',fullfile(materialsBasePath));
 setpref(theApproach,'DataPath',fullfile(dataBasePath));
-   
+
 %% Set pref to point at the code for this approach
 setpref(theApproach,'CodePath', fullfile(tbLocateProject(theApproach),'code'));
+
+%% Set pref for the Bulb Log
+setpref('OneLightToolbox', 'BulbLogsDir', fullfile(adminBasePath, 'OneLight_Documentation', 'Tracking', 'Bulb tracking'));
 
 %% Set the calibration file path
 setpref(theApproach, 'OneLightCalDataPath', fullfile(getpref(theApproach, 'MaterialsPath'), 'Experiments', theApproach, 'OneLightCalData'));
