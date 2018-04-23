@@ -48,7 +48,27 @@ MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directi
 MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
 
 LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-LightFluxParams.backgroundParams = OLBackgroundParamsFromName(LightFluxParams.backgroundName, 'alternateDictionaryFunc', protocolParams.backgroundsDictionary);
+
+% playing around with the light flux params -- these are the specific
+% parameters David played with. with the most recent calibration for BoxD
+% with the short liquid light guide and ND0.1, these gave reasonable
+% modulations
+LightFluxParams.desiredxy = [0.60 0.38];
+LightFluxParams.whichXYZ = whichXYZ;
+LightFluxParams.desiredMaxContrast = 4;
+LightFluxParams.desiredBackgroundLuminance = 360;
+
+LightFluxParams.search.primaryHeadroom = 0.000;
+LightFluxParams.search.primaryTolerance = 1e-6;
+LightFluxParams.search.checkPrimaryOutOfRange = true;
+LightFluxParams.search.lambda = 0;
+LightFluxParams.search.spdToleranceFraction = 30e-5;
+LightFluxParams.search.chromaticityTolerance = 0.02;
+LightFluxParams.search.optimizationTarget = 'maxContrast';
+LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
+LightFluxParams.search.maxSearchIter = 3000;
+LightFluxParams.search.verbose = false;
+
 [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
 LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
 LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
