@@ -65,10 +65,12 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     % parameters David played with. with the most recent calibration for BoxD
     % with the short liquid light guide and ND0.1, these gave reasonable
     % modulations
+    
+    whichXYZ = 'xyzCIEPhys10';
     LightFluxParams.desiredxy = [0.60 0.38];
     LightFluxParams.whichXYZ = whichXYZ;
     LightFluxParams.desiredMaxContrast = 4;
-    LightFluxParams.desiredBackgroundLuminance = 360;
+    LightFluxParams.desiredBackgroundLuminance = 221.45;
     
     LightFluxParams.search.primaryHeadroom = 0.000;
     LightFluxParams.search.primaryTolerance = 1e-6;
