@@ -65,7 +65,7 @@ end
 
 % Check the video output
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-    testVideo(protocolParams);
+    testVideo(protocolParams, 'label', 'pre');
 end
 
 % Check the EMG output
@@ -197,6 +197,12 @@ end
 
 
 %% Post-experiment actions
+% have the option to run pupil calibration again, in case the subject was
+% in a different position for the trials relative to the calibration
+fprintf('Examine pupil videos to determine if we need to re-calibrate\n');
+if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    testVideo(protocolParams, 'label', 'post');
+end
 
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))

@@ -152,6 +152,10 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+fprintf('Examine pupil videos to determine if we need to re-calibrate\n');
+if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    testVideo(protocolParams, 'label', 'post');
+end
 
 
 % Role dependent actions - satellite
