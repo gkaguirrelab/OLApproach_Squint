@@ -137,6 +137,17 @@ if (protocolParams.resume)
         protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
         
         startingAcquisitionNumber = protocolParams.acquisitionNumber;
+        
+        % assemble the modulations into the modulationData variable
+        if ~exist('modulationData', 'var')
+            modulationData = [LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+        end
+        
+        if ~exist('ol', 'var')
+            ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
+
+        end
+        
     end
     
     % make sure the satellites have the information they need about the
