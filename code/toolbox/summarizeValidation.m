@@ -53,16 +53,16 @@ if strcmp(p.Results.plot, 'on')
     
     
     % determine the appropriate y-axis limits
-    if strcmp(directionName, 'MaxLMS_unipolar_275_60_667')
+    if contains(directionName, 'MaxLMS_')
         intendedContrastVector = LMSContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector MelanopsinContrastVector];
-    elseif strcmp(directionName, 'MaxMel_unipolar_275_60_667')
+    elseif contains(directionName, 'MaxMel_')
         intendedContrastVector = MelanopsinContrastVector;
         splatterVectors = [SConeContrastVector LMinusMContrastVector LMSContrastVector];
-    elseif strcmp(directionName, 'MaxMelLMS_unipolar_275_60_667')
+    elseif contains(directionName, 'MaxMelLMS_')
         intendedContrastVector = [LMSContrastVector MelanopsinContrastVector];
         splatterVectors = [SConeContrastVector LMinusMContrastVector];
-    elseif strcmp(directionName, 'LightFlux_540_380_50')
+    elseif contains(directionName, 'LightFlux_')
         intendedContrastVector = [LMSContrastVector MelanopsinContrastVector];
         splatterVectors = [SConeContrastVector LMinusMContrastVector];
     end

@@ -39,7 +39,7 @@
 		"url": ""
 	},
 	{
-		"flavor": "45973c9d",
+		"flavor": "",
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
@@ -47,9 +47,9 @@
 		"pathPlacement": "append",
 		"subfolder": "",
 		"toolboxRoot": "",
-		"type": "git",
+		"type": "include",
 		"update": "",
-		"url": "https://github.com/BrainardLab/OneLightToolbox.git"
+		"url": ""
 	},
     {
 		"flavor": "",
