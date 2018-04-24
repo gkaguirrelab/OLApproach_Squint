@@ -65,7 +65,7 @@ end
 
 % Check the video output
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-    testVideo(protocolParams, 'label', 'pre');
+    protocolParams = testVideo(protocolParams, 'label', 'pre');
 end
 
 % Check the EMG output
