@@ -7,17 +7,18 @@ p.parse(varargin{:});
 
 
 %% open up IR camera to adjust placement of subject in rig
-cameraTurnOnCommand = '/Applications/VLC\ 2.app/Contents/MacOS/VLC qtcapture://0xfa12400005a39230 --qtcapture-width 1280 --qtcapture-height 720 &';
-[recordedErrorFlag, consoleOutput] = system(cameraTurnOnCommand);
-commandwindow;
-fprintf('- Setup the IR camera. Press <strong>Enter</strong> when complete and ready to move on.\n');
-input('');
-cameraTurnOffCommand = 'osascript -e ''quit app "VLC"''';
-[recordedErrorFlag, consoleOutput] = system(cameraTurnOffCommand);
-
-% pre video record command
-videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
-
+if strcmp(p.Results.label, 'pre')
+    cameraTurnOnCommand = '/Applications/VLC\ 2.app/Contents/MacOS/VLC qtcapture://0xfa12400005a39230 --qtcapture-width 1280 --qtcapture-height 720 &';
+    [recordedErrorFlag, consoleOutput] = system(cameraTurnOnCommand);
+    commandwindow;
+    fprintf('- Setup the IR camera. Press <strong>Enter</strong> when complete and ready to move on.\n');
+    input('');
+    cameraTurnOffCommand = 'osascript -e ''quit app "VLC"''';
+    [recordedErrorFlag, consoleOutput] = system(cameraTurnOffCommand);
+    
+    % pre video record command
+    videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
+end
 
 
 
