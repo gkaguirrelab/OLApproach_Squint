@@ -129,7 +129,6 @@ if (protocolParams.resume)
         % Information we prompt for and related
         commandwindow;
         protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
-        %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
         protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
         protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
         protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
@@ -208,56 +207,18 @@ end
 
 
 %% Post-experiment actions
-% have the option to run pupil calibration again, in case the subject was
-% in a different position for the trials relative to the calibration
+
 fprintf('Examine pupil videos to determine if we need to re-calibrate\n');
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
+    % have the option to run pupil calibration again, in case the subject was
+% in a different position for the trials relative to the calibration
     testVideo(protocolParams, 'label', 'post');
 end
 
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
-    % Let user get the radiometer set up
-    if ~protocolParams.simulate.radiometer
-        radiometerPauseDuration = 0;
-        ol.setAll(true);
-        commandwindow;
-        fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-        input('');
-        ol.setAll(false);
-        pause(radiometerPauseDuration);
-        radiometer = OLOpenSpectroRadiometerObj('PR-670');
-    else
-        radiometer = [];
-    end
-    
-    % Validate direction corrected primaries post experiment
-    T_receptors = MaxMelLMSDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
-    for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
-    end
-    
-    for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
-    end
-    for ii = length(MaxMelLMSDirection.describe.validation)+1:length(MaxMelLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        
-        OLValidateDirection(MaxMelLMSDirection, MaxMelLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
-        postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelLMSDirection.describe.validation(ii).contrastActual(1:3,1));
-        MaxMelLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
-    end
-    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
-    if ~exist(savePath,'dir')
-        mkdir(savePath);
-    end
-    save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
-    save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
-    save(fullfile(savePath, 'MaxMelLMSDirection.mat'), 'MaxMelLMSDirection');
+    % perform post-experiment validation
+    validatePostExperiment(protocolParams, ol, radiometer)
 end
 
 
