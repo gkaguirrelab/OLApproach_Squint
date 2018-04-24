@@ -19,20 +19,22 @@ for ii = 1:potentialValidations
     end
 end
 
-for vv = 1:length(validationIndices)
+counter = 1;
+for vv = validationIndices
     
-    validation.LConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(1,1);
-    validation.MConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(2,1);
-    validation.SConeContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(3,1);
-    validation.MelanopsinContrast(vv) = DirectionObject.describe.validation(vv).contrastActual(4,1);
+    validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
+    validation.MConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(2,1);
+    validation.SConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(3,1);
+    validation.MelanopsinContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(4,1);
     
-    validation.LMSContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(1,1);
-    validation.LMinusMContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(2,1);
-    validation.SMinusLMContrast(vv) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(3,1);
+    validation.LMSContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(1,1);
+    validation.LMinusMContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(2,1);
+    validation.SMinusLMContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(3,1);
     
     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
     
-    validation.backgroundLuminance(vv) = DirectionObject.describe.validation(vv).luminanceActual(1);
+    validation.backgroundLuminance(counter) = DirectionObject.describe.validation(vv).luminanceActual(1);
+    counter = counter + 1;
 end
 
 if strcmp(p.Results.plot, 'on')
