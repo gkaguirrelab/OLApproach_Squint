@@ -157,11 +157,6 @@ for aa = startingAcquisitionNumber:1
     ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
 
-%% Check if we need to run pupil calibration again
-% Check the video output
-if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
-    protocolParams = testVideo(protocolParams, 'label', 'post');
-end
 
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
@@ -169,6 +164,8 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+%% Check if we need to run pupil calibration again
+% Check the video output
 fprintf('Examine pupil videos to determine if we need to re-calibrate\n');
 if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
     testVideo(protocolParams, 'label', 'post');
