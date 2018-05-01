@@ -139,12 +139,13 @@ if (protocolParams.resume)
         
         % assemble the modulations into the modulationData variable
         if ~exist('modulationData', 'var')
-            modulationData = [LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
-        end
+            modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+                LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+                LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];        end
         
         if ~exist('ol', 'var')
             ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
-
+            
         end
         
     end
@@ -218,7 +219,7 @@ end
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % perform post-experiment validation
-    validatePostExperiment(protocolParams, ol, radiometer)
+    validatePostExperiment(protocolParams, ol)
 end
 
 

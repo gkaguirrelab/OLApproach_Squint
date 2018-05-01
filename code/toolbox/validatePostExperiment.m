@@ -1,4 +1,4 @@
-function validatePostExperiment(protocolParams, ol, radiometer)
+function validatePostExperiment(protocolParams, ol)
 
 % load up the direction objects made just prior to the experiment
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
