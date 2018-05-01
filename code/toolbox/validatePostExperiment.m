@@ -1,4 +1,4 @@
-function validatePostExperiment(protocolParams, ol)
+function validatePostExperiment(protocolParams, ol, radiometer)
 
 % load up the direction objects made just prior to the experiment
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
@@ -32,9 +32,6 @@ if ~protocolParams.simulate.radiometer
     input('');
     ol.setAll(false);
     pause(radiometerPauseDuration);
-    radiometer = OLOpenSpectroRadiometerObj('PR-670');
-else
-    radiometer = [];
 end
 
 % Validate direction corrected primaries post experiment

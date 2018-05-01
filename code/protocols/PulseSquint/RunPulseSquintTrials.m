@@ -221,7 +221,17 @@ end
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % perform post-experiment validation
-    validatePostExperiment(protocolParams, ol)
+    
+    if ~exist('radiometer', 'var')
+        
+        if ~protocolParams.simulate.radiometer
+            radiometer = OLOpenSpectroRadiometerObj('PR-670');
+        else
+            radiometer = [];
+        end
+    end
+    
+    validatePostExperiment(protocolParams, ol, radiometer)
 end
 
 
