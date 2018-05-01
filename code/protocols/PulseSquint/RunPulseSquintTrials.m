@@ -163,6 +163,8 @@ if (protocolParams.resume)
         
         protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
         
+        ol = [];
+        
         startingAcquisitionNumber = protocolParams.acquisitionNumber;
         if protocolParams.verbose
             fprintf('Satellite is ready to launch.\n')
