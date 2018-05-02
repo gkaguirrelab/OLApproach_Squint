@@ -180,7 +180,37 @@ end
 % be prompted to get the subject information within this block
 protocolParams.resume = true;
 
+% instantiate UDP communication
+% *** NEED TO SET PAUS HERE
 
+
+% Establish the name of the base
+baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+% Find the number of satellites and their indices
+satelliteIdx = find(strcmp(protocolParams.hostRoles,'satellite'));
+numSatellites = length(satelliteIdx);
+% Instantiate our UDPcommunicator object
+if protocolParams.simulate.udp
+    if protocolParams.verbose
+        fprintf('[simulate] UDP communication established\n');
+    end
+else
+    
+lazyPollIntervalSeconds = 10/1000;
+timeOutSecs = 50/1000;
+maxAttemptsNum = 20;
+UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose, 'transmissionMode', 'SINGLE_BYTES');
+UDPobj.lazyPollIntervalSeconds = lazyPollIntervalSeconds;
+
+% Establish the communication
+    triggerMessage = 'Go!';
+    allSatellitesAreAGOMessage = 'All Satellites Are Go!';
+    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSatellitesAreAGOMessage, maxAttemptsNum, 'beVerbose', protocolParams.verbose);
+    % Report success
+    if protocolParams.verbose
+        fprintf('UDP communication established\n');
+    end
+end
 
 
 
@@ -199,7 +229,7 @@ for aa = startingAcquisitionNumber:6
         trialList = [];
     end    
     
-    ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
+    ApproachEngine(ol,protocolParams, trialList, UDPobj, 'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
 
 %% Resume dropBox syncing

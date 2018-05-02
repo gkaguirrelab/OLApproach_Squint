@@ -1,4 +1,4 @@
-function ApproachEngine(ol,protocolParams, trialList, varargin)
+function ApproachEngine(ol,protocolParams, trialList, UDPobj, varargin)
 %% ApproachEngine - Run a squint protcol experiment.
 %
 % Usage:
@@ -88,7 +88,7 @@ end
 % information passed to them from the base via UDP which will be added to
 % the protocolParams variable.
 tic
-[responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,trialList,ol,'verbose',protocolParams.verbose);
+[responseStruct, protocolParams]  = SquintTrialLoop(protocolParams,trialList,ol, UDPobj,'verbose',protocolParams.verbose);
 toc
 
 

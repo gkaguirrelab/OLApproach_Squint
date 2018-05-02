@@ -1,4 +1,4 @@
-function [responseStruct, protocolParams] = SquintTrialLoop(protocolParams,stimulusStruct,ol,varargin)
+function [responseStruct, protocolParams] = SquintTrialLoop(protocolParams,stimulusStruct,ol, UDPobj,varargin)
 %% SquintTrialLoop  Loop over trials, show stimuli and get responses.
 %
 % Usage:
@@ -33,33 +33,6 @@ events = struct;
 
 % Role independent actions
 
-% Establish the name of the base
-baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
-% Find the number of satellites and their indices
-satelliteIdx = find(strcmp(protocolParams.hostRoles,'satellite'));
-numSatellites = length(satelliteIdx);
-% Instantiate our UDPcommunicator object
-if protocolParams.simulate.udp
-    if protocolParams.verbose
-        fprintf('[simulate] UDP communication established\n');
-    end
-else
-    
-lazyPollIntervalSeconds = 10/1000;
-timeOutSecs = 50/1000;
-maxAttemptsNum = 20;
-UDPobj = UDPBaseSatelliteCommunicator.instantiateObject(protocolParams.hostNames, protocolParams.hostIPs, protocolParams.hostRoles, protocolParams.verbose, 'transmissionMode', 'SINGLE_BYTES');
-UDPobj.lazyPollIntervalSeconds = lazyPollIntervalSeconds;
-
-% Establish the communication
-    triggerMessage = 'Go!';
-    allSatellitesAreAGOMessage = 'All Satellites Are Go!';
-    UDPobj.initiateCommunication(protocolParams.hostRoles,  protocolParams.hostNames, triggerMessage, allSatellitesAreAGOMessage, maxAttemptsNum, 'beVerbose', protocolParams.verbose);
-    % Report success
-    if protocolParams.verbose
-        fprintf('UDP communication established\n');
-    end
-end
     
 % Role dependent actions -- BASE
 if any(strcmp('base',protocolParams.myRoles))
