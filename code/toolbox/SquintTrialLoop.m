@@ -33,6 +33,14 @@ events = struct;
 
 % Role independent actions
 
+baseHostName = protocolParams.hostNames{cellfun(@(x) strcmp(x,'base'), protocolParams.hostRoles)};
+% Find the number of satellites and their indices
+satelliteIdx = find(strcmp(protocolParams.hostRoles,'satellite'));
+numSatellites = length(satelliteIdx);
+lazyPollIntervalSeconds = 10/1000;
+timeOutSecs = 50/1000;
+maxAttemptsNum = 20;
+
     
 % Role dependent actions -- BASE
 if any(strcmp('base',protocolParams.myRoles))
