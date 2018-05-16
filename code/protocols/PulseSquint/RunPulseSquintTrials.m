@@ -96,14 +96,14 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     end
 end
 
-
+protocolParams.resume = false;
 %% Pause dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
-protocolParams.resume = false;
+
 %% Run experiment
 
 % check if we're starting a session from scratch, or resuming after a crash
