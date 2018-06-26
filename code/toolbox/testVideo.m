@@ -8,7 +8,7 @@ p.parse(varargin{:});
 
 %% open up IR camera to adjust placement of subject in rig
 if strcmp(p.Results.label, 'pre')
-    cameraTurnOnCommand = '/Applications/VLC\ 2.app/Contents/MacOS/VLC qtcapture://0xfa12400005a39230 --qtcapture-width 1280 --qtcapture-height 720 &';
+    cameraTurnOnCommand = '/Applications/VLC.app/Contents/MacOS/VLC qtcapture://0x1444000005a39230 --qtcapture-width 1280 --qtcapture-height 720 &';
     [recordedErrorFlag, consoleOutput] = system(cameraTurnOnCommand);
     commandwindow;
     fprintf('- Setup the IR camera. Press <strong>Enter</strong> when complete and ready to move on.\n');
