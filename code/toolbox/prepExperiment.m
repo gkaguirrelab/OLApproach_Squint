@@ -2,6 +2,7 @@ function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepE
 % History:
 %    unknown
 %    06/29/18  npc implemented temperature recording
+%    06/30/18  npc implemented state tracking SPD recording
 
 %% Get information about the subject we're working with
 commandwindow;
@@ -29,6 +30,9 @@ else
     theLJdev = []; 
 end
     
+%% Set flag indicating whether to measure state tracking SPDs in OLValidateDirection() and OLCorrectDirection()
+measureStateTrackingSPDs = true;
+
 %% Open the OneLight
 ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
@@ -114,7 +118,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
     if strcmp(protocolParams.protocol, 'SquintToPulse')
         OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -123,7 +128,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
     if strcmp(protocolParams.protocol, 'SquintToPulse')
         OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -131,7 +137,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
     if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
         OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
         LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -168,11 +175,13 @@ if ~(protocolParams.simulate.radiometer)
         %if MaxMelPassStatus == 0
         OLCorrectDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, ...
             'smoothness', 0.1, ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, ...
                 'receptors', T_receptors, 'label', 'postcorrection', ...
-                'temperatureProbe', theLJdev);
+                'temperatureProbe', theLJdev, ...
+                'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
             MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
@@ -189,11 +198,13 @@ if ~(protocolParams.simulate.radiometer)
         %if MaxLMSPassStatus == 0
         OLCorrectDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, ...
             'smoothness', 0.1, ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ......
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, ...
                 'receptors', T_receptors, 'label', 'postcorrection', ...
-                'temperatureProbe', theLJdev);
+                'temperatureProbe', theLJdev, ...
+                'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
             MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
@@ -210,11 +221,13 @@ if ~(protocolParams.simulate.radiometer)
         %if LightFluxPassStatus == 0
         OLCorrectDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
             'smoothness', 0.1, ...
-            'temperatureProbe', theLJdev);
+            'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
                 'receptors', T_receptors, 'label', 'postcorrection', ...
-                'temperatureProbe', theLJdev);
+                'temperatureProbe', theLJdev, ...
+                'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
             LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
         end
@@ -433,5 +446,5 @@ if (takeTemperatureMeasurements)
     theLJdev.close();
 end
     
-
 end % end function
+
