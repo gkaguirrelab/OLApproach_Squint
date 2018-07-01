@@ -19,6 +19,11 @@ for ii = 1:potentialValidations
     end
 end
 
+% Return empty array if nothing found
+if (isempty(validationIndices))
+    validation = [];
+end
+
 counter = 1;
 for vv = validationIndices
     
