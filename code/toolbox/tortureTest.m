@@ -2,7 +2,7 @@ function tortureTest
 
 [protocolParams] = getDefaultParams('calibrationType', 'BoxALiquidLightGuideCEyePiece2ND01');
 
-for ii = 2:1000
+for ii = 7:1000
     sessionName = 'session_1';
     observerAgeInYrs = 32;
     observerID = ['tortureTest_', num2str(ii)];
@@ -11,5 +11,6 @@ for ii = 2:1000
     try 
         radiometer.shutDown 
     end
+    close all
 end
 end
