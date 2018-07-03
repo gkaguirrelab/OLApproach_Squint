@@ -4,11 +4,31 @@ function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepE
 %    06/29/18  npc implemented temperature recording
 %    06/30/18  npc implemented state tracking SPD recording
 
+p = inputParser; p.KeepUnmatched = true;
+
+p.addParameter('observerID',[],@ischar);
+p.addParameter('observerAgeInYrs',[],@ischar);
+p.addParameter('sessionName',[],@ischar);
+p.addParameter('skipPause',false, @islogical);
+
+
+
+p.parse(varargin{:});
+
 %% Get information about the subject we're working with
 commandwindow;
-protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
-protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
-protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
+if isempty(p.Results.observerID)
+    protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
+end
+
+if isempty(p.Results.observerAgeInYrs)
+    protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
+end
+
+if isempty(p.Results.sessionName)
+    protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
+end
+
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
 
 
@@ -45,7 +65,9 @@ if ~protocolParams.simulate.radiometer
     ol.setAll(true);
     commandwindow;
     fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-    input('');
+    if ~(p.Results.skipPause)
+        input('');
+    end
     ol.setAll(false);
     pause(radiometerPauseDuration);
     radiometer = OLOpenSpectroRadiometerObj('PR-670');
