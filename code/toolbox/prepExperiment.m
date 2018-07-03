@@ -7,7 +7,7 @@ function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepE
 p = inputParser; p.KeepUnmatched = true;
 
 p.addParameter('observerID',[],@ischar);
-p.addParameter('observerAgeInYrs',[],@ischar);
+p.addParameter('observerAgeInYrs',[],@isnumeric);
 p.addParameter('sessionName',[],@ischar);
 p.addParameter('skipPause',false, @islogical);
 
@@ -19,21 +19,28 @@ p.parse(varargin{:});
 commandwindow;
 if isempty(p.Results.observerID)
     protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', 'HERO_xxxx');
+else
+    protocolParams.observerID = p.Results.observerID;
 end
 
 if isempty(p.Results.observerAgeInYrs)
     protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', 32);
+else
+    protocolParams.observerAgeInYrs = p.Results.observerAgeInYrs;
 end
 
 if isempty(p.Results.sessionName)
     protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', 'session_1');
+else
+    protocolParams.sessionName = p.Results.sessionName;
 end
 
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
 
 
 %% Query user whether to take temperature measurements
-takeTemperatureMeasurements = GetWithDefault('Take Temperature Measurements ?', false);
+takeTemperatureMeasurements = true;
+%takeTemperatureMeasurements = GetWithDefault('Take Temperature Measurements ?', false);
 if (takeTemperatureMeasurements ~= true) && (takeTemperatureMeasurements ~= 1)
     takeTemperatureMeasurements = false;
 else
@@ -121,7 +128,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     LightFluxParams.search.checkPrimaryOutOfRange = true;
     LightFluxParams.search.lambda = 0;
     LightFluxParams.search.spdToleranceFraction = 30e-5;
-    LightFluxParams.search.chromaticityTolerance = 0.02;
+    LightFluxParams.search.chromaticityTolerance = 0.1;
     LightFluxParams.search.optimizationTarget = 'maxContrast';
     LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
     LightFluxParams.search.maxSearchIter = 3000;
