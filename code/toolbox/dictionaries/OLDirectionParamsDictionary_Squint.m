@@ -359,6 +359,7 @@ if OLDirectionParamsValidate(params)
     % All validations OK. Add entry to the dictionary.
     dictionary(params.name) = params;
 end
+
 %% LightFlux_UnipolarBase
 %
 % Base params for unipolar light flux directions
@@ -378,6 +379,36 @@ params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';
 params.search.spdToleranceFraction = 30e-5;
 params.search.chromaticityTolerance = 0.02;
+params.search.optimizationTarget = 'maxContrast';
+params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = 'LightFlux_UnipolarBase';
+if OLDirectionParamsValidate(params)
+    % All validations OK. Add entry to the dictionary.
+    dictionary(params.name) = params;
+end
+
+%% LightFlux_Unipolar_BoxA
+%
+% Base params for unipolar light flux directions
+params = OLDirectionParams_LightFluxChrom;
+params.baseName = 'LightFlux';
+params.polarType = 'unipolar';
+params.desiredxy = [0.51013 0.40142];
+params.whichXYZ = 'xyzCIEPhys10';
+params.desiredMaxContrast = 4;
+params.desiredBackgroundLuminance = 1114.4;
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.search.primaryHeadroom = 0.000;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.spdToleranceFraction = 1e-1;
+params.search.chromaticityTolerance = 0.01;
 params.search.optimizationTarget = 'maxContrast';
 params.search.primaryHeadroomForInitialMax = 0.000;
 params.search.maxSearchIter = 3000;
