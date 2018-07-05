@@ -36,23 +36,18 @@ meanBackgroundLuminance = (MaxMelDirection.describe.validation(1).luminanceActua
 %% Lightflux: 'New' method, from params
 LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
 
-% playing around with the light flux params -- these are the specific
-% parameters David played with. with the most recent calibration for BoxD
-% with the short liquid light guide and ND0.1, these gave reasonable
-% modulations
-
-% LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
+LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
 % LightFluxParams.whichXYZ = 'xyzCIEPhys10';
 % LightFluxParams.desiredMaxContrast = 4;
-% LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
+LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
 
 % LightFluxParams.search.primaryHeadroom = 0.000;
 % LightFluxParams.search.primaryTolerance = 1e-6;
 % LightFluxParams.search.checkPrimaryOutOfRange = true;
 % LightFluxParams.search.lambda = 0;
-% LightFluxParams.search.spdToleranceFraction = 30e-5;
-% LightFluxParams.search.chromaticityTolerance = 0.005;
-% LightFluxParams.search.optimizationTarget = 'maxContrast';
+LightFluxParams.search.spdToleranceFraction = 1e-1;
+LightFluxParams.search.chromaticityTolerance = 0.01;
+LightFluxParams.search.optimizationTarget = 'maxContrast';
 % LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
 % LightFluxParams.search.maxSearchIter = 3000;
  LightFluxParams.search.verbose = true;
@@ -62,7 +57,7 @@ LightFluxDirection.describe.observerAge = observerAge;
 
 LightFluxDirection.describe.directionParams.name = 'LightFlux_NewMethod';
 OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',T_receptors, 'label', 'precorrection');
-figure; summarizeValidation(LightFluxDirection);
+figure; summarizeValidation(LightFluxDirection)
 
 %{
 %% Lightflux: 'Old' method
