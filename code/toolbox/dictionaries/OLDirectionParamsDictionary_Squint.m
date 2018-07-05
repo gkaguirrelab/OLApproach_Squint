@@ -414,7 +414,7 @@ params.search.primaryHeadroomForInitialMax = 0.000;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
-params.name = 'LightFlux_UnipolarBase';
+params.name = 'LightFlux_Unipolar_BoxA';
 if OLDirectionParamsValidate(params)
     % All validations OK. Add entry to the dictionary.
     dictionary(params.name) = params;

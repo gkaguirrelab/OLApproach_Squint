@@ -34,23 +34,16 @@ meanYChromaticity = (MelXYChromaticity(2) + LMSXYChromaticity(2))/2;
 meanBackgroundLuminance = (MaxMelDirection.describe.validation(1).luminanceActual(1) + MaxLMSDirection.describe.validation(1).luminanceActual(1))/2;
 
 %% Lightflux: 'New' method, from params
-LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+box = calibration.describe.calType(1:4);
+if any(strcmp(['LightFlux_Unipolar_' box],OLGetDirectionNames('alternateDictionaryFunc','OLDirectionParamsDictionary_Squint'))) % check if Box-specific params are in dictionary
+    LightFluxParams = OLDirectionParamsFromName(['LightFlux_Unipolar_' box], 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+else
+    LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+end
 
 LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
-% LightFluxParams.whichXYZ = 'xyzCIEPhys10';
-% LightFluxParams.desiredMaxContrast = 4;
 LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
-
-% LightFluxParams.search.primaryHeadroom = 0.000;
-% LightFluxParams.search.primaryTolerance = 1e-6;
-% LightFluxParams.search.checkPrimaryOutOfRange = true;
-% LightFluxParams.search.lambda = 0;
-LightFluxParams.search.spdToleranceFraction = 1e-1;
-LightFluxParams.search.chromaticityTolerance = 0.01;
-LightFluxParams.search.optimizationTarget = 'maxContrast';
-% LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
-% LightFluxParams.search.maxSearchIter = 3000;
- LightFluxParams.search.verbose = true;
+LightFluxParams.search.verbose = true;
 
 [LightFluxDirection, LightFluxBackground] = OLDirectionNominalFromParams(LightFluxParams, calibration);
 LightFluxDirection.describe.observerAge = observerAge;
