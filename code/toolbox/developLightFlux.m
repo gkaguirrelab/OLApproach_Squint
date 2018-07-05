@@ -26,7 +26,11 @@ calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibra
 
 
 radiometer = [];
+
+method = 'manuel';
 ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
+
+
 
  LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
     
@@ -54,7 +58,18 @@ ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',p
     
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-   
+
+
+    [modPrimary] = OLInvSolveChrom_Squint(calibration, [0.51 0.40]);
+    modPrimary = modPrimary * 1.5;
+    bgPrimary = modPrimary/5;
+    LightFluxDirection.differentialPrimaryValues = modPrimary - bgPrimary;
+    LightFluxDirection.SPDdifferentialDesired = OLPrimaryToSpd(calibration, (modPrimary - bgPrimary), 'differentialMode', true);
+    LightFluxBackground.differentialPrimaryValues = bgPrimary;
+    LightFluxBackground.SPDdifferentialDesired = OLPrimaryToSpd(calibration, bgPrimary, 'differentialMode', true);
+    LightFluxDirection.describe.background.differentialPrimaryValues = bgPrimary;
+    LightFluxDirection.describe.background.SPDdifferentialDesired = OLPrimaryToSpd(calibration, bgPrimary, 'differentialMode', true);
+
 
 MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667');
 [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
