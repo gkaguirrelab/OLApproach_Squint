@@ -365,22 +365,22 @@ end
 params = OLDirectionParams_LightFluxChrom;
 params.baseName = 'LightFlux';
 params.polarType = 'unipolar';
-params.desiredxy = [0.59,0.39];
+params.desiredxy = [0.60 0.38];
 params.whichXYZ = 'xyzCIEPhys10';
 params.desiredMaxContrast = 4;
-params.desiredBackgroundLuminance = 500;
+params.desiredBackgroundLuminance = 221.45;
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadroom = 0.005;
+params.search.primaryHeadroom = 0.000;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';
-params.search.spdToleranceFraction = 0.005;
-params.search.chromaticityTolerance = 0.0001;
-params.search.optimizationTarget = 'maxLum';
-params.search.primaryHeadroomForInitialMax = 0.005;
-params.search.maxSearchIter = 300;
+params.search.spdToleranceFraction = 30e-5;
+params.search.chromaticityTolerance = 0.02;
+params.search.optimizationTarget = 'maxContrast';
+params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
 params.name = 'LightFlux_UnipolarBase';
