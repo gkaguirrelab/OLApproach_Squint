@@ -64,6 +64,7 @@ LightFluxDirection.describe.directionParams.name = 'LightFlux_NewMethod';
 OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',T_receptors, 'label', 'precorrection');
 figure; summarizeValidation(LightFluxDirection);
 
+%{
 %% Lightflux: 'Old' method
 % Set up modulation primary
 [modPrimary] = OLInvSolveChrom_Squint(calibration, [meanXChromaticity, meanYChromaticity]);
@@ -74,7 +75,9 @@ LightFluxBackground = OLDirection_unipolar(bgPrimary, calibration);
 LightFluxDirection.describe.directionParams.name = 'LightFlux_OldMethod';
 OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',T_receptors, 'label', 'precorrection');
 figure; summarizeValidation(LightFluxDirection);
+%}
 
+%{
 %% 'ScaleToReceptorContrast' method
 % Set up modulation primary
 [modPrimary] = OLInvSolveChrom_Squint(calibration, [meanXChromaticity, meanYChromaticity]);
@@ -94,3 +97,4 @@ LightFluxDirection = LightFluxHigh-LightFluxBackground;
 LightFluxDirection.describe.directionParams.name = 'LightFlux_ScaleMethod';
 OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',T_receptors, 'label', 'precorrection');
 figure; summarizeValidation(LightFluxDirection);
+%}
