@@ -79,10 +79,10 @@ protocolParams.backgroundsDictionary = 'OLBackgroundParamsDictionary_Squint';
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
-protocolParams.hostNames = {'gka06', 'gka33', 'monkfish'};
-protocolParams.hostNames = {'modv-ve502-0872', 'gka33', 'monkfish'}; % fugu
+%protocolParams.hostNames = {'gka06', 'gka33', 'monkfish'};
+protocolParams.hostNames = {'modv-ve507-0663', 'gka33', 'monkfish'}; % fugu
 
-protocolParams.hostIPs = {'128.91.59.227', '128.91.59.228', '128.91.59.157'};
+%protocolParams.hostIPs = {'128.91.59.227', '128.91.59.228', '128.91.59.157'};
 protocolParams.hostIPs = {'130.91.151.104', '128.91.59.228', '128.91.59.157'}; % fugu
 
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
