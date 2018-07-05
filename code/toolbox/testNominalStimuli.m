@@ -41,24 +41,23 @@ LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternate
 % with the short liquid light guide and ND0.1, these gave reasonable
 % modulations
 
-whichXYZ = 'xyzCIEPhys10';
-LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
-LightFluxParams.whichXYZ = whichXYZ;
-LightFluxParams.desiredMaxContrast = 4;
-LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
+% LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
+% LightFluxParams.whichXYZ = 'xyzCIEPhys10';
+% LightFluxParams.desiredMaxContrast = 4;
+% LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
 
-LightFluxParams.search.primaryHeadroom = 0.000;
-LightFluxParams.search.primaryTolerance = 1e-6;
-LightFluxParams.search.checkPrimaryOutOfRange = true;
-LightFluxParams.search.lambda = 0;
-LightFluxParams.search.spdToleranceFraction = 30e-5;
-LightFluxParams.search.chromaticityTolerance = 0.001;
-LightFluxParams.search.optimizationTarget = 'maxContrast';
-LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
-LightFluxParams.search.maxSearchIter = 3000;
-LightFluxParams.search.verbose = false;
+% LightFluxParams.search.primaryHeadroom = 0.000;
+% LightFluxParams.search.primaryTolerance = 1e-6;
+% LightFluxParams.search.checkPrimaryOutOfRange = true;
+% LightFluxParams.search.lambda = 0;
+% LightFluxParams.search.spdToleranceFraction = 30e-5;
+% LightFluxParams.search.chromaticityTolerance = 0.005;
+% LightFluxParams.search.optimizationTarget = 'maxContrast';
+% LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
+% LightFluxParams.search.maxSearchIter = 3000;
+ LightFluxParams.search.verbose = true;
 
-[ LightFluxDirection, LightFluxBackground] = OLDirectionNominalFromParams(LightFluxParams, calibration);
+[LightFluxDirection, LightFluxBackground] = OLDirectionNominalFromParams(LightFluxParams, calibration);
 LightFluxDirection.describe.observerAge = observerAge;
 
 LightFluxDirection.describe.directionParams.name = 'LightFlux_NewMethod';
