@@ -37,6 +37,12 @@ end
 
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
 
+%% Prep to save
+savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+if ~exist(savePath,'dir')
+    mkdir(savePath);
+end
+
 
 %% Query user whether to take temperature measurements
 takeTemperatureMeasurements = true;
@@ -51,12 +57,12 @@ if (takeTemperatureMeasurements)
     % Gracefully attempt to open the LabJack
     [takeTemperatureMeasurements, quitNow, theLJdev] = OLCalibrator.OpenLabJackTemperatureProbe(takeTemperatureMeasurements);
     if (quitNow)
-       return;
+        return;
     end
 else
-    theLJdev = []; 
+    theLJdev = [];
 end
-    
+
 %% Set flag indicating whether to measure state tracking SPDs in OLValidateDirection() and OLCorrectDirection()
 measureStateTrackingSPDs = true;
 
@@ -151,6 +157,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
+        save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
     end
     
     
@@ -161,6 +169,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
+        save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
     end
     
     if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
@@ -170,6 +180,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
         LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+        save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
+        save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
     end
 end
 
@@ -213,6 +225,8 @@ if ~(protocolParams.simulate.radiometer)
                 'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
             MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+            save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
+            save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
         end
         MaxMelPostFigure = figure;
         MaxMelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
@@ -236,6 +250,8 @@ if ~(protocolParams.simulate.radiometer)
                 'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
             MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+            save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
+            save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
         end
         MaxLMSPostFigure = figure;
         MaxLMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
@@ -259,6 +275,8 @@ if ~(protocolParams.simulate.radiometer)
                 'measureStateTrackingSPDs', measureStateTrackingSPDs);
             postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
             LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
+            save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
+            save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
         end
         LightFluxPostFigure = figure;
         LightFluxPostValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
@@ -311,10 +329,7 @@ end
 
 
 %% save directions and backgrounds
-savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
-if ~exist(savePath,'dir')
-    mkdir(savePath);
-end
+
 
 if strcmp(protocolParams.protocol, 'SquintToPulse')
     
@@ -474,6 +489,6 @@ if (takeTemperatureMeasurements)
     % Close temperature probe
     theLJdev.close();
 end
-    
+
 end % end function
 
