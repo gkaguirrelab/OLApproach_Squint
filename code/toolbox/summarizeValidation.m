@@ -39,6 +39,13 @@ for vv = validationIndices
     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
     
     validation.backgroundLuminance(counter) = DirectionObject.describe.validation(vv).luminanceActual(1);
+    if isfield(DirectionObject.describe.validation(vv), 'temperatures')
+        validation.boxTemperature(counter) = DirectionObject.describe.validation(vv).temperatures{1}.value(1);
+        validation.roomTemperature(counter) = DirectionObject.describe.validation(vv).temperatures{1}.value(2);
+    else
+        validation.boxTemperature(counter) = NaN;
+        validation.roomTemperature(counter) = NaN;
+    end
     counter = counter + 1;
 end
 
