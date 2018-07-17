@@ -34,11 +34,19 @@ if ~protocolParams.simulate.radiometer
     pause(radiometerPauseDuration);
 end
 
+takeTemperatureMeasurements = true;
+measureStateTrackingSPDs = true;
+[takeTemperatureMeasurements, quitNow, theLJdev] = OLCalibrator.OpenLabJackTemperatureProbe(takeTemperatureMeasurements);
+    if (quitNow)
+        return;
+    end
+
 % Validate direction corrected primaries post experiment
 T_receptors = LightFluxDirection.describe.T_receptors; % the T_receptors will be the same for each direction, so just grab one
 if strcmp(protocolParams.protocol, 'SquintToPulse')
     for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
-        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
+        OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment', 'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxMelDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxMelDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -48,7 +56,8 @@ if strcmp(protocolParams.protocol, 'SquintToPulse')
     
     for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
         
-        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
+        OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment', 'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(MaxLMSDirection.describe.validation(ii).contrastActual(1:3,1));
         MaxLMSDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
@@ -58,7 +67,8 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     
     for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
         
-        OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment');
+        OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment', 'temperatureProbe', theLJdev, ...
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         postreceptoralContrast = ComputePostreceptoralContrastsFromLMSContrasts(LightFluxDirection.describe.validation(ii).contrastActual(1:3,1));
         LightFluxDirection.describe.validation(ii).postreceptoralContrastActual = postreceptoralContrast;
     end
