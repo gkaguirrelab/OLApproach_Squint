@@ -123,22 +123,22 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     % with the short liquid light guide and ND0.1, these gave reasonable
     % modulations
     
-    whichXYZ = 'xyzCIEPhys10';
-    LightFluxParams.desiredxy = [0.60 0.38];
-    LightFluxParams.whichXYZ = whichXYZ;
-    LightFluxParams.desiredMaxContrast = 4;
-    LightFluxParams.desiredBackgroundLuminance = 221.45;
-    
-    LightFluxParams.search.primaryHeadroom = 0.000;
-    LightFluxParams.search.primaryTolerance = 1e-6;
-    LightFluxParams.search.checkPrimaryOutOfRange = true;
-    LightFluxParams.search.lambda = 0;
-    LightFluxParams.search.spdToleranceFraction = 30e-5;
-    LightFluxParams.search.chromaticityTolerance = 0.1;
-    LightFluxParams.search.optimizationTarget = 'maxContrast';
-    LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
-    LightFluxParams.search.maxSearchIter = 3000;
-    LightFluxParams.search.verbose = false;
+%     whichXYZ = 'xyzCIEPhys10';
+%     LightFluxParams.desiredxy = [0.60 0.38];
+%     LightFluxParams.whichXYZ = whichXYZ;
+%     LightFluxParams.desiredMaxContrast = 4;
+%     LightFluxParams.desiredBackgroundLuminance = 221.45;
+%     
+%     LightFluxParams.search.primaryHeadroom = 0.000;
+%     LightFluxParams.search.primaryTolerance = 1e-6;
+%     LightFluxParams.search.checkPrimaryOutOfRange = true;
+%     LightFluxParams.search.lambda = 0;
+%     LightFluxParams.search.spdToleranceFraction = 30e-5;
+%     LightFluxParams.search.chromaticityTolerance = 0.1;
+%     LightFluxParams.search.optimizationTarget = 'maxContrast';
+%     LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
+%     LightFluxParams.search.maxSearchIter = 3000;
+%     LightFluxParams.search.verbose = false;
     
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
