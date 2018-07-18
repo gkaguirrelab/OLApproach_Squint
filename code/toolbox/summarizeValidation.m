@@ -24,7 +24,11 @@ if (isempty(validationIndices))
     validation = [];
 end
 
-counter = 1;
+ counter = 1;
+ load T_xyz1931
+ S = DirectionObject.calibration.describe.S;
+ T_xyz = SplineCmf(S_xyz1931,683*T_xyz1931,S);
+    
 for vv = validationIndices
     
     validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
@@ -45,6 +49,12 @@ for vv = validationIndices
     else
         validation.boxTemperature(counter) = NaN;
         validation.roomTemperature(counter) = NaN;
+    end
+    if isfield(DirectionObject.describe.validation(vv), 'stateTrackingData')
+        allOnSPD = DirectionObject.describe.validation(vv).stateTrackingData.powerFluctuation.spd;
+        validation.maxLuminance(counter) = T_xyz(2,:) * [allOnSPD];
+    else
+        validation.maxLuminance(counter) = NaN;
     end
     counter = counter + 1;
 end
