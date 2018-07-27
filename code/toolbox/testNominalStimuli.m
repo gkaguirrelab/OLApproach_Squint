@@ -42,7 +42,7 @@ else
 end
 
 LightFluxParams.desiredxy = [meanXChromaticity, meanYChromaticity];
-LightFluxParams.desiredBackgroundLuminance = meanBackgroundLuminance;
+LightFluxParams.desiredLum = meanBackgroundLuminance;
 LightFluxParams.search.verbose = true;
 
 [LightFluxDirection, LightFluxBackground] = OLDirectionNominalFromParams(LightFluxParams, calibration);
