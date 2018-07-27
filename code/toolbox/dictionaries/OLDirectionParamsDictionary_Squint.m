@@ -148,7 +148,7 @@ params.polarType = 'unipolar';
 params.desiredxy = [0.60 0.38];
 params.whichXYZ = 'xyzCIEPhys10';
 params.desiredMaxContrast = 4;
-params.desiredBackgroundLuminance = 221.45;
+params.desiredLum = 221.45;
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.search.primaryHeadroom = 0.000;
@@ -178,7 +178,7 @@ params.polarType = 'unipolar';
 params.desiredxy = [0.51013 0.40142];
 params.whichXYZ = 'xyzCIEPhys10';
 params.desiredMaxContrast = 4;
-params.desiredBackgroundLuminance = 1114.4;
+params.desiredLum = 1114.4;
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.search.primaryHeadroom = 0.000;
