@@ -1,3 +1,17 @@
+% This routine serves as a wrapper around the OLPlotValidationTimeSeries
+% function that lives within the OneLightToolbox. Basically this routine
+% will plot 1) all contrast and splatter for each stimulus type, 2)
+% background luminance for light flux (which is used to determine when we
+% need to change ND filters to maintain consistent overall light levels),
+% and 3) box temperature.
+
+
+% the OLPlotValidationTimeSeries routine automatically looks within the
+% MELA_data/Experiment/OLApproach_Squint/DirectionObjects to pool all
+% sessions together. Various subjectIDs in that folder are not relevant,
+% most often because they were part of testing. The variable
+% excludedSubjects is then passed into OLPlotValidationTimeSeries, and
+% these subjectIDs are exlcluded from the plotting
 excludedSubjectNames = {'HERO_instantiationCheck', 'boxAModulationCheck', 'temperatureCheck', 'BoxA_ND09', 'BoxA_ND07', 'tortureTest_boxD_1', 'MELA_0137'};
 for ii = 1:56
 excludedSubjectNames{end+1} = ['tortureTest_', num2str(ii)];
@@ -9,7 +23,19 @@ for ii = 2:17
     excludedSubjectNames{end+1} = ['tortureTest_boxD_', num2str(ii)];
 end
 
-calibrations = {'2018-05-29', '2018-07-11'};
+% notes about some funny subjects:
+% subject notes:
+% MELA_0126: no showed for session 3 on 6/25
+% MELA_0127: for session 1 on 6/28, oneLight failed
+% MELA_0121: for session 2 on 5/2, aborted because of tech failure
+% MELA_0134: for session 1 on 5/3, actually a screening experiment 
+% MELA_0147: for session 3 on 7/25, no showed because was in the midst of a
+% migraine
+
+% additional optional key-value pairs for plotting
+calibrations = {'2018-05-29', '2018-07-11'}; % when relevant calibrations happened. 2018-05-29 -> when we switched form ND 0.4 to 0.3. 2018-07-11 -> when we switched from ND 0.3 to 0.2.
+
+% where we're saving these plots
 saveDir = fullfile(getpref('OLApproach_Squint', 'DataPath'), '../MELA_analysis/Experiments/OLApproach_Squint/SquintToPulse/admin');
 
 %% LMS validations
@@ -169,12 +195,3 @@ OLPlotValidationTimeSeries(...
 'excludedSubjectNames', excludedSubjectNames, ...
 'calibrations', calibrations, 'yLim', [26 30], 'saveDir', saveDir ...
 );
-
-
-% subject notes:
-% MELA_0126: no showed for session 3 on 6/25
-% MELA_0127: for session 1 on 6/28, oneLight failed
-% MELA_0121: for session 2 on 5/2, aborted because of tech failure
-% MELA_0134: for session 1 on 5/3, actually a screening experiment 
-% MELA_0147: for session 3 on 7/25, no showed because was in the midst of a
-% migraine
