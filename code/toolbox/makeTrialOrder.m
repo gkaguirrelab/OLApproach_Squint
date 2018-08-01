@@ -1,4 +1,32 @@
 function [ trialTypeOrder ] = makeTrialOrder(protocolParams)
+% Function to determine the trial order for the OLApproach_Squint experiment, based on the sessionNumber and acquisitionNumber.
+%
+% Syntax:
+%  [ trialTypeOrder ] = makeTrialOrder(protocolParams)
+
+% Description:
+%   We use several deBuijn sequences to determine the trial order within a
+%   given acquisition. This function determines which deBruijn sequence to
+%   use, based on which session and which acquisition.
+
+% Inputs:
+%   protocolParams        - A structure that defines aspects of the
+%                           experiment. The only relevant fields for this
+%                           function are protocolParams.sessionName (i.e.
+%                           'session_1') and protocolParams.acquisitionNumber 
+%                           (i.e. 1)
+%
+% Outputs:
+%   trialTypeOrder        - A 1x10 element vector where each element
+%                           corresponds to a given trial, and the value of that element specifies
+%                           the stimulus type. The identify of each stimulus can be decoded from
+%                           position in this matrix: 
+%                           [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+%                           LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+%                           LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+%                             
+
+
 
 % deBruijn sequences: we want to use deBruijn sequences to counter-balance
 % the order of trial types within a given acquisition

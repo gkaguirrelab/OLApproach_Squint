@@ -1,4 +1,39 @@
 function [ subjectID, sessionNumber, acquisitionNumber ] = findMostRecentSession(protocolParams)
+% Guess which was the most recent session that was part of the OLApproach_Squint experiment.
+%
+% Syntax:
+%  [ subjectID, sessionNumber, acquisitionNumber ] = findMostRecentSession(protocolParams)
+
+% Description:
+%   This function will search through Dropbox and find the SessionRecord
+%   that was most recently changed. The session corresponding to this
+%   SessionRecord is assumed to be the most recent session. This function
+%   is primarily used as a way to prevent manually entering session
+%   information across the three experimental computers. The session
+%   information is entered into the base computer once, then the other two
+%   computers can use this function to determine which session was just
+%   started.
+
+% Inputs:
+%   protocolParams        - A struct that defines some basic information
+%                           about the expereiment. The only field that
+%                           matters for this function is the
+%                           protocolParams.protocol field, which tells this
+%                           function whether we're looking for a
+%                           'Screening' or a 'SquintToPulse' session (i.e.
+%                           the contents of protocolParams.protocol are
+%                           expected to be either 'SquintToPulse', or
+%                           'Screening').
+%
+% Outputs:
+%   subjectID             - A string of the subjectID corresponding to 
+%                           the most recent session.
+%   sessionNumber         - A string corresponding to the sessionNumber
+%                           (i.e. session_1) of the most recent session
+%   acquisitionNumber     - A number corresponding to how many acquisitions
+%                           have already been completed as part of the most
+%                           recent session
+
 
 % find subject
 dataFilesDir = getpref(protocolParams.protocol, 'DataFilesBasePath');
