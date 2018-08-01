@@ -1,4 +1,23 @@
 function validatePostExperiment(protocolParams, ol, radiometer)
+% Perform validation measurments upon the completion of the experiment.
+%
+% Syntax:
+%  validatePostExperiment(protocolParams, ol, radiometer)
+
+% Description:
+%   This function takes measurements of the relevant direction objects used
+%   as part of an OLApproach_Squint experiment, performs a number of
+%   validation measurements, and appends these validation measurements to
+%   the directionObject.describe.validation sub-subfield.
+
+% Inputs:
+%   protocolParams        - A struct that defines the specifics of the
+%                           experiment. A key subfield for this function is
+%                           the nValidationsPerDirection (how many
+%                           measurements to take for each directionObject;
+%                           normally 5 for this experiment).
+%  ol                     - The instantiated OneLight object
+%  radiometer             - The instantiated radiometer object
 
 % load up the direction objects made just prior to the experiment
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);

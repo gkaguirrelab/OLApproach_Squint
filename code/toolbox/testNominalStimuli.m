@@ -1,5 +1,17 @@
 % Make nominal stimuli for Squint experiment, for given calibration
-% And run through simulated validation, to check if within tolerances
+% And run through simulated validation, to check if within tolerances.
+% Operator will be prompted to select the relevant calibration and enter
+% the putative observer age. The specifics of the stimuli generated within
+% are meant to reflect the actual stimuli being used in the
+% OLApproach_Squint experiments. One additional caveat is that the routine
+% is smart enough to figure out which box we're working on based on the
+% calibration name, and will choose a different set of params for the light
+% flux stimulus if we're working with Box D vs. Box A. After generating the
+% stimuli, we'll get a quick plot to summarize and we can check to see if
+% everything looks reasonable.
+
+% The basic use case is we have a new calibration, and let's just quickly
+% check if we can generate out normal stimuli with this new calibration.
 
 %% Get calibration, observerAge
 calibration = OLGetCalibrationStructure;

@@ -36,7 +36,7 @@ function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepE
 % Outputs:
 %   modulationData          - A Nx1 element vector where each element 
 %                             is the modulation of a different stimulus type.
-%   ol                      - The instantiated OneLight object
+%  ol                       - The instantiated OneLight object
 %  radiometer               - The instantiated radiometer object
 %  calibration              - A structure that defines the relevant
 %                             calibration
