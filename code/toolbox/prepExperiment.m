@@ -1,8 +1,51 @@
 function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams, varargin)
-% History:
-%    unknown
-%    06/29/18  npc implemented temperature recording
-%    06/30/18  npc implemented state tracking SPD recording
+% A function that controls much of the pre-experiment behavior for
+% OLApproach_Squint Experiments
+
+% Syntax:
+%  [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams);
+
+% Description:
+%   This function performs a number of tasks meant to be accomplished prior
+%   to subject arrival for an experiment under the OLApproach_Squint
+%   umbrella. These tasks include 1) generation of nominal stimuli, 2)
+%   validation measurements prior to stimulus correction, 3) direction
+%   correction or spectrum seeking, 4) and generation of modulations.
+
+% Inputs:
+%   protocolParams        - A struct defining specifics about the
+%                           experiment. Relevant fields include:
+%                           information about the subject, protocol name,
+%                           calibration name, among others.
+%
+% Optional key-value pairs:
+%   observerID            - A string defining the observerID (i.e.
+%                           HERO_HMM) for the given subject
+%   observerAgeInYrs      - A number defining the age of the relevant
+%                           observer, in years
+%   sessionName           - A string defining the sessionName of the
+%                           relevant session (i.e. session_1)
+%   skipPause             - A logical to control whether to pause prior to
+%                           beginning of validation. The default is set to
+%                           false, meaning that the routine will pause just
+%                           prior to validation to make sure we have all of
+%                           the equipment set up. Set to true, for example,
+%                           when wanting to loop over multiple iterations
+%                           of this for torture testing purposes.
+%
+% Outputs:
+%   modulationData          - A Nx1 element vector where each element 
+%                             is the modulation of a different stimulus type.
+%   ol                      - The instantiated OneLight object
+%  radiometer               - The instantiated radiometer object
+%  calibration              - A structure that defines the relevant
+%                             calibration
+%  protocolParams           - A structure that defines the specifics of the
+%                             experiment, which might be appended over the
+%                             course of this routine to include subject
+%                             specifics (obseverID, observerAgeInYrs,
+%                             sessionName, for example)
+
 
 p = inputParser; p.KeepUnmatched = true;
 

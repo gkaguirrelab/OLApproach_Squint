@@ -16,15 +16,16 @@ function [ XYChromaticity, chromaticityAccumulator ] = calculateChromaticity( Di
 %                           the chromaticity.
 % Optional Key-Value Pairs:
 %   whichValidation       - A string or cell array of strings that describe
-%                           which validation measurments we care about for this computation of
-%                           chromaticity. Within the DirectionObject, each validation measurement
-%                           can be associated with a label. If we only want validations with a
-%                           corresponding label to be included, we'd specify the appropriate label
-%                           or labels with this key-value pair.
-%                           default), or 'on.' If set to 'on,' then the
-%                           routine will print to the console which
-%                           validation measures, if any, do not pass our
-%                           exclusion criteria.
+%                           which validation measurments we care about for
+%                           this computation of chromaticity. Within the
+%                           DirectionObject, each validation measurement
+%                           can be associated with a label. If we only want
+%                           validations with a corresponding label to be
+%                           included, we'd specify the appropriate label or
+%                           labels with this key-value pair. default), or
+%                           'on.' If set to 'on,' then the routine will
+%                           print to the console which validation measures,
+%                           if any, do not pass our exclusion criteria.
 % Outputs:
 %   XYChromaticity        - A 2x1 vector where the first element is the X
 %                           coordinate and the second element is the Y
