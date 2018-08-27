@@ -199,4 +199,103 @@ if OLDirectionParamsValidate(params)
     dictionary(params.name) = params;
 end
 
+%% MaxLMS_chrom_unipolar_275_60_400
+% Direction for maximum unipolar contrast LMS step
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+
+params = OLDirectionParams_Unipolar;
+params.baseName = 'MaxLMS_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6.0;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+params.backgroundName = 'LMSDirected_chrom_275_60_4000';
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.2;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLDirectionNameFromParams(params);
+if OLDirectionParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+%% MaxMel_chrom_unipolar_275_60_400
+% Direction for maximum unipolar contrast Mel step
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+
+params = OLDirectionParams_Unipolar;
+params.baseName = 'MaxMel_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6.0;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+params.backgroundName = 'MelDirected_chrom_275_60_4000';
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.targetContrast = [0 0 0 params.baseModulationContrast];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.2;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLDirectionNameFromParams(params);
+if OLDirectionParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+%% LightFlux_chrom_unipolar_275_60_4000
+% Direction for maximum unipolar contrast "LightFlux" step
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+
+params = OLDirectionParams_Unipolar;
+params.baseName = 'LightFlux_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6.0;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+params.backgroundName = 'LightFlux_chrom_275_60_4000';
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.6;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLDirectionNameFromParams(params);
+if OLDirectionParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
 end

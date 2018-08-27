@@ -155,4 +155,108 @@ if OLBackgroundParamsValidate(params)
     dictionary(params.name) = params;
 end
 
+
+%% LMSDirected_chrom_275_60_400
+% Background to allow maximum unipolar contrast LMS modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'LMSDirected_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.60,0.37];
+params.desiredLum = 120;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.1;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+%% MelDirected_chrom_275_60_400
+% Background to allow maximum unipolar contrast Mel modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'MelDirected_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.59,0.39];
+params.desiredLum = 315;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [0 0 0 params.baseModulationContrast];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.1;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+
+%% LightFluxDirected_chrom_275_60_4000
+% Background to allow maximum unipolar contrast LightFlux modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'LightFlux_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.58,0.39];
+params.desiredLum = 210;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.6;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
 end

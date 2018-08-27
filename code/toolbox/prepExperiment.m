@@ -142,7 +142,7 @@ protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
 if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
     % make the Mel params for screening just so we have the T_receptors and
     % photoreceptorClasses subfields
-    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    MaxMelParams = OLDirectionParamsFromName('MaxMel_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
     [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
@@ -150,7 +150,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
 end
 
 if strcmp(protocolParams.protocol, 'SquintToPulse')
-    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
     [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
     MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
@@ -159,7 +159,7 @@ end
 
 if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
     
-    LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    LightFluxParams = OLDirectionParamsFromName('LightFlux_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
     
     % playing around with the light flux params -- these are the specific
     % parameters David played with. with the most recent calibration for BoxD
