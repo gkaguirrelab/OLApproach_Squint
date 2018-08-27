@@ -143,7 +143,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     % make the Mel params for screening just so we have the T_receptors and
     % photoreceptorClasses subfields
     MaxMelParams = OLDirectionParamsFromName('MaxMel_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
     MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
@@ -151,7 +151,7 @@ end
 
 if strcmp(protocolParams.protocol, 'SquintToPulse')
     MaxLMSParams = OLDirectionParamsFromName('MaxLMS_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-    [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
+    [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
     MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
@@ -183,7 +183,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
 %     LightFluxParams.search.maxSearchIter = 3000;
 %     LightFluxParams.search.verbose = false;
     
-    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
+    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
     LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
