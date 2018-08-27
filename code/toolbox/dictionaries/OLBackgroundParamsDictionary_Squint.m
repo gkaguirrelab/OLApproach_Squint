@@ -127,33 +127,33 @@ end
 
 %% LightFlux_UnipolarBase
 %
-% Base params for unipolar light flux modulation backgrounds
-params = OLBackgroundParams_LightFluxChrom;
-params.baseName = 'LightFlux';
-params.polarType = 'unipolar';
-params.desiredxy = [0.45,0.45];
-params.whichXYZ = 'xyzCIEPhys10';
-params.desiredMaxContrast = 4;
-
-% These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadRoom = 0.005;
-params.search.primaryTolerance = 1e-6;
-params.search.checkPrimaryOutOfRange = true;
-params.search.initialLuminanceFactor = 0.2;
-params.search.lambda = 0;
-params.search.spdToleranceFraction = 0.005;
-params.search.chromaticityTolerance = 0.0001;
-params.search.optimizationTarget = 'maxLum';
-params.search.primaryHeadroomForInitialMax = 0.005;
-params.search.maxScaleDownForStart = 2;
-params.search.maxSearchIter = 300;
-params.search.verbose = false;
-
-params.name = 'LightFlux_UnipolarBase';
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
+% % Base params for unipolar light flux modulation backgrounds
+% %params = OLBackgroundParams_LightFluxChrom;
+% params.baseName = 'LightFlux';
+% params.polarType = 'unipolar';
+% params.desiredxy = [0.45,0.45];
+% params.whichXYZ = 'xyzCIEPhys10';
+% params.desiredMaxContrast = 4;
+% 
+% % These are the options that go to OLPrimaryInvSolveChrom
+% params.search.primaryHeadRoom = 0.005;
+% params.search.primaryTolerance = 1e-6;
+% params.search.checkPrimaryOutOfRange = true;
+% params.search.initialLuminanceFactor = 0.2;
+% params.search.lambda = 0;
+% params.search.spdToleranceFraction = 0.005;
+% params.search.chromaticityTolerance = 0.0001;
+% params.search.optimizationTarget = 'maxLum';
+% params.search.primaryHeadroomForInitialMax = 0.005;
+% params.search.maxScaleDownForStart = 2;
+% params.search.maxSearchIter = 300;
+% params.search.verbose = false;
+% 
+% params.name = 'LightFlux_UnipolarBase';
+% if OLBackgroundParamsValidate(params)
+%     % All validations OK. Add entry to the dictionary.
+%     dictionary(params.name) = params;
+% end
 
 
 %% LMSDirected_chrom_275_60_400
