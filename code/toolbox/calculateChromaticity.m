@@ -67,9 +67,9 @@ end
 
 
 % set up some basic variables
-load T_xyz1931
+load T_xyzCIEPhys10
 S = [380 2 201];
-T_xyz = SplineCmf(S_xyz1931,683*T_xyz1931,S);
+T_xyz = SplineCmf(S_xyzCIEPhys10,683*T_xyzCIEPhys10,S);
 
 nValidations = length(DirectionObject.describe.validation);
 
