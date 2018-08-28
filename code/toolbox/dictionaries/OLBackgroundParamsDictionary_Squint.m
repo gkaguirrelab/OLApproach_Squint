@@ -169,7 +169,7 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.60,0.37];
+params.desiredxy = [0.5964,0.3813];
 params.desiredLum = 120;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
@@ -203,7 +203,7 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.59,0.39];
+params.desiredxy = [0.5964,0.3813];
 params.desiredLum = 315;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [0 0 0 params.baseModulationContrast];
@@ -238,7 +238,7 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.58,0.39];
+params.desiredxy = [0.5964,0.3813];
 params.desiredLum = 210;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
