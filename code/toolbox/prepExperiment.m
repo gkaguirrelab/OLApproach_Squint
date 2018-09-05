@@ -109,27 +109,11 @@ end
 %% Set flag indicating whether to measure state tracking SPDs in OLValidateDirection() and OLCorrectDirection()
 measureStateTrackingSPDs = true;
 
-%% Open the OneLight
-ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
 %% Grab the relevant calibration
 calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibrationType,'CalibrationDate','latest');
 
-%% Let user get the radiometer set up
-if ~protocolParams.simulate.radiometer
-    radiometerPauseDuration = 0;
-    ol.setAll(true);
-    commandwindow;
-    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
-    if ~(p.Results.skipPause)
-        input('');
-    end
-    ol.setAll(false);
-    pause(radiometerPauseDuration);
-    radiometer = OLOpenSpectroRadiometerObj('PR-670');
-else
-    radiometer = [];
-end
+
 
 %% open the session log
 protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
@@ -189,6 +173,24 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
 end
 
+%% Open the OneLight
+ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
+
+%% Let user get the radiometer set up
+if ~protocolParams.simulate.radiometer
+    radiometerPauseDuration = 0;
+    ol.setAll(true);
+    commandwindow;
+    fprintf('- Focus the radiometer and press enter to pause %d seconds and start measuring.\n', radiometerPauseDuration);
+    if ~(p.Results.skipPause)
+        input('');
+    end
+    ol.setAll(false);
+    pause(radiometerPauseDuration);
+    radiometer = OLOpenSpectroRadiometerObj('PR-670');
+else
+    radiometer = [];
+end
 %% Validate prior to direction correction
 T_receptors = MaxMelDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
 for ii = 1:protocolParams.nValidationsPerDirection
