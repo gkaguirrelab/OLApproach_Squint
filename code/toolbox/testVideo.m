@@ -17,7 +17,7 @@ if strcmp(p.Results.label, 'pre')
     [recordedErrorFlag, consoleOutput] = system(cameraTurnOffCommand);
     
     % pre video record command
-    videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "1" -c:v mpeg4 -q:v 1';
+    videoRecordSystemCommandStem='ffmpeg -hide_banner -video_size 1280x720 -framerate 60.000240 -f avfoundation -i "0" -c:v mpeg4 -q:v 1';
 end
 
 
