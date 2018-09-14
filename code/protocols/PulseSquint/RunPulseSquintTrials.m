@@ -103,6 +103,8 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+%% Pause BigFIx
+[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 %% Run experiment
 
@@ -237,6 +239,10 @@ dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
+
+%% Resume BigFix
+%% Pause BigFIx
+[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 
 %% Post-experiment actions
