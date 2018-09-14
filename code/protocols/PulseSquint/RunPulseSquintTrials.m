@@ -104,7 +104,7 @@ if protocolParams.verbose
 end
 
 %% Pause BigFIx
-[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
+%[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 %% Run experiment
 
@@ -241,8 +241,7 @@ if protocolParams.verbose
 end
 
 %% Resume BigFix
-%% Pause BigFIx
-[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
+%[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 
 %% Post-experiment actions

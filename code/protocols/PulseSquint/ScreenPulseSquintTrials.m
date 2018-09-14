@@ -59,7 +59,7 @@ if protocolParams.verbose
 end
 
 %% Pause BigFix
-[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
+%[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist')
 
 
 %% Run experiment
@@ -199,7 +199,7 @@ if protocolParams.verbose
 end
 
 %% Resume BigFIx
-[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
+%[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 %% Check if we need to run pupil calibration again
 % Check the video output
