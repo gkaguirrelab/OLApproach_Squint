@@ -1,6 +1,18 @@
 function dropBoxSyncingStatus = pauseUnpauseDropbox(varargin)
 % Uses a system command to resume dropBox syncing via a shell script
 %
+% Syntax: 
+%
+%       dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
+%
+% Optional key-value pair inputs:
+%   command                 - A string that must read '--pause' or '--resume'.
+%                             Refers to whether we're pausing or resuming Dropbox
+%                             activity.
+% Output:
+%   dropBoxSyncingStatus    - A logical. If 0, Dropbox is functional (i.e.
+%                             not paused). if O, then dropbox is paused, if
+%                             NaN, then unable to determine
 
 p = inputParser;
 

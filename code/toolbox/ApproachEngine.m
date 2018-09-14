@@ -2,7 +2,7 @@ function ApproachEngine(ol,protocolParams, trialList, UDPobj, varargin)
 %% ApproachEngine - Run a squint protcol experiment.
 %
 % Usage:
-%    Experiment(ol,protocolParams)
+%    ApproachEngine(ol,protocolParams, trialList, UDPobj)
 %
 % Description:
 %    Master program for running sequences of OneLight pulses/modulations in the acquisitionner.
@@ -11,6 +11,8 @@ function ApproachEngine(ol,protocolParams, trialList, UDPobj, varargin)
 %    ol (object)              An open OneLight object.
 %    protocolParams (struct)  The protocol parameters structure.
 %    trialList                Struct array defining each trial
+%    UDPobj                   An open UDP object for communication between
+%                             each computer
 %
 % Output:
 %    None.

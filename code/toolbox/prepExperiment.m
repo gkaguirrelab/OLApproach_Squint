@@ -1,8 +1,51 @@
 function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams, varargin)
-% History:
-%    unknown
-%    06/29/18  npc implemented temperature recording
-%    06/30/18  npc implemented state tracking SPD recording
+% A function that controls much of the pre-experiment behavior for
+% OLApproach_Squint Experiments
+
+% Syntax:
+%  [ modulationData, ol, radiometer, calibration, protocolParams ] = prepExperiment(protocolParams);
+
+% Description:
+%   This function performs a number of tasks meant to be accomplished prior
+%   to subject arrival for an experiment under the OLApproach_Squint
+%   umbrella. These tasks include 1) generation of nominal stimuli, 2)
+%   validation measurements prior to stimulus correction, 3) direction
+%   correction or spectrum seeking, 4) and generation of modulations.
+
+% Inputs:
+%   protocolParams        - A struct defining specifics about the
+%                           experiment. Relevant fields include:
+%                           information about the subject, protocol name,
+%                           calibration name, among others.
+%
+% Optional key-value pairs:
+%   observerID            - A string defining the observerID (i.e.
+%                           HERO_HMM) for the given subject
+%   observerAgeInYrs      - A number defining the age of the relevant
+%                           observer, in years
+%   sessionName           - A string defining the sessionName of the
+%                           relevant session (i.e. session_1)
+%   skipPause             - A logical to control whether to pause prior to
+%                           beginning of validation. The default is set to
+%                           false, meaning that the routine will pause just
+%                           prior to validation to make sure we have all of
+%                           the equipment set up. Set to true, for example,
+%                           when wanting to loop over multiple iterations
+%                           of this for torture testing purposes.
+%
+% Outputs:
+%   modulationData          - A Nx1 element vector where each element 
+%                             is the modulation of a different stimulus type.
+%  ol                       - The instantiated OneLight object
+%  radiometer               - The instantiated radiometer object
+%  calibration              - A structure that defines the relevant
+%                             calibration
+%  protocolParams           - A structure that defines the specifics of the
+%                             experiment, which might be appended over the
+%                             course of this routine to include subject
+%                             specifics (obseverID, observerAgeInYrs,
+%                             sessionName, for example)
+
 
 p = inputParser; p.KeepUnmatched = true;
 
@@ -66,11 +109,72 @@ end
 %% Set flag indicating whether to measure state tracking SPDs in OLValidateDirection() and OLCorrectDirection()
 measureStateTrackingSPDs = true;
 
-%% Open the OneLight
-ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
 %% Grab the relevant calibration
 calibration = OLGetCalibrationStructure('CalibrationType',protocolParams.calibrationType,'CalibrationDate','latest');
+
+
+
+%% open the session log
+protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
+
+%% Make nominal direction objects, containing nominal primaries
+% but which directions we have to make depends on the protocol
+% for the SquintToPusle protocol, we want Mel, LMS, and light flux
+% for screening, we just want light flux
+
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+    % make the Mel params for screening just so we have the T_receptors and
+    % photoreceptorClasses subfields
+    MaxMelParams = OLDirectionParamsFromName('MaxMel_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
+    MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
+end
+
+if strcmp(protocolParams.protocol, 'SquintToPulse')
+    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
+    MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
+    MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
+end
+
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+    
+    LightFluxParams = OLDirectionParamsFromName('LightFlux_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
+    
+    % playing around with the light flux params -- these are the specific
+    % parameters David played with. with the most recent calibration for BoxD
+    % with the short liquid light guide and ND0.1, these gave reasonable
+    % modulations
+    
+%     whichXYZ = 'xyzCIEPhys10';
+%     LightFluxParams.desiredxy = [0.60 0.38];
+%     LightFluxParams.whichXYZ = whichXYZ;
+%     LightFluxParams.desiredMaxContrast = 4;
+%     LightFluxParams.desiredBackgroundLuminance = 221.45;
+%     
+%     LightFluxParams.search.primaryHeadroom = 0.000;
+%     LightFluxParams.search.primaryTolerance = 1e-6;
+%     LightFluxParams.search.checkPrimaryOutOfRange = true;
+%     LightFluxParams.search.lambda = 0;
+%     LightFluxParams.search.spdToleranceFraction = 30e-5;
+%     LightFluxParams.search.chromaticityTolerance = 0.1;
+%     LightFluxParams.search.optimizationTarget = 'maxContrast';
+%     LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
+%     LightFluxParams.search.maxSearchIter = 3000;
+%     LightFluxParams.search.verbose = false;
+    
+    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
+    LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
+    LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
+end
+
+%% Open the OneLight
+ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
 %% Let user get the radiometer set up
 if ~protocolParams.simulate.radiometer
@@ -87,65 +191,6 @@ if ~protocolParams.simulate.radiometer
 else
     radiometer = [];
 end
-
-%% open the session log
-protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
-
-%% Make nominal direction objects, containing nominal primaries
-% but which directions we have to make depends on the protocol
-% for the SquintToPusle protocol, we want Mel, LMS, and light flux
-% for screening, we just want light flux
-
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
-    % make the Mel params for screening just so we have the T_receptors and
-    % photoreceptorClasses subfields
-    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
-    MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
-    MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
-end
-
-if strcmp(protocolParams.protocol, 'SquintToPulse')
-    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-    [ MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs);
-    MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
-    MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
-end
-
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
-    
-    LightFluxParams = OLDirectionParamsFromName('LightFlux_UnipolarBase', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
-    
-    % playing around with the light flux params -- these are the specific
-    % parameters David played with. with the most recent calibration for BoxD
-    % with the short liquid light guide and ND0.1, these gave reasonable
-    % modulations
-    
-    whichXYZ = 'xyzCIEPhys10';
-    LightFluxParams.desiredxy = [0.60 0.38];
-    LightFluxParams.whichXYZ = whichXYZ;
-    LightFluxParams.desiredMaxContrast = 4;
-    LightFluxParams.desiredBackgroundLuminance = 221.45;
-    
-    LightFluxParams.search.primaryHeadroom = 0.000;
-    LightFluxParams.search.primaryTolerance = 1e-6;
-    LightFluxParams.search.checkPrimaryOutOfRange = true;
-    LightFluxParams.search.lambda = 0;
-    LightFluxParams.search.spdToleranceFraction = 30e-5;
-    LightFluxParams.search.chromaticityTolerance = 0.1;
-    LightFluxParams.search.optimizationTarget = 'maxContrast';
-    LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
-    LightFluxParams.search.maxSearchIter = 3000;
-    LightFluxParams.search.verbose = false;
-    
-    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration);
-    LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
-    LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
-end
-
 %% Validate prior to direction correction
 T_receptors = MaxMelDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
 for ii = 1:protocolParams.nValidationsPerDirection

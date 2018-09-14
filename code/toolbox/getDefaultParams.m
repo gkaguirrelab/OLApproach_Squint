@@ -1,12 +1,38 @@
 function [ protocolParams ] = getDefaultParams(varargin)
+% Obtain the default parameters for protocols under the OLApproach_Squint umbrella.
+%
+% Syntax:
+%  [ protocolParams ] = getDefaultParams(varargin)
 
+% Description:
+%   This function sets the protocolParams structure for experiments under
+%   the OLApproach_Squint umbrella. The specific protocol (i.e.
+%   'Screening' or 'SquintToPulse') dictates certain parameters, such as
+%   how long to open the verbal response window. Passing the appropriate
+%   key-value pair for protocol will deliver the appropriate protocolParams
+%   structure. There's an additional use case for Harry's work computer
+%   that puts everything into simulate mode.
+
+% Optional key-value pairs:
+%   calibrationType       - A string indicating which calibration to use 
+%                           (i.e. 'BoxBShortLiquidLightGuideDEyePiece1_ND04').
+%   nTrials               - A number specifying the number of trials within 
+%                           an acquisition.
+%   protocol              - A string specifying which protocol under
+%                           OLApproach_Squint we're running. Acceptable
+%                           options include 'Screening' for screening
+%                           sessions and 'SquintToPulse' for the actual
+%                           experiment.
+%
+% Outputs:
+%   protocolParams        - A structure that defines specific information
+%                           about the experiment
 
 %% parse inputs
 p = inputParser; p.KeepUnmatched = true;
 
 p.addParameter('calibrationType','BoxBShortLiquidLightGuideDEyePiece1_ND04',@ischar);
 p.addParameter('nTrials',10,@isnumeric);
-p.addParameter('computerName','trashCan',@ischar);
 p.addParameter('protocol','SquintToPulse',@ischar);
 
 
@@ -79,11 +105,11 @@ protocolParams.backgroundsDictionary = 'OLBackgroundParamsDictionary_Squint';
 % define the identities of the base computer (which oversees the
 % experiment and controls the OneLight) and the satellite computers that
 % handle EMG and pupil recording
-%protocolParams.hostNames = {'gka06', 'gka33', 'monkfish'};
-protocolParams.hostNames = {'modv-ve507-0663', 'gka33', 'monkfish'}; % fugu
+protocolParams.hostNames = {'gka06', 'gka33', 'monkfish'};
+%protocolParams.hostNames = {'modv-ve507-0663', 'gka33', 'monkfish'}; % fugu
 
-%protocolParams.hostIPs = {'128.91.59.227', '128.91.59.228', '128.91.59.157'};
-protocolParams.hostIPs = {'130.91.151.104', '128.91.59.228', '128.91.59.157'}; % fugu
+protocolParams.hostIPs = {'128.91.59.227', '128.91.59.228', '128.91.59.157'};
+%protocolParams.hostIPs = {'130.91.151.104', '128.91.59.228', '128.91.59.157'}; % fugu
 
 protocolParams.hostRoles = {'base', 'satellite', 'satellite'};
 protocolParams.hostActions = {{'operator','observer','oneLight'}, 'emg', 'pupil'};

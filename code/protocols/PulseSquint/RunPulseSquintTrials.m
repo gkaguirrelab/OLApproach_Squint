@@ -20,7 +20,7 @@ clear; close all;
 
 %% Set the parameter structure here
 
-[ protocolParams ] = getDefaultParams('calibrationType', 'BoxDLiquidShortCableDEyePiece1_ND03', ...
+[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND07', ...
                                         'nTrials', 10, ...
                                         'protocol', 'SquintToPulse');
 
@@ -103,6 +103,8 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+%% Pause BigFIx
+[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 %% Run experiment
 
@@ -238,6 +240,10 @@ if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
 
+%% Resume BigFix
+%% Pause BigFIx
+[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
+
 
 %% Post-experiment actions
 
@@ -251,6 +257,7 @@ end
 % Role dependent actions - oneLight
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % perform post-experiment validation
+    ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
     
     if ~exist('radiometer', 'var')
         

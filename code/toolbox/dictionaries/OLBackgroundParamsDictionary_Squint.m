@@ -72,113 +72,6 @@ end
 % Initialize dictionary
 dictionary = containers.Map();
 
-%% MelanopsinDirected_275_80_667
-% Background to allow maximum unipolar contrast melanopsin modulation
-%   Field size: 27.5 deg
-%   Pupil diameter: 8 mm
-%   bipolar contrast: 66.7%
-%
-% Bipolar contrast is specified to generate, this background is also used
-% for a 400% unipolar pulse
-params = OLBackgroundParams_Optimized;
-params.baseName = 'MelanopsinDirected';
-params.primaryHeadRoom = 0.01;
-params.baseModulationContrast = 4/6;
-params.fieldSizeDegrees = 27.5;
-params.pupilDiameterMm = 8;
-params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
-params.modulationContrast = 4/6;
-params.whichReceptorsToIsolate = {[4]};
-params.whichReceptorsToIgnore = {[]};
-params.whichReceptorsToMinimize = {[]};
-params.directionsYoked = [0];
-params.directionsYokedAbs = [0];
-params.name = OLBackgroundNameFromParams(params);
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
-
-%% MelanopsinDirected_600_80_667
-% Background to allow maximum unipolar contrast melanopsin modulations
-%   Field size: 60.0 deg
-%   Pupil diameter: 8 mm
-%   bipolar contrast: 66.7%
-%
-% Bipolar contrast is specified to generate, this background is also used
-% for a 400% unipolar pulse
-params = OLBackgroundParams_Optimized;
-params.baseName = 'MelanopsinDirected';
-params.baseModulationContrast = 4/6;
-params.primaryHeadRoom = 0.01;
-params.fieldSizeDegrees = 60;
-params.pupilDiameterMm = 8;
-params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
-params.modulationContrast = [4/6];
-params.whichReceptorsToIsolate = {[4]};
-params.whichReceptorsToIgnore = {[]};
-params.whichReceptorsToMinimize = {[]};
-params.directionsYoked = [0];
-params.directionsYokedAbs = [0];
-params.name = OLBackgroundNameFromParams(params);
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
-
-%% LMSDirected_LMS_275_80_667
-% Background to allow maximum unipolar contrast LMS modulations
-%   Field size: 27.5 deg
-%   Pupil diameter: 8 mm
-%   bipolar contrast: 66.7%
-%
-% Bipolar contrast is specified to generate, this background is also used
-% for a 400% unipolar pulse
-params = OLBackgroundParams_Optimized;
-params.baseName = 'LMSDirected';
-params.baseModulationContrast = 4/6;
-params.primaryHeadRoom = 0.005;
-params.fieldSizeDegrees = 27.5;
-params.pupilDiameterMm = 8;
-params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
-params.modulationContrast = {[4/6 4/6 4/6]};
-params.whichReceptorsToIsolate = {[1 2 3]};
-params.whichReceptorsToIgnore = {[]};
-params.whichReceptorsToMinimize = {[]};
-params.directionsYoked = [1];
-params.directionsYokedAbs = [0];
-params.name = OLBackgroundNameFromParams(params);
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
-
-%% LMSDirected_LMS_600_80_667
-% Background to allow maximum unipolar contrast LMS modulations
-%   Field size: 60.0 deg
-%   Pupil diameter: 8 mm
-%   bipolar contrast: 66.7%
-%
-% Bipolar contrast is specified to generate, this background is also used
-% for a 400% unipolar pulse
-params = OLBackgroundParams_Optimized;
-params.baseName = 'LMSDirected';
-params.baseModulationContrast = 4/6;
-params.primaryHeadRoom = 0.005;
-params.fieldSizeDegrees = 60;
-params.pupilDiameterMm = 8;
-params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
-params.modulationContrast = {[4/6 4/6 4/6]};
-params.whichReceptorsToIsolate = {[1 2 3]};
-params.whichReceptorsToIgnore = {[]};
-params.whichReceptorsToMinimize = {[]};
-params.directionsYoked = [1];
-params.directionsYokedAbs = [0];
-params.name = OLBackgroundNameFromParams(params);
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
 
 %% MelanopsinDirected_275_60_667
 % Background to allow maximum unipolar contrast melanopsin modulations
@@ -234,45 +127,138 @@ end
 
 %% LightFlux_UnipolarBase
 %
-% Base params for unipolar light flux modulation backgrounds
-params = OLBackgroundParams_LightFluxChrom;
-params.baseName = 'LightFlux';
-params.polarType = 'unipolar';
-params.desiredxy = [0.45,0.45];
-params.whichXYZ = 'xyzCIEPhys10';
-params.desiredMaxContrast = 4;
-
-% These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadRoom = 0.005;
-params.search.primaryTolerance = 1e-6;
-params.search.checkPrimaryOutOfRange = true;
-params.search.initialLuminanceFactor = 0.2;
-params.search.lambda = 0;
-params.search.spdToleranceFraction = 0.005;
-params.search.chromaticityTolerance = 0.0001;
-params.search.optimizationTarget = 'maxLum';
-params.search.primaryHeadroomForInitialMax = 0.005;
-params.search.maxScaleDownForStart = 2;
-params.search.maxSearchIter = 300;
-params.search.verbose = false;
-
-params.name = 'LightFlux_UnipolarBase';
-if OLBackgroundParamsValidate(params)
-    % All validations OK. Add entry to the dictionary.
-    dictionary(params.name) = params;
-end
-
-% %% LightFlux_540_375_50
-% % Background at xy = [0.54,0.38] that allows light flux pulses to increase
-% % a factor of 5 within gamut
-% params = OLBackgroundParams_LightFluxChrom;
+% % Base params for unipolar light flux modulation backgrounds
+% %params = OLBackgroundParams_LightFluxChrom;
 % params.baseName = 'LightFlux';
-% params.lightFluxDesiredXY = [0.54,0.375];
-% params.lightFluxDownFactor = 5;
-% params.primaryHeadRoom = 0.00;
-% params.name = OLBackgroundNameFromParams(params);
+% params.polarType = 'unipolar';
+% params.desiredxy = [0.45,0.45];
+% params.whichXYZ = 'xyzCIEPhys10';
+% params.desiredMaxContrast = 4;
+% 
+% % These are the options that go to OLPrimaryInvSolveChrom
+% params.search.primaryHeadRoom = 0.005;
+% params.search.primaryTolerance = 1e-6;
+% params.search.checkPrimaryOutOfRange = true;
+% params.search.initialLuminanceFactor = 0.2;
+% params.search.lambda = 0;
+% params.search.spdToleranceFraction = 0.005;
+% params.search.chromaticityTolerance = 0.0001;
+% params.search.optimizationTarget = 'maxLum';
+% params.search.primaryHeadroomForInitialMax = 0.005;
+% params.search.maxScaleDownForStart = 2;
+% params.search.maxSearchIter = 300;
+% params.search.verbose = false;
+% 
+% params.name = 'LightFlux_UnipolarBase';
 % if OLBackgroundParamsValidate(params)
 %     % All validations OK. Add entry to the dictionary.
 %     dictionary(params.name) = params;
 % end
+
+
+%% LMSDirected_chrom_275_60_400
+% Background to allow maximum unipolar contrast LMS modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'LMSDirected_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.5964,0.3813];
+params.desiredxy = [0.60,0.38];
+
+params.desiredLum = 150;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
+params.search.primaryHeadroom = 0.002;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.1;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+%% MelDirected_chrom_275_60_400
+% Background to allow maximum unipolar contrast Mel modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'MelDirected_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.5964,0.3813];
+params.desiredLum = 315;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [0 0 0 params.baseModulationContrast];
+params.search.primaryHeadroom = 0.000;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.1;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
+
+%% LightFluxDirected_chrom_275_60_4000
+% Background to allow maximum unipolar contrast LightFlux modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   Unipolar contrast: 400%
+params = OLBackgroundParams_Optimized;
+params.baseName = 'LightFlux_chrom';
+params.baseModulationContrast = 4;
+params.fieldSizeDegrees = 27.5;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+
+% These are the options that go to OLPrimaryInvSolveChrom
+params.desiredxy = [0.5964,0.3813];
+params.desiredLum = 210;
+params.whichXYZ = 'xyzCIEPhys10';
+params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
+params.search.primaryHeadroom = 0.005;
+params.search.primaryTolerance = 1e-6;
+params.search.checkPrimaryOutOfRange = true;
+params.search.lambda = 0;
+params.search.whichSpdToPrimaryMin = 'leastSquares';
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.3;
+params.search.optimizationTarget = 'receptorContrast';
+params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.maxSearchIter = 3000;
+params.search.verbose = false;
+
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    dictionary(params.name) = params;
+end
+
 end

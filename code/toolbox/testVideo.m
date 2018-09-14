@@ -1,4 +1,40 @@
 function protocolParams = testVideo(protocolParams, varargin)
+% A function to test the pupil camera as well as run pupil gaze calibration
+%
+% Syntax:
+%   protocolParams = testVideo(protocolParams)
+
+% Description:
+%   This function is part of the pre-flight routine to test the various
+%   pieces of equipment prior to an experiment. First we just open the
+%   camera in VLC, allowing the operator to adjust the camera so it's
+%   properly positioned to capture the subject's eye. Then it will prompt
+%   the operator to begin pupil calibration, where we'll save a video of a
+%   the subject fixated at various positions along the eyepiece for use in
+%   constraining scene geometry as part of pupil tracking.
+
+% Inputs:
+%   protocolParams        - A struct that defines some basics about the
+%                           experiment. The relevant fields include 1)
+%                           information about the subject (which will be
+%                           manually entered if not originally part of the
+%                           struct), 2) the protocol name (which controls
+%                           where to save the calibration video, either
+%                           'Screening' or 'SquintToPulse'), and 3) the
+%                           videoRecordSystemCommandStem (the command to
+%                           ffmpeg)
+%
+% Optional Key-Value Pairs:
+%   label                 - A string that modifies the name of the saved
+%                           pupil gaze calibration video. Often 'pre' or
+%                           'post' to describe if this video was saved
+%                           before or after the experiment.
+% Outputs:
+%   protocolParams        - The inputted protocolParams is potentially
+%                           appended with subject information (subjectID,
+%                           sessionName, etc.)
+
+
 %% parse input
 p = inputParser;
 p.addParameter('label','pre',@ischar);

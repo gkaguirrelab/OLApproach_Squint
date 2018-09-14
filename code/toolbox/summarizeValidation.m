@@ -1,15 +1,49 @@
 function validation = summarizeValidation(DirectionObject, varargin)
+% Summarizes validation measurements stored within the DirectionObject.
+%
+% Syntax:
+%  [ XYChromaticity, chromaticityAccumulator ] = calculateChromaticity( DirectionObject)
+
+% Description:
+%   This function loops through the validation measurements contained within a
+%   DirectionObject and packages them into a (potentially) neater
+%   structure. If plotting is enabled, the routine will also display a plot
+%   of the relevant validation measures for the user.
+
+% Inputs:
+%   DirectionObject       - The direction object for the direction in
+%                           question. Note that validation is performed on,
+%                           and saved into, these direction objects.
+% Optional Key-Value Pairs:
+%   whichValidationPrefix - A string or cell array of strings that describe
+%                           which validation measurments we're trying to
+%                           pool. Within the DirectionObject, each
+%                           validation measurement can be associated with a
+%                           label. If we only want validations with a
+%                           corresponding label to be included, we'd
+%                           specify the appropriate label or labels with
+%                           this key-value pair.
+%  plot                   - A string that controls plotting behavior. If
+%                           'on', the default, then a plot of validation
+%                           measurements will be displayed. If 'off' (or
+%                           any other string, really), then no such plot is
+%                           shown.
+
+% Outputs:
+%   validation            - A structure where each subfield is a different 
+%                           validation measurement. The contents of each
+%                           subfield is a vector, where each element is the
+%                           relevant metric from a single validation
+%                           measurement.
+
+
+
 
 %% Parse input
 p = inputParser; p.KeepUnmatched = true;
-
 p.addParameter('whichValidationPrefix','all',@ischar);
 p.addParameter('plot','on',@ischar);
-p.addParameter('verbose','off',@ischar);
-
-
 p.parse(varargin{:});
-
 
 potentialValidations = length(DirectionObject.describe.validation);
 validationIndices = [];
@@ -24,7 +58,11 @@ if (isempty(validationIndices))
     validation = [];
 end
 
-counter = 1;
+ counter = 1;
+ load T_xyz1931
+ S = DirectionObject.calibration.describe.S;
+ T_xyz = SplineCmf(S_xyz1931,683*T_xyz1931,S);
+    
 for vv = validationIndices
     
     validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
@@ -39,12 +77,18 @@ for vv = validationIndices
     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
     
     validation.backgroundLuminance(counter) = DirectionObject.describe.validation(vv).luminanceActual(1);
-    if isfield(DirectionObject.describe.validation(vv), 'temperatures')
+    if (isfield(DirectionObject.describe.validation(vv), 'temperatures') && ~isempty(DirectionObject.describe.validation(vv).temperatures))
         validation.boxTemperature(counter) = DirectionObject.describe.validation(vv).temperatures{1}.value(1);
         validation.roomTemperature(counter) = DirectionObject.describe.validation(vv).temperatures{1}.value(2);
     else
         validation.boxTemperature(counter) = NaN;
         validation.roomTemperature(counter) = NaN;
+    end
+    if (isfield(DirectionObject.describe.validation(vv), 'stateTrackingData') && ~isempty(DirectionObject.describe.validation(vv).stateTrackingData))
+        allOnSPD = DirectionObject.describe.validation(vv).stateTrackingData.powerFluctuation.spd;
+        validation.maxLuminance(counter) = T_xyz(2,:) * [allOnSPD];
+    else
+        validation.maxLuminance(counter) = NaN;
     end
     counter = counter + 1;
 end

@@ -19,7 +19,7 @@ end
 clear; close all;
 %% Set the parameter structure here
 %
-[ protocolParams ] = getDefaultParams('calibrationType', 'BoxDLiquidShortCableDEyePiece1_ND03', ...
+[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND07', ...
                                         'nTrials', 12, ...
                                         'protocol', 'Screening');
 
@@ -57,6 +57,9 @@ dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
+
+%% Pause BigFix
+[status, result] = system('sudo /bin/launchctl unload /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 
 %% Run experiment
@@ -194,6 +197,9 @@ dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
 if protocolParams.verbose
     fprintf('DropBox syncing status set to %d\n',dropBoxSyncingStatus);
 end
+
+%% Resume BigFIx
+[status, result] = system('sudo /bin/launchctl load /Library/LaunchDaemons/BESAgentDaemon.plist');
 
 %% Check if we need to run pupil calibration again
 % Check the video output
