@@ -26,6 +26,17 @@
 % migraine
 % MELA_0120: for session 3 on 08/24, the box failed. this is actually what
 % prompted us to switch to box A
+% MELA_0150: for session 1 and 2 on 9/17, the background luminance is quite
+% dim for the post-val for Session 1 and for the pre-val for session 2. We
+% initially considered if this was a result of bulb cooldown following
+% needing to restart the OneLight due to connectivity issues. However, we
+% have done this procedure before with no corresponding loss of luminance
+% (multiple times, in fact). Also, the relationship between temperature and
+% luminance isn't as expected: the magnitude of temperature change doesn't
+% seem particularly large relative to what we've seen in other experiments,
+% and sometimes temperature has increased while luminance has decreased.
+% More likely, one end of the liquid light guide wasn't plugged in all of
+% the way.
 
 
 excludedSubjectNames = {'HERO_instantiationCheck', 'boxAModulationCheck', 'temperatureCheck', 'BoxD_ND02', 'BoxA_ND09', 'BoxA_ND07', 'tortureTest_boxD_1', 'MELA_0137', 'boxA_ND10', 'boxA_ND07_LMSAdjustments'};
