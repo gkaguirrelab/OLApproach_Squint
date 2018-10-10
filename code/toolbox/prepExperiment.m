@@ -324,8 +324,8 @@ if ~(protocolParams.simulate.radiometer)
             save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
         end
         LightFluxPostFigure = figure;
-        LightFluxPostValidation = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-        LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidation, LightFluxDirection);
+        LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+        LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidationJustPost, LightFluxDirection);
         LightFluxPostValidation = summarizeValidation(LightFluxDirection);
         
         %end
@@ -356,7 +356,20 @@ if strcmp(protocolParams.protocol, 'SquintToPulse')
         fprintf('<strong>Light flux  modulations are poor</strong>\n');
     end
     
-    if MaxMelPassStatus == 1 && MaxLMSPassStatus == 1 && LightFluxPassStatus == 1
+    lightFluxBackgroundLuminancePreExperiment = median(LightFluxPostValidationJustPost.backgroundLuminance);
+    
+    if lightFluxBackgroundLuminancePreExperiment > 254.6685
+        backgroundLuminance = 0;
+        fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too bright</strong>\n', lightFluxBackgroundLuminancePreExperiment);
+    elseif lightFluxBackgroundLuminancePreExperiment < 160.685
+        backgroundLuminance = 0;
+        fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too dim</strong>\n', lightFluxBackgroundLuminancePreExperiment);
+    else
+        backgroundLuminance = 1;
+       fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminancePreExperiment); 
+    end
+    
+    if MaxMelPassStatus == 1 && MaxLMSPassStatus == 1 && LightFluxPassStatus == 1 && backgroundLuminance == 1
         fprintf('***We have good modulations and are ready for the experiment***\n');
     else
         fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');

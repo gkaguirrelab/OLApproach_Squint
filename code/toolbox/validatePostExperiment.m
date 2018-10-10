@@ -93,6 +93,22 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     end
 end
 
+%% tell the console what the background luminance of the light flux stimuli was
+LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postexperiment', 'plot', 'off');
+lightFluxBackgroundLuminance = median(LightFluxPostValidationJustPost.backgroundLuminance);
+
+if lightFluxBackgroundLuminance > 254.6685
+    backgroundLuminance = 0;
+    fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too bright</strong>\n', lightFluxBackgroundLuminance);
+elseif lightFluxBackgroundLuminance < 160.685
+    backgroundLuminance = 0;
+    fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too dim</strong>\n', lightFluxBackgroundLuminance);
+else
+    backgroundLuminance = 1;
+    fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminance);
+end
+
+
 %% save our directions, after validation
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
 if ~exist(savePath,'dir')
