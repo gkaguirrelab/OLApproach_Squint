@@ -54,7 +54,7 @@ minTargetedContrast = 3.5;
 failStatus = 0;
 
 %% apply the failure criteria
-if strcmp(DirectionObject.describe.directionParams.baseName, 'LightFlux') % light flux pulses
+if strcmp(DirectionObject.describe.directionParams.baseName, 'LightFlux_chrom') % light flux pulses
     if abs(median(validation.LMSContrast)) < minTargetedContrast
         failStatus = failStatus + 1;
         if strcmp(p.Results.verbose, 'on')
@@ -84,9 +84,9 @@ if strcmp(DirectionObject.describe.directionParams.baseName, 'LightFlux') % ligh
         end
     end
 else
-    targetedReceptors = DirectionObject.describe.directionParams.whichReceptorsToIsolate;
+    targetedReceptors = DirectionObject.describe.directionParams.targetContrast;
     
-    if isequal(targetedReceptors, [1, 2, 3]) % LMS pulses
+    if isequal(targetedReceptors, [4 4 4 0]) % LMS pulses
         if abs(median(validation.LMSContrast)) < minTargetedContrast
             failStatus = failStatus + 1;
             if strcmp(p.Results.verbose, 'on')
@@ -118,7 +118,7 @@ else
     end
     
     % for melanopsin stimuli, apply the exlcusion criteria
-    if isequal(targetedReceptors, [4]) % mel pulses
+    if isequal(targetedReceptors, [0 0 0 4]) % mel pulses
         
         if abs(median(validation.MelanopsinContrast)) < minTargetedContrast
             failStatus = failStatus + 1;
