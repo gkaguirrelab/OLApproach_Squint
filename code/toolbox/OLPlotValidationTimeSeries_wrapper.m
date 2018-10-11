@@ -57,7 +57,7 @@ excludedSessions.names = {'MELA_0120', 'MELA_0147'};
 excludedSessions.dates = {'2018-08-24_session_3', '2018-08-29_session_3'};
 
 % additional optional key-value pairs for plotting
-calibrations = {'2018-05-29', '2018-07-11', '2018-09-05'}; % when relevant calibrations happened. 2018-05-29 -> when we switched form ND 0.4 to 0.3. 2018-07-11 -> when we switched from ND 0.3 to 0.2.
+calibrations = {'2018-05-29', '2018-07-11', '2018-09-05', '2018-10-10'}; % when relevant calibrations happened. 2018-05-29 -> when we switched form ND 0.4 to 0.3. 2018-07-11 -> when we switched from ND 0.3 to 0.2.
 % 2018-09-05: switched to Box A, with ND 0.7 cable
 
 % where we're saving these plots
