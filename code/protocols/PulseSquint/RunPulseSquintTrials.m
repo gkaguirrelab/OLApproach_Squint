@@ -20,7 +20,7 @@ clear; close all;
 
 %% Set the parameter structure here
 
-[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND07', ...
+[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND06', ...
                                         'nTrials', 10, ...
                                         'protocol', 'SquintToPulse');
 
@@ -40,9 +40,24 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % 400% light flux stimuli through the eyepiece
     ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
 end
+protocolParams.resume = false;
+
 
 %% Pre-Flight Routine
-
+% Set OneLight to background of lightFlux modulations for pupil calibration
+% video
+if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
+    if ~exist('ol', 'var')
+            ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
+            
+        end
+    if ~exist('modulationData', 'var')
+            modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+                LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+                LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];        
+        end
+    ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
+end
 % Check the microphone
 if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     micCheckDoneFlag = false;
@@ -96,7 +111,6 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
     end
 end
 
-protocolParams.resume = false;
 %% Pause dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command', '--pause');
 if protocolParams.verbose
@@ -143,7 +157,8 @@ if (protocolParams.resume)
         if ~exist('modulationData', 'var')
             modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
                 LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
-                LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];        end
+                LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];        
+        end
         
         if ~exist('ol', 'var')
             ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
@@ -253,7 +268,7 @@ if any(cellfun(@(x) sum(strcmp(x,'pupil')),protocolParams.myActions))
     testVideo(protocolParams, 'label', 'post');
 end
 
-% Role dependent actions - oneLight
+% Role dependent actions - oneLightooc
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % perform post-experiment validation
     ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
