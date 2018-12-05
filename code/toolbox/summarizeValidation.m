@@ -84,9 +84,14 @@ for vv = validationIndices
         validation.boxTemperature(counter) = NaN;
         validation.roomTemperature(counter) = NaN;
     end
-    if (isfield(DirectionObject.describe.validation(vv), 'stateTrackingData') && ~isempty(DirectionObject.describe.validation(vv).stateTrackingData))
-        allOnSPD = DirectionObject.describe.validation(vv).stateTrackingData.powerFluctuation.spd;
-        validation.maxLuminance(counter) = T_xyz(2,:) * [allOnSPD];
+    if isfield(DirectionObject.describe.validation(vv), 'stateTrackingData')
+        if (~isempty(DirectionObject.describe.validation(vv).stateTrackingData)) && numel(fieldnames(DirectionObject.describe.validation(vv).stateTrackingData)) ~= 0
+            
+            allOnSPD = DirectionObject.describe.validation(vv).stateTrackingData.powerFluctuation.spd;
+            validation.maxLuminance(counter) = T_xyz(2,:) * [allOnSPD];
+        else
+            validation.maxLuminance(counter) = NaN;
+        end
     else
         validation.maxLuminance(counter) = NaN;
     end
