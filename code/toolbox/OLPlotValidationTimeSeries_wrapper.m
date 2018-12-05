@@ -39,7 +39,7 @@
 % the way.
 
 
-excludedSubjectNames = {'HERO_instantiationCheck', 'boxAModulationCheck', 'temperatureCheck', 'BoxD_ND02', 'BoxA_ND09', 'BoxA_ND07', 'tortureTest_boxD_1', 'MELA_0137', 'boxA_ND10', 'boxA_ND07_LMSAdjustments'};
+excludedSubjectNames = {'HERO_instantiationCheck', 'boxAModulationCheck', 'temperatureCheck', 'BoxD_ND02', 'BoxA_ND09', 'BoxA_ND07', 'tortureTest_boxD_1', 'boxA_ND10', 'boxA_ND07_LMSAdjustments', 'test'};
 for ii = 1:56
 excludedSubjectNames{end+1} = ['tortureTest_', num2str(ii)];
 end
@@ -57,12 +57,12 @@ excludedSessions.names = {'MELA_0120', 'MELA_0147'};
 excludedSessions.dates = {'2018-08-24_session_3', '2018-08-29_session_3'};
 
 % additional optional key-value pairs for plotting
-calibrations = {'2018-05-29', '2018-07-11', '2018-09-05', '2018-10-10'}; % when relevant calibrations happened. 2018-05-29 -> when we switched form ND 0.4 to 0.3. 2018-07-11 -> when we switched from ND 0.3 to 0.2.
+calibrations = {'2018-05-29', '2018-07-11', '2018-09-05', '2018-10-10', '2018-11-13'}; % when relevant calibrations happened. 2018-05-29 -> when we switched form ND 0.4 to 0.3. 2018-07-11 -> when we switched from ND 0.3 to 0.2.
 % 2018-09-05: switched to Box A, with ND 0.7 cable
 
 % where we're saving these plots
 saveDir = fullfile(getpref('OLApproach_Squint', 'DataPath'), '../MELA_analysis/Experiments/OLApproach_Squint/SquintToPulse/admin');
-firstDateToPlot = '2018-08-22';
+firstDateToPlot = '2018-09-26';
 %% LMS validations
 OLPlotValidationTimeSeries(...
 'approachName', 'OLApproach_Squint', ...
