@@ -34,7 +34,7 @@ function [ modulationData, ol, radiometer, calibration, protocolParams ] = prepE
 %                           of this for torture testing purposes.
 %
 % Outputs:
-%   modulationData          - A Nx1 element vector where each element 
+%   modulationData          - A Nx1 element vector where each element
 %                             is the modulation of a different stimulus type.
 %  ol                       - The instantiated OneLight object
 %  radiometer               - The instantiated radiometer object
@@ -150,22 +150,22 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     % with the short liquid light guide and ND0.1, these gave reasonable
     % modulations
     
-%     whichXYZ = 'xyzCIEPhys10';
-%     LightFluxParams.desiredxy = [0.60 0.38];
-%     LightFluxParams.whichXYZ = whichXYZ;
-%     LightFluxParams.desiredMaxContrast = 4;
-%     LightFluxParams.desiredBackgroundLuminance = 221.45;
-%     
-%     LightFluxParams.search.primaryHeadroom = 0.000;
-%     LightFluxParams.search.primaryTolerance = 1e-6;
-%     LightFluxParams.search.checkPrimaryOutOfRange = true;
-%     LightFluxParams.search.lambda = 0;
-%     LightFluxParams.search.spdToleranceFraction = 30e-5;
-%     LightFluxParams.search.chromaticityTolerance = 0.1;
-%     LightFluxParams.search.optimizationTarget = 'maxContrast';
-%     LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
-%     LightFluxParams.search.maxSearchIter = 3000;
-%     LightFluxParams.search.verbose = false;
+    %     whichXYZ = 'xyzCIEPhys10';
+    %     LightFluxParams.desiredxy = [0.60 0.38];
+    %     LightFluxParams.whichXYZ = whichXYZ;
+    %     LightFluxParams.desiredMaxContrast = 4;
+    %     LightFluxParams.desiredBackgroundLuminance = 221.45;
+    %
+    %     LightFluxParams.search.primaryHeadroom = 0.000;
+    %     LightFluxParams.search.primaryTolerance = 1e-6;
+    %     LightFluxParams.search.checkPrimaryOutOfRange = true;
+    %     LightFluxParams.search.lambda = 0;
+    %     LightFluxParams.search.spdToleranceFraction = 30e-5;
+    %     LightFluxParams.search.chromaticityTolerance = 0.1;
+    %     LightFluxParams.search.optimizationTarget = 'maxContrast';
+    %     LightFluxParams.search.primaryHeadroomForInitialMax = 0.000;
+    %     LightFluxParams.search.maxSearchIter = 3000;
+    %     LightFluxParams.search.verbose = false;
     
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
@@ -256,7 +256,7 @@ end
 if ~(protocolParams.simulate.radiometer)
     % only correct if we're not simulating the radiometer
     lightlevelScalar = OLMeasureLightlevelScalar(ol,calibration,radiometer);
-        fprintf("%.3f.\n",lightlevelScalar);
+    fprintf("%.3f.\n",lightlevelScalar);
     
     nullDirection = OLDirection_unipolar.Null(calibration);
     
@@ -271,6 +271,7 @@ if ~(protocolParams.simulate.radiometer)
             'smoothness', 0.1, ...
             'temperatureProbe', theLJdev, ...
             'lightlevelScalar',lightlevelScalar,...
+            'receptors', MaxMelDirection.describe.T_receptors, ...
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, ...
@@ -302,6 +303,7 @@ if ~(protocolParams.simulate.radiometer)
             'smoothness', 0.1, ...
             'temperatureProbe', theLJdev, ...
             'lightlevelScalar',lightlevelScalar,...
+            'receptors', MaxLMSDirection.describe.T_receptors, ...
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, ...
@@ -333,7 +335,9 @@ if ~(protocolParams.simulate.radiometer)
             'smoothness', 0.1, ...
             'temperatureProbe', theLJdev, ...
             'lightlevelScalar',lightlevelScalar,...
-            'measureStateTrackingSPDs', measureStateTrackingSPDs);
+            'receptors', LightFluxDirection.describe.T_receptors, ...
+            
+        'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
                 'receptors', T_receptors, 'label', 'postcorrection', ...
@@ -387,7 +391,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse')
         fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too dim</strong>\n', lightFluxBackgroundLuminancePreExperiment);
     else
         backgroundLuminance = 1;
-       fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminancePreExperiment); 
+        fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminancePreExperiment);
     end
     
     if MaxMelPassStatus == 1 && MaxLMSPassStatus == 1 && LightFluxPassStatus == 1 && backgroundLuminance == 1
