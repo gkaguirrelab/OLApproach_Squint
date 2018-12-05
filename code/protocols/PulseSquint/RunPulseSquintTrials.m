@@ -272,7 +272,10 @@ end
 if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
     % perform post-experiment validation
     ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
-    
+    if exist('radiometer', 'var')
+        clear radiometer
+    end
+        
     if ~exist('radiometer', 'var')
         
         if ~protocolParams.simulate.radiometer
