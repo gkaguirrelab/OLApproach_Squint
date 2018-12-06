@@ -117,7 +117,7 @@ end
 % contrast step up relative to the background.
 params = OLDirectionParams_Unipolar;
 params.baseName = 'MaxLMS';
-params.primaryHeadRoom = 0.0;
+params.primaryHeadRoom = 0.005;
 params.baseModulationContrast = 2/3;
 params.fieldSizeDegrees = 27.5;
 params.pupilDiameterMm = 6.0;
@@ -151,7 +151,7 @@ params.desiredMaxContrast = 4;
 params.desiredLum = 221.45;
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.005;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -181,7 +181,7 @@ params.desiredMaxContrast = 4;
 params.desiredLum = 1114.4;
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.005;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -215,7 +215,7 @@ params.backgroundName = 'LMSDirected_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.005;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -248,7 +248,7 @@ params.backgroundName = 'MelDirected_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [0 0 0 params.baseModulationContrast];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.005;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -281,7 +281,7 @@ params.backgroundName = 'LightFlux_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.005;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
