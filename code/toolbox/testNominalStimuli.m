@@ -18,7 +18,7 @@ calibration = OLGetCalibrationStructure;
 observerAge = GetWithDefault('Observer age',32);
 
 %% Melanopsin directed stimulus
-MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+MaxMelParams = OLDirectionParamsFromName('MaxMel_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
 [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge);
 MaxMelDirection.describe.observerAge = observerAge;
 MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
@@ -29,7 +29,7 @@ OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,
 figure; summarizeValidation(MaxMelDirection);
 
 %% LMS directed stimulus
-MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+MaxLMSParams = OLDirectionParamsFromName('MaxLMS_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
 [MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',observerAge);
 MaxLMSDirection.describe.observerAge = observerAge;
 MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
