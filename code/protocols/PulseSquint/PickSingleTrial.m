@@ -317,7 +317,7 @@ for aa = startingAcquisitionNumber:nAcquisitions
     
     protocolParams.nTrials = 1;
     trialList = InitializeBlockStructArray(protocolParams,modulationData);
-    ApproachEngine(ol,protocolParams, trialList,'acquisitionNumber', protocolParams.acquisitionNumber,'verbose',protocolParams.verbose);
+    ApproachEngine(ol,protocolParams, trialList, UDPobj, 'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
 end
 %% Resume dropBox syncing
 dropBoxSyncingStatus = pauseUnpauseDropbox('command','--resume');
