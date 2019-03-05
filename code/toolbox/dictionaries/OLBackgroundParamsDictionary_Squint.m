@@ -170,12 +170,12 @@ params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorba
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.desiredxy = [0.5964,0.3813];
-params.desiredxy = [0.58,0.365];
+params.desiredxy = [0.58,0.37];
 
 params.desiredLum = 150;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
-params.search.primaryHeadroom = 0.002;
+params.search.primaryHeadroom = 0.003;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -183,7 +183,7 @@ params.search.whichSpdToPrimaryMin = 'leastSquares';
 params.search.chromaticityTolerance = 0.03;
 params.search.lumToleranceFraction = 0.1;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.002;
+params.search.primaryHeadroomForInitialMax = 0.003;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
@@ -205,11 +205,11 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.5964,0.3813];
-params.desiredLum = 330;
+params.desiredxy = [0.60,0.38];
+params.desiredLum = 340;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [0 0 0 params.baseModulationContrast];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.001;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -217,7 +217,7 @@ params.search.whichSpdToPrimaryMin = 'leastSquares';
 params.search.chromaticityTolerance = 0.03;
 params.search.lumToleranceFraction = 0.1;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.primaryHeadroomForInitialMax = 0.001;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
@@ -240,11 +240,11 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.5964,0.3813];
-params.desiredLum = 210;
+params.desiredxy = [0.59,0.38];
+params.desiredLum = 250;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
-params.search.primaryHeadroom = 0.005;
+params.search.primaryHeadroom = 0.000;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -252,7 +252,7 @@ params.search.whichSpdToPrimaryMin = 'leastSquares';
 params.search.chromaticityTolerance = 0.03;
 params.search.lumToleranceFraction = 0.3;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.005;
+params.search.primaryHeadroomForInitialMax = 0.000;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
