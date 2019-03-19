@@ -216,7 +216,7 @@ params.backgroundName = 'LMSDirected_chrom_275_60_4000';
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
 params.search.primaryHeadroom = 0.000;
-params.search.primaryTolerance = 0;
+params.search.primaryTolerance = 10e-16;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';

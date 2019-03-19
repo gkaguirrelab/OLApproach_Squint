@@ -170,13 +170,13 @@ params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorba
 
 % These are the options that go to OLPrimaryInvSolveChrom
 %params.desiredxy = [0.5964,0.3813];
-params.desiredxy = [0.55,0.38];
+params.desiredxy = [0.61,0.38];
 
 %params.desiredLum = 150;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
 params.search.primaryHeadroom = 0.000;
-params.search.primaryTolerance = 0;
+params.search.primaryTolerance = 10e-16;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';
