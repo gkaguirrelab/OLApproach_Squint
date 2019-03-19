@@ -26,7 +26,7 @@ MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.
 T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
 
 OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
-figure; summarizeValidation(MaxMelDirection);
+figure; MelValidation = summarizeValidation(MaxMelDirection);
 
 %% LMS directed stimulus
 MaxLMSParams = OLDirectionParamsFromName('MaxLMS_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
@@ -38,6 +38,7 @@ MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.
 OLValidateDirection(MaxLMSDirection, MaxLMSBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
 figure; LMSValidation = summarizeValidation(MaxLMSDirection);
 
+%% Light Flux
 LightFluxParams = OLDirectionParamsFromName('LightFlux_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
     
     % playing around with the light flux params -- these are the specific
@@ -45,9 +46,9 @@ LightFluxParams = OLDirectionParamsFromName('LightFlux_chrom_unipolar_275_60_400
     % with the short liquid light guide and ND0.1, these gave reasonable
     % modulations
     
-%     whichXYZ = 'xyzCIEPhys10';
-%     LightFluxParams.desiredxy = [0.60 0.38];
-%     LightFluxParams.whichXYZ = whichXYZ;
+    whichXYZ = 'xyzCIEPhys10';
+    %LightFluxParams.desiredxy = [0.60 0.38];
+    %LightFluxParams.whichXYZ = whichXYZ;
 %     LightFluxParams.desiredMaxContrast = 4;
 %     LightFluxParams.desiredBackgroundLuminance = 221.45;
 %     
