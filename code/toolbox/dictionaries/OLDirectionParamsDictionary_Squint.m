@@ -215,15 +215,15 @@ params.backgroundName = 'LMSDirected_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast 0];
-params.search.primaryHeadroom = 0.000;
-params.search.primaryTolerance = 10e-16;
+params.search.primaryHeadroom = 0.003;
+params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';
-params.search.chromaticityTolerance = 1;
-params.search.lumToleranceFraction = 1;
+params.search.chromaticityTolerance = 0.03;
+params.search.lumToleranceFraction = 0.2;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.primaryHeadroomForInitialMax = 0.003;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
@@ -248,15 +248,15 @@ params.backgroundName = 'MelDirected_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [0 0 0 params.baseModulationContrast];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.001;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
 params.search.whichSpdToPrimaryMin = 'leastSquares';
-params.search.chromaticityTolerance = 0.5;
+params.search.chromaticityTolerance = 0.03;
 params.search.lumToleranceFraction = 0.2;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.primaryHeadroomForInitialMax = 0.001;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
@@ -281,7 +281,7 @@ params.backgroundName = 'LightFlux_chrom_275_60_4000';
 
 % These are the options that go to OLPrimaryInvSolveChrom
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
-params.search.primaryHeadroom = 0.000;
+params.search.primaryHeadroom = 0.002;
 params.search.primaryTolerance = 1e-6;
 params.search.checkPrimaryOutOfRange = true;
 params.search.lambda = 0;
@@ -289,7 +289,7 @@ params.search.whichSpdToPrimaryMin = 'leastSquares';
 params.search.chromaticityTolerance = 0.03;
 params.search.lumToleranceFraction = 0.6;
 params.search.optimizationTarget = 'receptorContrast';
-params.search.primaryHeadroomForInitialMax = 0.000;
+params.search.primaryHeadroomForInitialMax = 0.002;
 params.search.maxSearchIter = 3000;
 params.search.verbose = false;
 
