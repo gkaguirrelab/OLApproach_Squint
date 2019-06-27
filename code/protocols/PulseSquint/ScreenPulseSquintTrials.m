@@ -105,7 +105,8 @@ if (protocolParams.resume)
             ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
         end
-        
+        ol.setMirrors(modulationData(2).modulation.background.starts,modulationData(2).modulation.background.stops);
+
     end
     
     % make sure the satellites have the information they need about the
