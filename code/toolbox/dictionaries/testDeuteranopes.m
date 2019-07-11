@@ -20,8 +20,8 @@ MaxMelParams.backgroundName = 'MelanopsinDirectedForDeuteranopes_275_60_667';
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-MaxMelParams.baseModulationContrast = 0.9;
-MaxMelParams.modulationContrast = 0.9;
+MaxMelParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(12);
 
 % make rest of the nominal modulations
 [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
@@ -31,7 +31,7 @@ MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.
 T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
 
 % validate
-OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
+OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection');
 
 % report on the validation
 fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
@@ -48,8 +48,8 @@ MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternat
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-MaxLMSParams.baseModulationContrast = 0.9;
-MaxLMSParams.modulationContrast = 0.9;
+MaxLMSParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+MaxLMSParams.modulationContrast = OLUnipolarToBipolarContrast(12);
 
 % adjust to say ignore the M cone
 % for the direction
@@ -64,7 +64,7 @@ MaxLMSDirection.describe.observerAge = observerAge;
 MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
 MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
 
-OLValidateDirection(MaxLMSDirection, MaxLMSBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
+OLValidateDirection(MaxLMSDirection, MaxLMSBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection');
 
 % report on the validation
 fprintf('\n<strong>For LMS stimuli:</strong>\n');
@@ -81,8 +81,8 @@ LightFluxParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alter
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-LightFluxParams.baseModulationContrast = 0.9999;
-LightFluxParams.modulationContrast = 0.9999;
+LightFluxParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+LightFluxParams.modulationContrast = OLUnipolarToBipolarContrast(12);
 
 % adjust to say ignore the M cone
 % for the direction
@@ -97,7 +97,7 @@ LightFluxDirection.describe.observerAge = observerAge;
 LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
 LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
 
-OLValidateDirection(LightFluxDirection, LightFluxBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
+OLValidateDirection(LightFluxDirection, LightFluxBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection');
 
 % report on the validation
 fprintf('\n<strong>For LightFlux stimuli:</strong>\n');
