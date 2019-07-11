@@ -14,6 +14,8 @@ MaxMelParams.whichReceptorsToIgnore = [2];
 % aim for a higher contrast. I have plugged in here a max contrast of 0.9
 % specified in bipolar contrast, which equates to 1800% contrast for
 % unipolar modulations. we won't get there, but we'll aim for it.
+% I will note that I'm not sure what the difference between these two
+% fields are supposed to represent
 MaxMelParams.baseModulationContrast = 0.9;
 MaxMelParams.modulationContrast = 0.9;
 
