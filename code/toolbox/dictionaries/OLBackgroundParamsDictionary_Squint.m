@@ -313,4 +313,30 @@ if OLBackgroundParamsValidate(params)
     dictionary(params.name) = params;
 end
 
+%% LightFluxForDeuteranopes_LMS_275_60_667
+% Background to allow maximum unipolar contrast LMS modulations
+%   Field size: 27.5 deg
+%   Pupil diameter: 6 mm
+%   bipolar contrast: 66.7%
+%
+% Bipolar contrast is specified to generate, this background is also used
+% for a 400% unipolar pulse
+params = OLBackgroundParams_Optimized;
+params.baseName = 'LightFluxForDeuteranopes';
+params.baseModulationContrast = 4/6;
+params.primaryHeadRoom = 0.00;
+params.pupilDiameterMm = 6;
+params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
+params.modulationContrast = {[4/6 4/6 4/6]};
+params.whichReceptorsToIsolate = {[1 3 4]};
+params.whichReceptorsToIgnore = {[2]};
+params.whichReceptorsToMinimize = {[]};
+params.directionsYoked = [1];
+params.directionsYokedAbs = [0];
+params.name = OLBackgroundNameFromParams(params);
+if OLBackgroundParamsValidate(params)
+    % All validations OK. Add entry to the dictionary.
+    dictionary(params.name) = params;
+end
+
 end

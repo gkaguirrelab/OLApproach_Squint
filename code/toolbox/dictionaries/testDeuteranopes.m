@@ -71,3 +71,36 @@ fprintf('\n<strong>For LMS stimuli:</strong>\n');
 fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(1,1)*100);
 fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(3,1)*100);
 fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(4,1)*100);
+
+%% LightFlux directed stimulus
+% start with base LMS prams
+LightFluxParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+
+% aim for a higher contrast. I have plugged in here a max contrast of 0.9
+% specified in bipolar contrast, which equates to 1800% contrast for
+% unipolar modulations. we won't get there, but we'll aim for it.
+% I will note that I'm not sure what the difference between these two
+% fields are supposed to represent
+LightFluxParams.baseModulationContrast = 0.9999;
+LightFluxParams.modulationContrast = 0.9999;
+
+% adjust to say ignore the M cone
+% for the direction
+LightFluxParams.modulationContrast = [LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast];
+LightFluxParams.whichReceptorsToIsolate = [1 3 4];
+LightFluxParams.whichReceptorsToIgnore = [2];
+% for the background
+LightFluxParams.backgroundName = 'LightFluxForDeuteranopes_275_60_667';
+
+[LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+LightFluxDirection.describe.observerAge = observerAge;
+LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
+LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
+
+OLValidateDirection(LightFluxDirection, LightFluxBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', T_receptors, 'label', 'precorrection')
+
+% report on the validation
+fprintf('\n<strong>For LightFlux stimuli:</strong>\n');
+fprintf('\tL Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(1,1)*100);
+fprintf('\tS Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(3,1)*100);
+fprintf('\tMelanopsin Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(4,1)*100);
