@@ -173,6 +173,86 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
 end
 
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    
+    % Melanopsin directed stimulus
+    % start with base melanopsin params
+    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+    
+    % adjust to say ignore the M cone
+    % for the direction
+    MaxMelParams.whichReceptorsToIgnore = [2];
+    % for the background. accomplish this by using special background that's
+    % already defined to have M cone ignored
+    MaxMelParams.backgroundName = 'MelanopsinDirectedForDeuteranopes_275_60_667';
+    
+    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
+    % specified in bipolar contrast, which equates to 1800% contrast for
+    % unipolar modulations. we won't get there, but we'll aim for it.
+    % I will note that I'm not sure what the difference between these two
+    % fields are supposed to represent
+    MaxMelParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+    MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+    
+    % make rest of the nominal modulations
+    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    MaxMelDirection.describe.observerAge = observerAge;
+    MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
+    
+    % LMS directed stimulus
+    % start with base LMS prams
+    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+    
+    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
+    % specified in bipolar contrast, which equates to 1800% contrast for
+    % unipolar modulations. we won't get there, but we'll aim for it.
+    % I will note that I'm not sure what the difference between these two
+    % fields are supposed to represent
+    MaxLMSParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+    MaxLMSParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+    
+    % adjust to say ignore the M cone
+    % for the direction
+    MaxLMSParams.modulationContrast = [MaxLMSParams.baseModulationContrast MaxLMSParams.baseModulationContrast];
+    MaxLMSParams.whichReceptorsToIsolate = [1 3];
+    MaxLMSParams.whichReceptorsToIgnore = [2];
+    % for the background
+    MaxLMSParams.backgroundName = 'LMSDirectedForDeuteranopes_275_60_667';
+    
+    [MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    MaxLMSDirection.describe.observerAge = observerAge;
+    MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
+    MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
+    
+    % LightFlux directed stimulus
+    % start with base LMS prams
+    LightFluxParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+    
+    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
+    % specified in bipolar contrast, which equates to 1800% contrast for
+    % unipolar modulations. we won't get there, but we'll aim for it.
+    % I will note that I'm not sure what the difference between these two
+    % fields are supposed to represent
+    LightFluxParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
+    LightFluxParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+    
+    % adjust to say ignore the M cone
+    % for the direction
+    LightFluxParams.modulationContrast = [LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast];
+    LightFluxParams.whichReceptorsToIsolate = [1 3 4];
+    LightFluxParams.whichReceptorsToIgnore = [2];
+    % for the background
+    LightFluxParams.backgroundName = 'LightFluxForDeuteranopes_275_60_667';
+    
+    [LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    LightFluxDirection.describe.observerAge = observerAge;
+    LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
+    LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
+    
+    
+end
+
 %% Open the OneLight
 ol = OneLight('simulate',protocolParams.simulate.oneLight,'plotWhenSimulating',protocolParams.simulate.makePlots); drawnow;
 
@@ -195,7 +275,7 @@ end
 T_receptors = MaxMelDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
 for ii = 1:protocolParams.nValidationsPerDirection
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
         OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
             'temperatureProbe', theLJdev, ...
@@ -207,7 +287,7 @@ for ii = 1:protocolParams.nValidationsPerDirection
     end
     
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
         OLValidateDirection(MaxLMSDirection, MaxLMSBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
             'temperatureProbe', theLJdev, ...
@@ -218,7 +298,7 @@ for ii = 1:protocolParams.nValidationsPerDirection
         save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
     end
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
         OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
             'receptors', T_receptors, 'label', 'precorrection', ...
             'temperatureProbe', theLJdev, ...
@@ -228,6 +308,8 @@ for ii = 1:protocolParams.nValidationsPerDirection
         save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
         save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
     end
+    
+
 end
 
 %% Check if these nominal spectra meet exclusion criteria
@@ -260,7 +342,7 @@ if ~(protocolParams.simulate.radiometer)
     
     nullDirection = OLDirection_unipolar.Null(calibration);
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
         %if MaxMelPassStatus == 0
         OLCorrectDirection(MaxMelBackground, nullDirection, ol, radiometer, ...
             'smoothness', 0.1, ...
@@ -282,15 +364,22 @@ if ~(protocolParams.simulate.radiometer)
             save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
             save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
         end
-        MaxMelPostFigure = figure;
-        MaxMelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-        MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
-        MaxMelPostValidation = summarizeValidation(MaxMelDirection);
+        if strcmp(protocolParams.protocol, 'SquintToPulse')
+            MaxMelPostFigure = figure;
+            MaxMelPostValidation = summarizeValidation(MaxMelDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+            MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
+            MaxMelPostValidation = summarizeValidation(MaxMelDirection);
+        elseif strcmp(protocolParams.protocol, 'Deuteranopes')
+            fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
+            fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(1,1)*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(3,1)*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(4,1)*100);
+        end
         %end
         
     end
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
         
         %if MaxLMSPassStatus == 0
         OLCorrectDirection(MaxLMSBackground, nullDirection, ol, radiometer, ...
@@ -313,15 +402,22 @@ if ~(protocolParams.simulate.radiometer)
             save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
             save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
         end
-        MaxLMSPostFigure = figure;
-        MaxLMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-        MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
-        MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
+        if strcmp(protocolParams.protocol, 'SquintToPulse')
+            MaxLMSPostFigure = figure;
+            MaxLMSPostValidation = summarizeValidation(MaxLMSDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+            MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
+            MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
+        elseif strcmp(protocolParams.protocol, 'Deuteranopes')
+            fprintf('\n<strong>For L+S stimuli:</strong>\n');
+            fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(1,1)*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(3,1)*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(4,1)*100);
+        end
         
         %end
     end
     
-    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+    if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
         
         %if LightFluxPassStatus == 0
         OLCorrectDirection(LightFluxBackground, nullDirection, ol, radiometer, ...
@@ -333,7 +429,7 @@ if ~(protocolParams.simulate.radiometer)
             'smoothness', 0.1, ...
             'temperatureProbe', theLJdev, ...
             'lightlevelScalar',lightlevelScalar,...
-        	'measureStateTrackingSPDs', measureStateTrackingSPDs);
+            'measureStateTrackingSPDs', measureStateTrackingSPDs);
         for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
             OLValidateDirection(LightFluxDirection, LightFluxBackground, ol, radiometer, ...
                 'receptors', T_receptors, 'label', 'postcorrection', ...
@@ -344,10 +440,17 @@ if ~(protocolParams.simulate.radiometer)
             save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
             save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
         end
-        LightFluxPostFigure = figure;
-        LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
-        LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidationJustPost, LightFluxDirection);
-        LightFluxPostValidation = summarizeValidation(LightFluxDirection);
+        if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+            LightFluxPostFigure = figure;
+            LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postcorrection', 'plot', 'off');
+            LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidationJustPost, LightFluxDirection);
+            LightFluxPostValidation = summarizeValidation(LightFluxDirection);
+        elseif strcmp(protocolParams.protocol, 'Deuteranopes')
+            fprintf('\n<strong>For LightFlux stimuli:</strong>\n');
+            fprintf('\tL Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(1,1)*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(3,1)*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(4,1)*100);
+        end
         
         %end
         
@@ -406,23 +509,26 @@ if strcmp(protocolParams.protocol, 'Screening')
     end
 end
 
+% NEED SOMETHING FOR DEUTERANOPES HERE. MAINLY JUST A REMINDER TO FIGURE
+% OUT SPLATTER FOR DEUTS
+
 
 %% save directions and backgrounds
 
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
     save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
     save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
     save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
@@ -430,11 +536,19 @@ end
 
 
 %% Make waveform
-waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
-waveformParams.stimulusDuration = 4; % 4 second pulses
-[Pulse400Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
-Pulse200Waveform = Pulse400Waveform / 2;
-Pulse100Waveform = Pulse400Waveform / 4;
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+    waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
+    waveformParams.stimulusDuration = 4; % 4 second pulses
+    [Pulse400Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+    Pulse200Waveform = Pulse400Waveform / 2;
+    Pulse100Waveform = Pulse400Waveform / 4;
+elseif strcmp(protocolParams.protocol, 'Deuteranopes')
+    waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
+    waveformParams.stimulusDuration = 4; % 4 second pulses
+    [Pulse1200Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+    Pulse800Waveform = Pulse1200Waveform * (2/3);
+    Pulse400Waveform = Pulse1200Waveform * (1/3);
+end
 
 %% Make the modulation starts and stops
 
@@ -456,6 +570,22 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
     LightFlux200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
     LightFlux100PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
+end
+
+
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    Mel1200PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+    Mel800PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+    Mel400PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+    
+    LMS1200PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+    LMS800PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+    LMS400PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+    
+    LightFlux1200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+    LightFlux800PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+    LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+    
 end
 %% Define all modulations
 
@@ -525,6 +655,67 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     LightFlux100PulseModulationData.modulationParams.timeStep = pulseTimestep;
 end
 
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    
+    % Mel modulations
+    Mel1200PulseModulationData.modulationParams.direction = "Melanopsin 1200% contrast";
+    Mel1200PulseModulationData.modulation = Mel1200PulseModulation;
+    [Mel1200PulseModulationData.modulation.background.starts, Mel1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+    Mel1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    Mel800PulseModulationData.modulationParams.direction = "Melanopsin 800% contrast";
+    Mel800PulseModulationData.modulation = Mel800PulseModulation;
+    [Mel800PulseModulationData.modulation.background.starts, Mel800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+    Mel800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+    Mel400PulseModulationData.modulation = Mel400PulseModulation;
+    [Mel400PulseModulationData.modulation.background.starts, Mel400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+    Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % LMS modulations
+    LMS1200PulseModulationData.modulationParams.direction = "L+S 1200% contrast";
+    LMS1200PulseModulationData.modulation = LMS1200PulseModulation;
+    [LMS1200PulseModulationData.modulation.background.starts, LMS1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+    LMS1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LMS1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    LMS800PulseModulationData.modulationParams.direction = "L+S 800% contrast";
+    LMS800PulseModulationData.modulation = LMS800PulseModulation;
+    [LMS800PulseModulationData.modulation.background.starts, LMS800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+    LMS800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LMS800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    LMS400PulseModulationData.modulationParams.direction = "L+S 400% contrast";
+    LMS400PulseModulationData.modulation = LMS400PulseModulation;
+    [LMS400PulseModulationData.modulation.background.starts, LMS400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+    LMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    % LightFlux modulations
+    LightFlux1200PulseModulationData.modulationParams.direction = "LightFlux 1200% contrast";
+    LightFlux1200PulseModulationData.modulation = LightFlux1200PulseModulation;
+    [LightFlux1200PulseModulationData.modulation.background.starts, LightFlux1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+    LightFlux1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    LightFlux800PulseModulationData.modulationParams.direction = "LightFlux 800% contrast";
+    LightFlux800PulseModulationData.modulation = LightFlux800PulseModulation;
+    [LightFlux800PulseModulationData.modulation.background.starts, LightFlux800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+    LightFlux800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+    LightFlux400PulseModulationData.modulationParams.direction = "LightFlux 400% contrast";
+    LightFlux400PulseModulationData.modulation = LightFlux400PulseModulation;
+    [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+    LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+    LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    
+end
+
 % save modulations
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
 if ~exist(savePath,'dir')
@@ -551,6 +742,22 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
 end
 
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    
+    save(fullfile(savePath, 'Mel1200PulseModulationData.mat'), 'Mel200PulseModulationData');
+    save(fullfile(savePath, 'Mel800PulseModulationData.mat'), 'Mel800PulseModulationData');
+    save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
+    
+    save(fullfile(savePath, 'LMS1200PulseModulationData.mat'), 'LMS200PulseModulationData');
+    save(fullfile(savePath, 'LMS800PulseModulationData.mat'), 'LMS800PulseModulationData');
+    save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
+    
+    save(fullfile(savePath, 'LightFlux1200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
+    save(fullfile(savePath, 'LightFlux800PulseModulationData.mat'), 'LightFlux800PulseModulationData');
+    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+    
+end
+
 %% Package up the output
 if strcmp(protocolParams.protocol, 'SquintToPulse')
     
@@ -561,6 +768,13 @@ end
 
 if strcmp(protocolParams.protocol, 'Screening')
     modulationData = [LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+end
+
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+
+        modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
+        LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
+        LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];
 end
 
 %% Shutdown the LabJack object
