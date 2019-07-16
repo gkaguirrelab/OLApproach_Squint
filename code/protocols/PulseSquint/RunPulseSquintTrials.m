@@ -20,7 +20,7 @@ clear; close all;
 
 %% Set the parameter structure here
 
-[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND03', ...
+[ protocolParams ] = getDefaultParams('calibrationType', 'BoxALiquidShortCableDEyePiece1_ND02', ...
                                         'nTrials', 10, ...
                                         'protocol', 'SquintToPulse');
 
@@ -244,6 +244,7 @@ for aa = startingAcquisitionNumber:6
         % if you're not the base controlling the onelight, you don't need a
         % real trialList
         trialList = [];
+        
     end    
     
     ApproachEngine(ol,protocolParams, trialList, UDPobj, 'acquisitionNumber', aa, 'verbose',protocolParams.verbose);
