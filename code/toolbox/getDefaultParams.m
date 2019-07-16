@@ -48,6 +48,9 @@ if strcmp(p.Results.protocol, 'Screening')
 elseif strcmp(p.Results.protocol, 'SquintToPulse')
     protocolParams.protocol = 'SquintToPulse';
     protocolParams.protocolOutputName = 'StP';
+elseif strcmp(p.Results.protocol, 'Deuteranopes')
+    protocolParams.protocol = 'Deuteranopes';
+    protocolParams.protocolOutputName = 'Deuteranopes';
 end
 
 protocolParams.emailRecipient = 'jryan@mail.med.upenn.edu';
@@ -83,7 +86,7 @@ elseif strcmp(protocolParams.protocol, 'Screening')
     protocolParams.simulate.observer = false;
     protocolParams.simulate.operator = false;
     protocolParams.simulate.makePlots = true;
-elseif strcmp(protocolParams.protocol, 'SquintToPulse')
+elseif strcmp(protocolParams.protocol, 'SquintToPulse') ||  strcmp(protocolParams.protocol, 'Deuteranopes')
     % for the real experiment, we're not simulating anything
     protocolParams.simulate.oneLight = false;
     protocolParams.simulate.radiometer = false;
@@ -190,7 +193,7 @@ protocolParams.trialJitterRecordingDurationSec = 0.5;
 % for screenig we eliminate the verbal response window
 if strcmp(protocolParams.protocol, 'Screening')
     protocolParams.trialResponseWindowTimeSec = 0;
-elseif strcmp(protocolParams.protocol, 'SquintToPulse')
+elseif strcmp(protocolParams.protocol, 'SquintToPulse') ||  strcmp(protocolParams.protocol, 'Deuteranopes')
     protocolParams.trialResponseWindowTimeSec = 4;
 end
 
