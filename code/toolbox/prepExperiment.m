@@ -195,8 +195,8 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
     MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(12);
     
     % make rest of the nominal modulations
-    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    MaxMelDirection.describe.observerAge = observerAge;
+    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge', protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
     MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
     
@@ -220,8 +220,8 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
     % for the background
     MaxLMSParams.backgroundName = 'LMSDirectedForDeuteranopes_275_60_667';
     
-    [MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    MaxLMSDirection.describe.observerAge = observerAge;
+    [MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
     MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
     
@@ -245,8 +245,8 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
     % for the background
     LightFluxParams.backgroundName = 'LightFluxForDeuteranopes_275_60_667';
     
-    [LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    LightFluxDirection.describe.observerAge = observerAge;
+    [LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+    LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
     LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
     
@@ -747,15 +747,15 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     
-    save(fullfile(savePath, 'Mel1200PulseModulationData.mat'), 'Mel200PulseModulationData');
+    save(fullfile(savePath, 'Mel1200PulseModulationData.mat'), 'Mel1200PulseModulationData');
     save(fullfile(savePath, 'Mel800PulseModulationData.mat'), 'Mel800PulseModulationData');
     save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
     
-    save(fullfile(savePath, 'LMS1200PulseModulationData.mat'), 'LMS200PulseModulationData');
+    save(fullfile(savePath, 'LMS1200PulseModulationData.mat'), 'LMS1200PulseModulationData');
     save(fullfile(savePath, 'LMS800PulseModulationData.mat'), 'LMS800PulseModulationData');
     save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
     
-    save(fullfile(savePath, 'LightFlux1200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
+    save(fullfile(savePath, 'LightFlux1200PulseModulationData.mat'), 'LightFlux1200PulseModulationData');
     save(fullfile(savePath, 'LightFlux800PulseModulationData.mat'), 'LightFlux800PulseModulationData');
     save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
     
