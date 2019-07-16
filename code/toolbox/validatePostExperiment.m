@@ -23,19 +23,19 @@ function validatePostExperiment(protocolParams, ol, radiometer)
 savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
 
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     load(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
     load(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     load(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
     load(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     load(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
     load(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
@@ -115,19 +115,19 @@ if ~exist(savePath,'dir')
     mkdir(savePath);
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'MaxMelDirection.mat'), 'MaxMelDirection');
     save(fullfile(savePath, 'MaxMelBackground.mat'), 'MaxMelBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'MaxLMSDirection.mat'), 'MaxLMSDirection');
     save(fullfile(savePath, 'MaxLMSBackground.mat'), 'MaxLMSBackground');
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     save(fullfile(savePath, 'LightFluxBackground.mat'), 'LightFluxBackground');
     save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
