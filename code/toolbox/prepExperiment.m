@@ -167,7 +167,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     %     LightFluxParams.search.maxSearchIter = 3000;
     %     LightFluxParams.search.verbose = false;
     
-    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
+    [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
     LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
     LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;

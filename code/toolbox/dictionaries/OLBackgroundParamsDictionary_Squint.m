@@ -240,7 +240,7 @@ params.pupilDiameterMm = 6;
 params.photoreceptorClasses = {'LConeTabulatedAbsorbance','MConeTabulatedAbsorbance','SConeTabulatedAbsorbance','Melanopsin'};
 
 % These are the options that go to OLPrimaryInvSolveChrom
-params.desiredxy = [0.59,0.37];
+params.desiredxy = [0.6,0.4];
 params.desiredLum = 220;
 params.whichXYZ = 'xyzCIEPhys10';
 params.targetContrast = [params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast params.baseModulationContrast];
