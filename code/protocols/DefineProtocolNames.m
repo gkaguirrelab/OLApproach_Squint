@@ -8,7 +8,8 @@ function theProtocols = DefineProtocolNames()
 %% Define protocols for this approach
 theProtocols = { ...
     'SquintToPulse' ...
-    'Screening'
+    'Screening', ...
+    'Deuteranopes'
     };
 
 end
