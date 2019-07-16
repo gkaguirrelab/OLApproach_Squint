@@ -371,9 +371,10 @@ if ~(protocolParams.simulate.radiometer)
             MaxMelPostValidation = summarizeValidation(MaxMelDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
             fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
-            fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(1,1)*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(3,1)*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(4,1)*100);
+            melanopsinValidation = summarizeValidation(MaxMelDirection, 'plot', 'off');
+            fprintf('\tL Cone Contrast: %4.2f %%\n', median(melanopsinValidation.LConeContrast(6:10))*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(melanopsinValidation.SConeContrast(6:10))*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(melanopsinValidation.MelanopsinContrast(6:10))*100);
         end
         %end
         
@@ -409,9 +410,10 @@ if ~(protocolParams.simulate.radiometer)
             MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
             fprintf('\n<strong>For L+S stimuli:</strong>\n');
-            fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(1,1)*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(3,1)*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxLMSDirection.describe.validation.contrastActual(4,1)*100);
+            LMSValidation = summarizeValidation(MaxLMSDirection, 'plot', 'off');
+            fprintf('\tL Cone Contrast: %4.2f %%\n', median(LMSValidation.LConeContrast(6:10))*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(LMSValidation.SConeContrast(6:10))*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(LMSValidation.MelanopsinContrast(6:10))*100);
         end
         
         %end
@@ -447,9 +449,10 @@ if ~(protocolParams.simulate.radiometer)
             LightFluxPostValidation = summarizeValidation(LightFluxDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
             fprintf('\n<strong>For LightFlux stimuli:</strong>\n');
-            fprintf('\tL Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(1,1)*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(3,1)*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  LightFluxDirection.describe.validation.contrastActual(4,1)*100);
+            lightFluxValidation = summarizeValidation(LightFluxDirection, 'plot', 'off');
+            fprintf('\tL Cone Contrast: %4.2f %%\n', median(lightFluxValidation.LConeContrast(6:10))*100);
+            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(lightFluxValidation.SConeContrast(6:10))*100);
+            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(lightFluxValidation.MelanopsinContrast(6:10))*100);
         end
         
         %end
