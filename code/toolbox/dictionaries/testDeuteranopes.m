@@ -39,6 +39,27 @@ fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.co
 fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(3,1)*100);
 fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(4,1)*100);
 
+understandLConeAllelicVariation = true;
+
+if understandLConeAllelicVariation
+    S = [380 2 201];
+    photoreceptorClasses = {'LConeTabulatedAbsorbance'    'MConeTabulatedAbsorbance'    'SConeTabulatedAbsorbance'    'Melanopsin'};
+    fractionBleached = [0 0 0 0];
+    
+    lambdaMaxShift = [4 0 0 0]; % From Kraft et al, 
+    shiftedT_receptors = GetHumanPhotoreceptorSS(S,photoreceptorClasses,MaxMelParams.fieldSizeDegrees,observerAge,MaxMelParams.pupilDiameterMm,lambdaMaxShift,fractionBleached);
+
+    
+    OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', shiftedT_receptors, 'label', 'precorrection');
+
+% report on the validation
+fprintf('\n<strong>For shifted L-cone, melanopsin stimuli:</strong>\n');
+fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(1,1)*100);
+fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(3,1)*100);
+fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(4,1)*100);
+end
+    
+
 %% LMS directed stimulus
 % start with base LMS prams
 MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
