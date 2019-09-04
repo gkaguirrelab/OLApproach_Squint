@@ -3,6 +3,17 @@ clear all
 %% Get calibration, observerAge
 calibration = OLGetCalibrationStructure;
 observerAge = GetWithDefault('Observer age',32);
+protocolParams.whichLCone = GetWithDefault('>> Enter which L cone variant:', 'left/right');
+
+if strcmp(protocolParams.whichLCone, 'left')
+    lambdaMaxShift = [-2 0 0 0];
+elseif strcmp(protocolParams.whichLCone, 'right')
+    lambdaMaxShift = [2 0 0 0];
+else strcmp(protocolParams.whichLCone, 'default')
+    lambdaMaxShift = [0 0 0 0];
+end
+
+targetContrast = 12;
 
 %% Melanopsin directed stimulus
 % start with base melanopsin params
@@ -20,11 +31,11 @@ MaxMelParams.backgroundName = 'MelanopsinDirectedForDeuteranopes_275_60_667';
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-MaxMelParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+MaxMelParams.baseModulationContrast = OLUnipolarToBipolarContrast(targetContrast);
+MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(targetContrast);
 
 % make rest of the nominal modulations
-[ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+[ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint', 'lambdaMaxShift', lambdaMaxShift);
 MaxMelDirection.describe.observerAge = observerAge;
 MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
 MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
@@ -39,27 +50,6 @@ fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.co
 fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(3,1)*100);
 fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation.contrastActual(4,1)*100);
 
-understandLConeAllelicVariation = true;
-
-if understandLConeAllelicVariation
-    S = [380 2 201];
-    photoreceptorClasses = {'LConeTabulatedAbsorbance'    'MConeTabulatedAbsorbance'    'SConeTabulatedAbsorbance'    'Melanopsin'};
-    fractionBleached = [0 0 0 0];
-    
-    lambdaMaxShift = [4 0 0 0]; % From Kraft et al, 
-    shiftedT_receptors = GetHumanPhotoreceptorSS(S,photoreceptorClasses,MaxMelParams.fieldSizeDegrees,observerAge,MaxMelParams.pupilDiameterMm,lambdaMaxShift,fractionBleached);
-
-    
-    OLValidateDirection(MaxMelDirection, MaxMelBackground, OneLight('simulate',true,'plotWhenSimulating',false), [], 'receptors', shiftedT_receptors, 'label', 'precorrection');
-
-% report on the validation
-fprintf('\n<strong>For shifted L-cone, melanopsin stimuli:</strong>\n');
-fprintf('\tL Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(1,1)*100);
-fprintf('\tS Cone Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(3,1)*100);
-fprintf('\tMelanopsin Contrast: %4.2f %%\n',  MaxMelDirection.describe.validation(2).contrastActual(4,1)*100);
-end
-    
-
 %% LMS directed stimulus
 % start with base LMS prams
 MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
@@ -69,8 +59,8 @@ MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternat
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-MaxLMSParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-MaxLMSParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+MaxLMSParams.baseModulationContrast = OLUnipolarToBipolarContrast(targetContrast);
+MaxLMSParams.modulationContrast = OLUnipolarToBipolarContrast(targetContrast);
 
 % adjust to say ignore the M cone
 % for the direction
@@ -80,7 +70,7 @@ MaxLMSParams.whichReceptorsToIgnore = [2];
 % for the background
 MaxLMSParams.backgroundName = 'LMSDirectedForDeuteranopes_275_60_667';
 
-[MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+[MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint', 'lambdaMaxShift', lambdaMaxShift);
 MaxLMSDirection.describe.observerAge = observerAge;
 MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
 MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
@@ -102,8 +92,8 @@ LightFluxParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alter
 % unipolar modulations. we won't get there, but we'll aim for it.
 % I will note that I'm not sure what the difference between these two
 % fields are supposed to represent
-LightFluxParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-LightFluxParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+LightFluxParams.baseModulationContrast = OLUnipolarToBipolarContrast(targetContrast);
+LightFluxParams.modulationContrast = OLUnipolarToBipolarContrast(targetContrast);
 
 % adjust to say ignore the M cone
 % for the direction
@@ -113,7 +103,7 @@ LightFluxParams.whichReceptorsToIgnore = [2];
 % for the background
 LightFluxParams.backgroundName = 'LightFluxForDeuteranopes_275_60_667';
 
-[LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
+[LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',observerAge, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint', 'lambdaMaxShift', lambdaMaxShift);
 LightFluxDirection.describe.observerAge = observerAge;
 LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
 LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
