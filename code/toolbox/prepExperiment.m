@@ -78,6 +78,10 @@ else
     protocolParams.sessionName = p.Results.sessionName;
 end
 
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    protocolParams.whichLCone = GetWithDefault('>> Enter which L cone variant:', 'left/right');
+end
+
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
 
 %% Prep to save
@@ -175,81 +179,209 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     
-    % Melanopsin directed stimulus
-    % start with base melanopsin params
-    MaxMelParams = OLDirectionParamsFromName('MaxMel_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+    targetContrast = 12;
     
-    % adjust to say ignore the M cone
-    % for the direction
-    MaxMelParams.whichReceptorsToIgnore = [2];
-    % for the background. accomplish this by using special background that's
-    % already defined to have M cone ignored
-    MaxMelParams.backgroundName = 'MelanopsinDirectedForDeuteranopes_275_60_667';
     
-    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
-    % specified in bipolar contrast, which equates to 1800% contrast for
-    % unipolar modulations. we won't get there, but we'll aim for it.
-    % I will note that I'm not sure what the difference between these two
-    % fields are supposed to represent
-    MaxMelParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-    MaxMelParams.modulationContrast = OLUnipolarToBipolarContrast(12);
+    photoreceptorClasses = {'LConeTabulatedAbsorbance',...
+        'SConeTabulatedAbsorbance',...
+        'Melanopsin'};
     
-    % make rest of the nominal modulations
-    [ MaxMelDirection, MaxMelBackground ] = OLDirectionNominalFromParams(MaxMelParams, calibration, 'observerAge', protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    MaxMelDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    MaxMelDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
+    % It also takes a parameter lambdaMaxShift: a vector with, in nm, how to
+    % shift each receptor lambda max from the base fundamental:
+    
+    if strcmp(protocolParams.whichLCone, 'left')
+        lambdaMaxShift = [-2 0 0];
+    elseif strcmp(protocolParams.whichLCone, 'right')
+        lambdaMaxShift = [2 0 0];
+    else strcmp(protocolParams.whichLCone, 'default')
+        lambdaMaxShift = [0 0 0];
+    end
+    
+    
+    % And some additional params:
+    fieldSize = 27.5; % degree visual angle
+    pupilDiameter = 6; % mm
+    %observerAge = 32;
+    headroom = 0;
+    
+    % GetHumanPhotoreceptorSS is being a pain, and won't create the whole set
+    % correctly. We'll create them one  at a time to circumvent this:
+    for i = 1:length(photoreceptorClasses)
+        T_receptors(i,:) = GetHumanPhotoreceptorSS(S,...
+            photoreceptorClasses(i),...
+            fieldSize,...
+            observerAge,...
+            pupilDiameter,...
+            lambdaMaxShift(i));
+    end
+    
+    
+    %% Create melanopsin stimuli
+    % Convert to logical
+    
+    
+    % Convert to indices that SST expects
+    whichReceptorsToIsolate = {[3]};
+    whichReceptorsToIgnore = {[]};
+    whichReceptorsToMinimize = {[]};
+    
+    
+    % Create optimized background
+    % Get empty background params object
+    backgroundParams = OLBackgroundParams_Optimized;
+    
+    % Fill in params
+    backgroundParams.backgroundObserverAge = observerAge;
+    backgroundParams.pupilDiameterMm = pupilDiameter;
+    backgroundParams.fieldSizeDegrees = fieldSize;
+    backgroundParams.photoreceptorClasses = photoreceptorClasses;
+    backgroundParams.T_receptors = T_receptors;
+    
+    % Define isolation params
+    backgroundParams.whichReceptorsToIgnore = whichReceptorsToIgnore;
+    backgroundParams.whichReceptorsToIsolate = whichReceptorsToIsolate;
+    backgroundParams.whichReceptorsToMinimize = whichReceptorsToMinimize;
+    backgroundParams.modulationContrast = OLUnipolarToBipolarContrast(targetContrast);
+    backgroundParams.primaryHeadRoom = headroom;
+    
+    % Make background
+    background = OLBackgroundNominalFromParams(backgroundParams, calibration);
+    
+    % Set unipolar direction params
+    % Get empty direction params object
+    directionParams = OLDirectionParams_Unipolar;
+    
+    % Fill in params
+    directionParams.pupilDiameterMm = pupilDiameter;
+    directionParams.fieldSizeDegrees = fieldSize;
+    directionParams.photoreceptorClasses = photoreceptorClasses;
+    directionParams.T_receptors = T_receptors;
+    
+    % Define isolation params
+    directionParams.whichReceptorsToIgnore = [whichReceptorsToIgnore{:}];
+    directionParams.whichReceptorsToIsolate = [whichReceptorsToIsolate{:}];
+    directionParams.whichReceptorsToMinimize = [whichReceptorsToMinimize{:}];
+    directionParams.modulationContrast = OLUnipolarToBipolarContrast(targetContrast);
+    directionParams.primaryHeadRoom = headroom;
+    
+    % Set background
+    directionParams.background = background;
+    
+    % Make direction, unipolar background
+    [MaxMelDirection, MaxMelBackground] = OLDirectionNominalFromParams(directionParams, calibration);
     MaxMelDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
     
-    % LMS directed stimulus
-    % start with base LMS prams
-    MaxLMSParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
+    %% Create L-S stimuli
+    % Convert to logical
+    % Convert to indices that SST expects
+    whichReceptorsToIsolate = {[1 2]};
+    whichReceptorsToIgnore = {[]};
+    whichReceptorsToMinimize = {[]};
     
-    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
-    % specified in bipolar contrast, which equates to 1800% contrast for
-    % unipolar modulations. we won't get there, but we'll aim for it.
-    % I will note that I'm not sure what the difference between these two
-    % fields are supposed to represent
-    MaxLMSParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-    MaxLMSParams.modulationContrast = OLUnipolarToBipolarContrast(12);
     
-    % adjust to say ignore the M cone
-    % for the direction
-    MaxLMSParams.modulationContrast = [MaxLMSParams.baseModulationContrast MaxLMSParams.baseModulationContrast];
-    MaxLMSParams.whichReceptorsToIsolate = [1 3];
-    MaxLMSParams.whichReceptorsToIgnore = [2];
-    % for the background
-    MaxLMSParams.backgroundName = 'LMSDirectedForDeuteranopes_275_60_667';
+    % Create optimized background
+    % Get empty background params object
+    backgroundParams = OLBackgroundParams_Optimized;
     
-    [MaxLMSDirection, MaxLMSBackground ] = OLDirectionNominalFromParams(MaxLMSParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    MaxLMSDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    MaxLMSDirection.describe.photoreceptorClasses = MaxLMSDirection.describe.directionParams.photoreceptorClasses;
+    % Fill in params
+    backgroundParams.backgroundObserverAge = observerAge;
+    backgroundParams.pupilDiameterMm = pupilDiameter;
+    backgroundParams.fieldSizeDegrees = fieldSize;
+    backgroundParams.photoreceptorClasses = photoreceptorClasses;
+    backgroundParams.T_receptors = T_receptors;
+    backgroundParams.directionsYoked = 1;
+    
+    % Define isolation params
+    backgroundParams.whichReceptorsToIgnore = whichReceptorsToIgnore;
+    backgroundParams.whichReceptorsToIsolate = whichReceptorsToIsolate;
+    backgroundParams.whichReceptorsToMinimize = whichReceptorsToMinimize;
+    backgroundParams.modulationContrast = {repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))};
+    backgroundParams.primaryHeadRoom = headroom;
+    
+    % Make background
+    background = OLBackgroundNominalFromParams(backgroundParams, calibration);
+    
+    % Set unipolar direction params
+    % Get empty direction params object
+    directionParams = OLDirectionParams_Unipolar;
+    
+    % Fill in params
+    directionParams.pupilDiameterMm = pupilDiameter;
+    directionParams.fieldSizeDegrees = fieldSize;
+    directionParams.photoreceptorClasses = photoreceptorClasses;
+    directionParams.T_receptors = T_receptors;
+    directionParams.directionsYoked = 1;
+    
+    % Define isolation params
+    directionParams.whichReceptorsToIgnore = [whichReceptorsToIgnore{:}];
+    directionParams.whichReceptorsToIsolate = [whichReceptorsToIsolate{:}];
+    directionParams.whichReceptorsToMinimize = [whichReceptorsToMinimize{:}];
+    directionParams.modulationContrast = [repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))];
+    directionParams.primaryHeadRoom = headroom;
+    
+    % Set background
+    directionParams.background = background;
+    
+    % Make direction, unipolar background
+    [MaxLMSDirection, MaxLMSBackground] = OLDirectionNominalFromParams(directionParams, calibration);
     MaxLMSDirection.describe.T_receptors = MaxLMSDirection.describe.directionParams.T_receptors;
     
-    % LightFlux directed stimulus
-    % start with base LMS prams
-    LightFluxParams = OLDirectionParamsFromName('MaxLMS_unipolar_275_60_667', 'alternateDictionaryFunc', 'OLDirectionParamsDictionary_Squint');
     
-    % aim for a higher contrast. I have plugged in here a max contrast of 0.9
-    % specified in bipolar contrast, which equates to 1800% contrast for
-    % unipolar modulations. we won't get there, but we'll aim for it.
-    % I will note that I'm not sure what the difference between these two
-    % fields are supposed to represent
-    LightFluxParams.baseModulationContrast = OLUnipolarToBipolarContrast(12);
-    LightFluxParams.modulationContrast = OLUnipolarToBipolarContrast(12);
     
-    % adjust to say ignore the M cone
-    % for the direction
-    LightFluxParams.modulationContrast = [LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast LightFluxParams.baseModulationContrast];
-    LightFluxParams.whichReceptorsToIsolate = [1 3 4];
-    LightFluxParams.whichReceptorsToIgnore = [2];
-    % for the background
-    LightFluxParams.backgroundName = 'LightFluxForDeuteranopes_275_60_667';
+    %% Create light flux stimuli
+    % Convert to logical
+    % Convert to indices that SST expects
+    whichReceptorsToIsolate = {[1 2 3]};
+    whichReceptorsToIgnore = {[]};
+    whichReceptorsToMinimize = {[]};
     
-    [LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint');
-    LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
+    
+    % Create optimized background
+    % Get empty background params object
+    backgroundParams = OLBackgroundParams_Optimized;
+    
+    % Fill in params
+    backgroundParams.backgroundObserverAge = observerAge;
+    backgroundParams.pupilDiameterMm = pupilDiameter;
+    backgroundParams.fieldSizeDegrees = fieldSize;
+    backgroundParams.photoreceptorClasses = photoreceptorClasses;
+    backgroundParams.T_receptors = T_receptors;
+    backgroundParams.directionsYoked = 1;
+    
+    % Define isolation params
+    backgroundParams.whichReceptorsToIgnore = whichReceptorsToIgnore;
+    backgroundParams.whichReceptorsToIsolate = whichReceptorsToIsolate;
+    backgroundParams.whichReceptorsToMinimize = whichReceptorsToMinimize;
+    backgroundParams.modulationContrast = {repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))};
+    backgroundParams.primaryHeadRoom = headroom;
+    
+    % Make background
+    background = OLBackgroundNominalFromParams(backgroundParams, calibration);
+    
+    % Set unipolar direction params
+    % Get empty direction params object
+    directionParams = OLDirectionParams_Unipolar;
+    
+    % Fill in params
+    directionParams.pupilDiameterMm = pupilDiameter;
+    directionParams.fieldSizeDegrees = fieldSize;
+    directionParams.photoreceptorClasses = photoreceptorClasses;
+    directionParams.T_receptors = T_receptors;
+    directionParams.directionsYoked = 1;
+    
+    % Define isolation params
+    directionParams.whichReceptorsToIgnore = [whichReceptorsToIgnore{:}];
+    directionParams.whichReceptorsToIsolate = [whichReceptorsToIsolate{:}];
+    directionParams.whichReceptorsToMinimize = [whichReceptorsToMinimize{:}];
+    directionParams.modulationContrast = [repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))];
+    directionParams.primaryHeadRoom = headroom;
+    
+    % Set background
+    directionParams.background = background;
+    
+    % Make direction, unipolar background
+    [LightFluxDirection,LightFluxBackground] = OLDirectionNominalFromParams(directionParams, calibration);
     LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
-    
     
 end
 
@@ -309,7 +441,7 @@ for ii = 1:protocolParams.nValidationsPerDirection
         save(fullfile(savePath, 'LightFluxDirection.mat'), 'LightFluxDirection');
     end
     
-
+    
 end
 
 %% Check if these nominal spectra meet exclusion criteria
@@ -774,8 +906,8 @@ if strcmp(protocolParams.protocol, 'Screening')
 end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
-
-        modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
+    
+    modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
         LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
         LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];
 end
