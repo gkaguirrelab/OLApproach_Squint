@@ -124,6 +124,7 @@ backgroundParams.pupilDiameterMm = pupilDiameter;
 backgroundParams.fieldSizeDegrees = fieldSize;
 backgroundParams.photoreceptorClasses = photoreceptorClasses;
 backgroundParams.T_receptors = T_receptors;
+backgroundParams.directionsYoked = 1;
 
 % Define isolation params
 backgroundParams.whichReceptorsToIgnore = whichReceptorsToIgnore;
@@ -144,6 +145,7 @@ directionParams.pupilDiameterMm = pupilDiameter;
 directionParams.fieldSizeDegrees = fieldSize;
 directionParams.photoreceptorClasses = photoreceptorClasses;
 directionParams.T_receptors = T_receptors;
+directionParams.directionsYoked = 1;
 
 % Define isolation params
 directionParams.whichReceptorsToIgnore = [whichReceptorsToIgnore{:}];
@@ -160,4 +162,62 @@ directionParams.background = background;
 fprintf('Contrasts for cone-directed stimuli:\n')
 
 MaxLMSDirection.ToDesiredReceptorContrast(MaxLMSBackground, T_receptors)
+
+
+%% Create light flux stimuli
+% Convert to logical
+% Convert to indices that SST expects
+whichReceptorsToIsolate = {[1 2 3]};
+whichReceptorsToIgnore = {[]};
+whichReceptorsToMinimize = {[]};
+
+
+% Create optimized background
+% Get empty background params object
+backgroundParams = OLBackgroundParams_Optimized;
+
+% Fill in params
+backgroundParams.backgroundObserverAge = observerAge;
+backgroundParams.pupilDiameterMm = pupilDiameter;
+backgroundParams.fieldSizeDegrees = fieldSize;
+backgroundParams.photoreceptorClasses = photoreceptorClasses;
+backgroundParams.T_receptors = T_receptors;
+backgroundParams.directionsYoked = 1;
+
+% Define isolation params
+backgroundParams.whichReceptorsToIgnore = whichReceptorsToIgnore;
+backgroundParams.whichReceptorsToIsolate = whichReceptorsToIsolate;
+backgroundParams.whichReceptorsToMinimize = whichReceptorsToMinimize;
+backgroundParams.modulationContrast = {repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))};
+backgroundParams.primaryHeadRoom = headroom;
+
+% Make background
+background = OLBackgroundNominalFromParams(backgroundParams, calibration);
+
+% Set unipolar direction params
+% Get empty direction params object
+directionParams = OLDirectionParams_Unipolar;
+
+% Fill in params
+directionParams.pupilDiameterMm = pupilDiameter;
+directionParams.fieldSizeDegrees = fieldSize;
+directionParams.photoreceptorClasses = photoreceptorClasses;
+directionParams.T_receptors = T_receptors;
+directionParams.directionsYoked = 1;
+
+% Define isolation params
+directionParams.whichReceptorsToIgnore = [whichReceptorsToIgnore{:}];
+directionParams.whichReceptorsToIsolate = [whichReceptorsToIsolate{:}];
+directionParams.whichReceptorsToMinimize = [whichReceptorsToMinimize{:}];
+directionParams.modulationContrast = [repmat(OLUnipolarToBipolarContrast(targetContrast), 1, length(whichReceptorsToIsolate{:}))];
+directionParams.primaryHeadRoom = headroom;
+
+% Set background
+directionParams.background = background;
+
+% Make direction, unipolar background
+[LightFluxDirection,LightFluxBackground] = OLDirectionNominalFromParams(directionParams, calibration);
+fprintf('Contrasts for light flux stimuli:\n')
+
+LightFluxDirection.ToDesiredReceptorContrast(LightFluxBackground, T_receptors)
 
