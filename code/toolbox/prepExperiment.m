@@ -186,6 +186,8 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
         'SConeTabulatedAbsorbance',...
         'Melanopsin'};
     
+    S = calibration.describe.S;
+
     % It also takes a parameter lambdaMaxShift: a vector with, in nm, how to
     % shift each receptor lambda max from the base fundamental:
     
@@ -201,7 +203,7 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
     % And some additional params:
     fieldSize = 27.5; % degree visual angle
     pupilDiameter = 6; % mm
-    %observerAge = 32;
+    observerAge = protocolParams.observerAgeInYrs;
     headroom = 0;
     
     % GetHumanPhotoreceptorSS is being a pain, and won't create the whole set
