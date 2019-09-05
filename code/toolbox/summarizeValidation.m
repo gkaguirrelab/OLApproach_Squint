@@ -65,6 +65,7 @@ end
     
 for vv = validationIndices
     
+    if length(DirectionObject.describe.directionParams.photoreceptorClasses) == 4
     validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
     validation.MConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(2,1);
     validation.SConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(3,1);
@@ -73,7 +74,11 @@ for vv = validationIndices
     validation.LMSContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(1,1);
     validation.LMinusMContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(2,1);
     validation.SMinusLMContrast(counter) = DirectionObject.describe.validation(vv).postreceptoralContrastActual(3,1);
-    
+    else
+        validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
+        validation.SConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(2,1);
+        validation.MelanopsinContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(3,1);
+    end
     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
     
     validation.backgroundLuminance(counter) = DirectionObject.describe.validation(vv).luminanceActual(1);
