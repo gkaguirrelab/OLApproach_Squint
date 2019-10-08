@@ -80,12 +80,19 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     protocolParams.whichLCone = GetWithDefault('>> Enter which L cone variant:', 'left/right');
+    protocolParams.experimentName = GetWithDefault('>> Enter experiment number:', 'experiment_1');
+
 end
 
 protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
 
 %% Prep to save
-savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, protocolParams.experimentName, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+else
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'DirectionObjects', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+end
+
 if ~exist(savePath,'dir')
     mkdir(savePath);
 end
@@ -178,10 +185,8 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
 end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
-    
-    targetContrast = 12;
-    
-    
+   
+    % set up photoreceptors
     photoreceptorClasses = {'LConeTabulatedAbsorbance',...
         'SConeTabulatedAbsorbance',...
         'Melanopsin'};
@@ -216,6 +221,17 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
             pupilDiameter,...
             lambdaMaxShift(i));
     end
+    
+    % specify target contrasts
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        targetContrast = 4;
+        
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        targetContrast = 12;
+    end
+    
+    
+    
     
     
     %% Create melanopsin stimuli
@@ -504,11 +520,30 @@ if ~(protocolParams.simulate.radiometer)
             MaxMelPassStatus = applyValidationExclusionCriteria(MaxMelPostValidation, MaxMelDirection);
             MaxMelPostValidation = summarizeValidation(MaxMelDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
-            fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
+            melanopsinFailStatus = 0;
+            fprintf('\nFor melanopsin stimuli:\n');
             melanopsinValidation = summarizeValidation(MaxMelDirection, 'plot', 'off');
-            fprintf('\tL Cone Contrast: %4.2f %%\n', median(melanopsinValidation.LConeContrast(6:10))*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(melanopsinValidation.SConeContrast(6:10))*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(melanopsinValidation.MelanopsinContrast(6:10))*100);
+            if  median(melanopsinValidation.LConeContrast(6:10))*100 > 20
+                melanopsinFailStatus = 1;
+                fprintf('\t<strong>L Cone Contrast: %4.2f %%</strong>\n', median(melanopsinValidation.LConeContrast(6:10))*100);
+            else
+                fprintf('\tL Cone Contrast: %4.2f %%\n', median(melanopsinValidation.LConeContrast(6:10))*100);
+            end
+            
+            if median(melanopsinValidation.SConeContrast(6:10))*100 > 20
+                 melanopsinFailStatus = 1;
+                fprintf('\t<strong>S Cone Contrast: %4.2f %%</strong>\n',  median(melanopsinValidation.SConeContrast(6:10))*100);
+            else
+                fprintf('\tS Cone Contrast: %4.2f %%\n',  median(melanopsinValidation.SConeContrast(6:10))*100);
+            end
+            
+            if median(melanopsinValidation.MelanopsinContrast(6:10))*100 < .875*targetContrast*100
+                melanopsinFailStatus = 1;
+                fprintf('\t<strong>Melanopsin Contrast: %4.2f %%</strong>\n',  median(melanopsinValidation.MelanopsinContrast(6:10))*100);
+                
+            else
+                fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(melanopsinValidation.MelanopsinContrast(6:10))*100);
+            end
         end
         %end
         
@@ -543,11 +578,31 @@ if ~(protocolParams.simulate.radiometer)
             MaxLMSPassStatus = applyValidationExclusionCriteria(MaxLMSPostValidation, MaxLMSDirection);
             MaxLMSPostValidation = summarizeValidation(MaxLMSDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
-            fprintf('\n<strong>For L+S stimuli:</strong>\n');
+            LMSFailStatus = 0;
+            fprintf('\nFor L+S stimuli:\n');
             LMSValidation = summarizeValidation(MaxLMSDirection, 'plot', 'off');
-            fprintf('\tL Cone Contrast: %4.2f %%\n', median(LMSValidation.LConeContrast(6:10))*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(LMSValidation.SConeContrast(6:10))*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(LMSValidation.MelanopsinContrast(6:10))*100);
+            if median(LMSValidation.LConeContrast(6:10))*100 < .875 * targetContrast * 100
+                LMSFailStatus = 1;
+                fprintf('\t<strong>L Cone Contrast: %4.2f %%</strong>\n', median(LMSValidation.LConeContrast(6:10))*100);
+            else
+                fprintf('\tL Cone Contrast: %4.2f %%\n', median(LMSValidation.LConeContrast(6:10))*100);
+            end
+            
+            if median(LMSValidation.SConeContrast(6:10))*100 < .875 * targetContrast * 100
+                LMSFailStatus = 1;
+                fprintf('\t<strong>S Cone Contrast: %4.2f %%</strong>\n',  median(LMSValidation.SConeContrast(6:10))*100);
+                
+            else
+                fprintf('\tS Cone Contrast: %4.2f %%\n',  median(LMSValidation.SConeContrast(6:10))*100);
+                
+            end
+            
+            if median(LMSValidation.MelanopsinContrast(6:10))*100 > 20
+                LMSFailStatus = 1;
+                fprintf('\t<strong>Melanopsin Contrast: %4.2f %%</strong>\n',  median(LMSValidation.MelanopsinContrast(6:10))*100);
+            else
+                fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(LMSValidation.MelanopsinContrast(6:10))*100);
+            end
         end
         
         %end
@@ -582,11 +637,33 @@ if ~(protocolParams.simulate.radiometer)
             LightFluxPassStatus = applyValidationExclusionCriteria(LightFluxPostValidationJustPost, LightFluxDirection);
             LightFluxPostValidation = summarizeValidation(LightFluxDirection);
         elseif strcmp(protocolParams.protocol, 'Deuteranopes')
-            fprintf('\n<strong>For LightFlux stimuli:</strong>\n');
+            lightFluxFailStatus = 0;
+            fprintf('\nFor LightFlux stimuli:\n');
             lightFluxValidation = summarizeValidation(LightFluxDirection, 'plot', 'off');
-            fprintf('\tL Cone Contrast: %4.2f %%\n', median(lightFluxValidation.LConeContrast(6:10))*100);
-            fprintf('\tS Cone Contrast: %4.2f %%\n',  median(lightFluxValidation.SConeContrast(6:10))*100);
-            fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(lightFluxValidation.MelanopsinContrast(6:10))*100);
+            
+            if  median(lightFluxValidation.LConeContrast(6:10))*100 < .875 * targetContrast * 100
+                lightFluxFailStatus = 1;
+                fprintf('\t<strong>L Cone Contrast: %4.2f %%</strong>\n', median(lightFluxValidation.LConeContrast(6:10))*100);
+                
+            else
+                fprintf('\tL Cone Contrast: %4.2f %%\n', median(lightFluxValidation.LConeContrast(6:10))*100);
+            end
+            
+            if median(lightFluxValidation.SConeContrast(6:10))*100 < .875 * targetContrast * 100
+                lightFluxFailStatus = 1;
+                fprintf('\t<strong>S Cone Contrast: %4.2f %%</strong>\n',  median(lightFluxValidation.SConeContrast(6:10))*100);
+                
+            else
+                fprintf('\tS Cone Contrast: %4.2f %%\n',  median(lightFluxValidation.SConeContrast(6:10))*100);
+            end
+            
+            if median(lightFluxValidation.MelanopsinContrast(6:10))*100 < .875 * targetContrast * 100
+                lightFluxFailStatus = 1;
+                fprintf('\t<strong>Melanopsin Contrast: %4.2f %%</strong>\n',  median(lightFluxValidation.MelanopsinContrast(6:10))*100);
+                
+            else
+                fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(lightFluxValidation.MelanopsinContrast(6:10))*100);
+            end
         end
         
         %end
@@ -648,6 +725,33 @@ end
 
 % NEED SOMETHING FOR DEUTERANOPES HERE. MAINLY JUST A REMINDER TO FIGURE
 % OUT SPLATTER FOR DEUTS
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    if melanopsinFailStatus == 0
+        fprintf('Melanopsin modulations are good\n');
+    else
+        fprintf('<strong Melanopsin modulations are poor</strong>\n');
+    end
+    
+    if LMSFailStatus == 0
+        fprintf('LMS modulations are good\n');
+    else
+        fprintf('<strong LMS modulations are poor</strong>\n');
+    end
+    
+    if lightFluxFailStatus == 0
+        fprintf('LightFlux modulations are good\n');
+    else
+        fprintf('<strong LightFlux modulations are poor</strong>\n');
+    end
+    
+    if melanopsinFailStatus == 0 && LMSFailStatus == 0 && LightFluxFailStatus == 0
+        fprintf('***We have good modulations and are ready for the experiment***\n');
+        
+    else
+        fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');
+        
+    end
+end
 
 
 %% save directions and backgrounds
@@ -682,9 +786,16 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
 elseif strcmp(protocolParams.protocol, 'Deuteranopes')
     waveformParams = OLWaveformParamsFromName('MaxContrastPulse'); % get generic pulse parameters
     waveformParams.stimulusDuration = 4; % 4 second pulses
-    [Pulse1200Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
-    Pulse800Waveform = Pulse1200Waveform * (2/3);
-    Pulse400Waveform = Pulse1200Waveform * (1/3);
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        [Pulse400Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+        Pulse200Waveform = Pulse400Waveform / 2;
+        Pulse100Waveform = Pulse400Waveform / 4;
+        
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        [Pulse1200Waveform, pulseTimestep] = OLWaveformFromParams(waveformParams); % 4 second pulse waveform max contrast
+        Pulse800Waveform = Pulse1200Waveform * (2/3);
+        Pulse400Waveform = Pulse1200Waveform * (1/3);
+    end
 end
 
 %% Make the modulation starts and stops
@@ -711,18 +822,34 @@ end
 
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
-    Mel1200PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
-    Mel800PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
-    Mel400PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
-    
-    LMS1200PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
-    LMS800PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
-    LMS400PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
-    
-    LightFlux1200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
-    LightFlux800PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
-    LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
-    
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        
+        Mel400PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+        Mel200PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
+        Mel100PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
+        
+        LMS400PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+        LMS200PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
+        LMS100PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
+        
+        LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+        LightFlux200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse200Waveform)); Pulse200Waveform]);
+        LightFlux100PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse100Waveform)); Pulse100Waveform]);
+        
+        
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        Mel1200PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+        Mel800PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+        Mel400PulseModulation = OLAssembleModulation([MaxMelBackground, MaxMelDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+        
+        LMS1200PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+        LMS800PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+        LMS400PulseModulation = OLAssembleModulation([MaxLMSBackground, MaxLMSDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+        
+        LightFlux1200PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse1200Waveform)); Pulse1200Waveform]);
+        LightFlux800PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse800Waveform)); Pulse800Waveform]);
+        LightFlux400PulseModulation = OLAssembleModulation([LightFluxBackground, LightFluxDirection], [ones(1, length(Pulse400Waveform)); Pulse400Waveform]);
+    end
 end
 %% Define all modulations
 
@@ -794,67 +921,142 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     
-    % Mel modulations
-    Mel1200PulseModulationData.modulationParams.direction = "Melanopsin 1200% contrast";
-    Mel1200PulseModulationData.modulation = Mel1200PulseModulation;
-    [Mel1200PulseModulationData.modulation.background.starts, Mel1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
-    Mel1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    Mel1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
     
-    Mel800PulseModulationData.modulationParams.direction = "Melanopsin 800% contrast";
-    Mel800PulseModulationData.modulation = Mel800PulseModulation;
-    [Mel800PulseModulationData.modulation.background.starts, Mel800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
-    Mel800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    Mel800PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
-    Mel400PulseModulationData.modulation = Mel400PulseModulation;
-    [Mel400PulseModulationData.modulation.background.starts, Mel400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
-    Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    % LMS modulations
-    LMS1200PulseModulationData.modulationParams.direction = "L+S 1200% contrast";
-    LMS1200PulseModulationData.modulation = LMS1200PulseModulation;
-    [LMS1200PulseModulationData.modulation.background.starts, LMS1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
-    LMS1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LMS1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    LMS800PulseModulationData.modulationParams.direction = "L+S 800% contrast";
-    LMS800PulseModulationData.modulation = LMS800PulseModulation;
-    [LMS800PulseModulationData.modulation.background.starts, LMS800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
-    LMS800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LMS800PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    LMS400PulseModulationData.modulationParams.direction = "L+S 400% contrast";
-    LMS400PulseModulationData.modulation = LMS400PulseModulation;
-    [LMS400PulseModulationData.modulation.background.starts, LMS400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
-    LMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    % LightFlux modulations
-    LightFlux1200PulseModulationData.modulationParams.direction = "LightFlux 1200% contrast";
-    LightFlux1200PulseModulationData.modulation = LightFlux1200PulseModulation;
-    [LightFlux1200PulseModulationData.modulation.background.starts, LightFlux1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
-    LightFlux1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LightFlux1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    LightFlux800PulseModulationData.modulationParams.direction = "LightFlux 800% contrast";
-    LightFlux800PulseModulationData.modulation = LightFlux800PulseModulation;
-    [LightFlux800PulseModulationData.modulation.background.starts, LightFlux800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
-    LightFlux800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LightFlux800PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
-    LightFlux400PulseModulationData.modulationParams.direction = "LightFlux 400% contrast";
-    LightFlux400PulseModulationData.modulation = LightFlux400PulseModulation;
-    [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
-    LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
-    LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
-    
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        
+        
+        % Mel modulations
+        Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+        Mel400PulseModulationData.modulation = Mel400PulseModulation;
+        [Mel400PulseModulationData.modulation.background.starts, Mel400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        Mel200PulseModulationData.modulationParams.direction = "Melanopsin 200% contrast";
+        Mel200PulseModulationData.modulation = Mel200PulseModulation;
+        [Mel200PulseModulationData.modulation.background.starts, Mel200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        Mel100PulseModulationData.modulationParams.direction = "Melanopsin 100% contrast";
+        Mel100PulseModulationData.modulation = Mel100PulseModulation;
+        [Mel100PulseModulationData.modulation.background.starts, Mel100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        
+        
+        % LMS modulations
+        LMS400PulseModulationData.modulationParams.direction = "L+S 400% contrast";
+        LMS400PulseModulationData.modulation = LMS400PulseModulation;
+        [LMS400PulseModulationData.modulation.background.starts, LMS400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LMS200PulseModulationData.modulationParams.direction = "L+S 200% contrast";
+        LMS200PulseModulationData.modulation = LMS200PulseModulation;
+        [LMS200PulseModulationData.modulation.background.starts, LMS200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LMS100PulseModulationData.modulationParams.direction = "L+S 100% contrast";
+        LMS100PulseModulationData.modulation = LMS100PulseModulation;
+        [LMS100PulseModulationData.modulation.background.starts, LMS100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        
+        
+        % LightFlux Modulations
+        LightFlux400PulseModulationData.modulationParams.direction = "Light flux 400% contrast";
+        LightFlux400PulseModulationData.modulation = LightFlux400PulseModulation;
+        [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LightFlux200PulseModulationData.modulationParams.direction = "Light flux 200% contrast";
+        LightFlux200PulseModulationData.modulation = LightFlux200PulseModulation;
+        [LightFlux200PulseModulationData.modulation.background.starts, LightFlux200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LightFlux100PulseModulationData.modulationParams.direction = "Light flux 100% contrast";
+        LightFlux100PulseModulationData.modulation = LightFlux100PulseModulation;
+        [LightFlux100PulseModulationData.modulation.background.starts, LightFlux100PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux100PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux100PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        
+        
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        
+        
+        
+        % Mel modulations
+        Mel1200PulseModulationData.modulationParams.direction = "Melanopsin 1200% contrast";
+        Mel1200PulseModulationData.modulation = Mel1200PulseModulation;
+        [Mel1200PulseModulationData.modulation.background.starts, Mel1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        Mel800PulseModulationData.modulationParams.direction = "Melanopsin 800% contrast";
+        Mel800PulseModulationData.modulation = Mel800PulseModulation;
+        [Mel800PulseModulationData.modulation.background.starts, Mel800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        Mel400PulseModulationData.modulationParams.direction = "Melanopsin 400% contrast";
+        Mel400PulseModulationData.modulation = Mel400PulseModulation;
+        [Mel400PulseModulationData.modulation.background.starts, Mel400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxMelBackground.differentialPrimaryValues, calibration);
+        Mel400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        Mel400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        % LMS modulations
+        LMS1200PulseModulationData.modulationParams.direction = "L+S 1200% contrast";
+        LMS1200PulseModulationData.modulation = LMS1200PulseModulation;
+        [LMS1200PulseModulationData.modulation.background.starts, LMS1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LMS800PulseModulationData.modulationParams.direction = "L+S 800% contrast";
+        LMS800PulseModulationData.modulation = LMS800PulseModulation;
+        [LMS800PulseModulationData.modulation.background.starts, LMS800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LMS400PulseModulationData.modulationParams.direction = "L+S 400% contrast";
+        LMS400PulseModulationData.modulation = LMS400PulseModulation;
+        [LMS400PulseModulationData.modulation.background.starts, LMS400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(MaxLMSBackground.differentialPrimaryValues, calibration);
+        LMS400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LMS400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        % LightFlux modulations
+        LightFlux1200PulseModulationData.modulationParams.direction = "LightFlux 1200% contrast";
+        LightFlux1200PulseModulationData.modulation = LightFlux1200PulseModulation;
+        [LightFlux1200PulseModulationData.modulation.background.starts, LightFlux1200PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux1200PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux1200PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LightFlux800PulseModulationData.modulationParams.direction = "LightFlux 800% contrast";
+        LightFlux800PulseModulationData.modulation = LightFlux800PulseModulation;
+        [LightFlux800PulseModulationData.modulation.background.starts, LightFlux800PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux800PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux800PulseModulationData.modulationParams.timeStep = pulseTimestep;
+        
+        LightFlux400PulseModulationData.modulationParams.direction = "LightFlux 400% contrast";
+        LightFlux400PulseModulationData.modulation = LightFlux400PulseModulation;
+        [LightFlux400PulseModulationData.modulation.background.starts, LightFlux400PulseModulationData.modulation.background.stops] = OLPrimaryToStartsStops(LightFluxBackground.differentialPrimaryValues, calibration);
+        LightFlux400PulseModulationData.modulationParams.stimulusDuration = waveformParams.stimulusDuration;
+        LightFlux400PulseModulationData.modulationParams.timeStep = pulseTimestep;
+    end
 end
 
 % save modulations
-savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, protocolParams.experimentName, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+else
+    savePath = fullfile(getpref('OLApproach_Squint', 'DataPath'), 'Experiments', protocolParams.approach, protocolParams.protocol, 'ModulationStructs', protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+end
 if ~exist(savePath,'dir')
     mkdir(savePath);
 end
@@ -881,17 +1083,34 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     
-    save(fullfile(savePath, 'Mel1200PulseModulationData.mat'), 'Mel1200PulseModulationData');
-    save(fullfile(savePath, 'Mel800PulseModulationData.mat'), 'Mel800PulseModulationData');
-    save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
-    
-    save(fullfile(savePath, 'LMS1200PulseModulationData.mat'), 'LMS1200PulseModulationData');
-    save(fullfile(savePath, 'LMS800PulseModulationData.mat'), 'LMS800PulseModulationData');
-    save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
-    
-    save(fullfile(savePath, 'LightFlux1200PulseModulationData.mat'), 'LightFlux1200PulseModulationData');
-    save(fullfile(savePath, 'LightFlux800PulseModulationData.mat'), 'LightFlux800PulseModulationData');
-    save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        
+        save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
+        save(fullfile(savePath, 'Mel200PulseModulationData.mat'), 'Mel200PulseModulationData');
+        save(fullfile(savePath, 'Mel100PulseModulationData.mat'), 'Mel100PulseModulationData');
+        
+        save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
+        save(fullfile(savePath, 'LMS200PulseModulationData.mat'), 'LMS200PulseModulationData');
+        save(fullfile(savePath, 'LMS100PulseModulationData.mat'), 'LMS100PulseModulationData');
+        
+        save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+        save(fullfile(savePath, 'LightFlux200PulseModulationData.mat'), 'LightFlux200PulseModulationData');
+        save(fullfile(savePath, 'LightFlux100PulseModulationData.mat'), 'LightFlux100PulseModulationData');
+        
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        
+        save(fullfile(savePath, 'Mel1200PulseModulationData.mat'), 'Mel1200PulseModulationData');
+        save(fullfile(savePath, 'Mel800PulseModulationData.mat'), 'Mel800PulseModulationData');
+        save(fullfile(savePath, 'Mel400PulseModulationData.mat'), 'Mel400PulseModulationData');
+        
+        save(fullfile(savePath, 'LMS1200PulseModulationData.mat'), 'LMS1200PulseModulationData');
+        save(fullfile(savePath, 'LMS800PulseModulationData.mat'), 'LMS800PulseModulationData');
+        save(fullfile(savePath, 'LMS400PulseModulationData.mat'), 'LMS400PulseModulationData');
+        
+        save(fullfile(savePath, 'LightFlux1200PulseModulationData.mat'), 'LightFlux1200PulseModulationData');
+        save(fullfile(savePath, 'LightFlux800PulseModulationData.mat'), 'LightFlux800PulseModulationData');
+        save(fullfile(savePath, 'LightFlux400PulseModulationData.mat'), 'LightFlux400PulseModulationData');
+    end
     
 end
 
@@ -909,9 +1128,15 @@ end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     
-    modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
-        LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
-        LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];
+    if strcmp(protocolParams.experimentName, 'experiment_1')
+        modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+            LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+            LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+    elseif strcmp(protocolParams.experimentName, 'experiment_2')
+        modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
+            LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
+            LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];
+    end
 end
 
 %% Shutdown the LabJack object
