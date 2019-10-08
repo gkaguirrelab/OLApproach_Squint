@@ -56,13 +56,13 @@ end
 takeTemperatureMeasurements = true;
 measureStateTrackingSPDs = true;
 [takeTemperatureMeasurements, quitNow, theLJdev] = OLCalibrator.OpenLabJackTemperatureProbe(takeTemperatureMeasurements);
-    if (quitNow)
-        return;
-    end
+if (quitNow)
+    return;
+end
 
 % Validate direction corrected primaries post experiment
 T_receptors = LightFluxDirection.describe.T_receptors; % the T_receptors will be the same for each direction, so just grab one
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     for ii = length(MaxMelDirection.describe.validation)+1:length(MaxMelDirection.describe.validation)+protocolParams.nValidationsPerDirection
         OLValidateDirection(MaxMelDirection, MaxMelBackground, ol, radiometer, 'receptors', T_receptors, 'label', 'postexperiment', 'temperatureProbe', theLJdev, ...
             'measureStateTrackingSPDs', measureStateTrackingSPDs);
@@ -71,7 +71,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse')
     end
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     for ii = length(MaxLMSDirection.describe.validation)+1:length(MaxLMSDirection.describe.validation)+protocolParams.nValidationsPerDirection
         
@@ -82,7 +82,7 @@ if strcmp(protocolParams.protocol, 'SquintToPulse')
     end
 end
 
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening') || strcmp(protocolParams.protocol, 'Deuteranopes')
     
     for ii = length(LightFluxDirection.describe.validation)+1:length(LightFluxDirection.describe.validation)+protocolParams.nValidationsPerDirection
         
@@ -94,18 +94,21 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
 end
 
 %% tell the console what the background luminance of the light flux stimuli was
-LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postexperiment', 'plot', 'off');
-lightFluxBackgroundLuminance = median(LightFluxPostValidationJustPost.backgroundLuminance);
 
-if lightFluxBackgroundLuminance > 254.6685
-    backgroundLuminance = 0;
-    fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too bright</strong>\n', lightFluxBackgroundLuminance);
-elseif lightFluxBackgroundLuminance < 160.685
-    backgroundLuminance = 0;
-    fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too dim</strong>\n', lightFluxBackgroundLuminance);
-else
-    backgroundLuminance = 1;
-    fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminance);
+if ~strcmp(protocolParams.protocol, 'Deuteranopes')
+    LightFluxPostValidationJustPost = summarizeValidation(LightFluxDirection, 'whichValidationPrefix', 'postexperiment', 'plot', 'off');
+    lightFluxBackgroundLuminance = median(LightFluxPostValidationJustPost.backgroundLuminance);
+    
+    if lightFluxBackgroundLuminance > 254.6685
+        backgroundLuminance = 0;
+        fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too bright</strong>\n', lightFluxBackgroundLuminance);
+    elseif lightFluxBackgroundLuminance < 160.685
+        backgroundLuminance = 0;
+        fprintf('<strong>Background luminance for lightflux stimuli is %.2f, which is too dim</strong>\n', lightFluxBackgroundLuminance);
+    else
+        backgroundLuminance = 1;
+        fprintf('Background luminance for lightflux stimuli is %.2f\n', lightFluxBackgroundLuminance);
+    end
 end
 
 
