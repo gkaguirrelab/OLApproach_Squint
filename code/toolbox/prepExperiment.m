@@ -727,9 +727,9 @@ end
 % OUT SPLATTER FOR DEUTS
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     if melanopsinFailStatus == 0
-        fprintf('Melanopsin modulations are good\n');
+        fprintf('\nMelanopsin modulations are good\n');
     else
-        fprintf('<strong Melanopsin modulations are poor</strong>\n');
+        fprintf('\n<strong Melanopsin modulations are poor</strong>\n');
     end
     
     if LMSFailStatus == 0
@@ -744,11 +744,11 @@ if strcmp(protocolParams.protocol, 'Deuteranopes')
         fprintf('<strong LightFlux modulations are poor</strong>\n');
     end
     
-    if melanopsinFailStatus == 0 && LMSFailStatus == 0 && LightFluxFailStatus == 0
-        fprintf('***We have good modulations and are ready for the experiment***\n');
+    if melanopsinFailStatus == 0 && LMSFailStatus == 0 && lightFluxFailStatus == 0
+        fprintf('\n***We have good modulations and are ready for the experiment***\n');
         
     else
-        fprintf('<strong>***Modulations are poor, we have to figure something out***</strong>\n');
+        fprintf('\n<strong>***Modulations are poor, we have to figure something out***</strong>\n');
         
     end
 end
