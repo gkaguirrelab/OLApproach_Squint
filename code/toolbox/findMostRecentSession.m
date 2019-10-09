@@ -1,4 +1,4 @@
-function [ subjectID, sessionNumber, acquisitionNumber ] = findMostRecentSession(protocolParams)
+function [ subjectID, sessionNumber, acquisitionNumber, experimentNumber ] = findMostRecentSession(protocolParams)
 % Guess which was the most recent session that was part of the OLApproach_Squint experiment.
 %
 % Syntax:
@@ -45,6 +45,22 @@ subjectID = dirContent(index).name;
 % get today's date
 todayDate = datestr(now, 'yyyy-mm-dd');
 
+% find experimentName
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+    experimentDir = fullfile(dataFilesDir, '..', 'DirectionObjects', subjectID);
+    experimentDirContent = dir(experimentDir);
+    experimentDirContent = experimentDirContent(~ismember({experimentDirContent.name}, {'.','..', '.DS_Store'}));
+    [value, index] = max([experimentDirContent(:).datenum]);
+    if length(experimentDirContent) == 0
+        experimentNumber = 'experiment_1';
+    else
+        experimentNumber = experimentDirContent(index).name;
+    end
+else
+    experimentNumber = [];
+    
+end
+
 % find session
 sessionDir = fullfile(dataFilesDir, '..', 'SessionRecords', subjectID, todayDate);
 sessionDirContent = dir(sessionDir);
@@ -56,12 +72,8 @@ else
     sessionNumber = sessionDirContent(index).name;
 end
 
-if strcmp(protocolParams.protocol, 'Deuteranopes')
-   
-else
-    experimentName = [];
-    
-end
+
+
 
 % find most recent acquisition
 dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber);
