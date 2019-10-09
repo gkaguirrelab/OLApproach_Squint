@@ -52,9 +52,16 @@ if any(cellfun(@(x) sum(strcmp(x,'oneLight')),protocolParams.myActions))
             
         end
     if ~exist('modulationData', 'var')
+        if strcmp(protocolParams.experimentName, 'experiment_1')
+                     modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+                LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+                LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];        
+       
+        elseif strcmp(protocolParams.experimentName, 'experiment_2')
             modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
                 LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
                 LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];        
+        end
         end
     ol.setMirrors(modulationData(7).modulation.background.starts,modulationData(7).modulation.background.stops);
 end
@@ -138,6 +145,11 @@ if (protocolParams.resume)
         if ~isfield(protocolParams, 'sessionName')
             protocolParams.sessionName = sessionName;
         end
+        
+        if ~isfield(protocolParams, 'experimentName')
+            protocolParams.experimentName = experimentName;
+        end
+        
         if ~isfield(protocolParams, 'acquisitionNumber')
             protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
         end
@@ -146,6 +158,7 @@ if (protocolParams.resume)
         commandwindow;
         protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
         protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
+        protocolParams.experimentName = GetWithDefault('>> Enter <strong>experiment number</strong>:', protocolParams.experimentName);
         protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
         protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
         
@@ -155,9 +168,16 @@ if (protocolParams.resume)
         
         % assemble the modulations into the modulationData variable
         if ~exist('modulationData', 'var')
-            modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
-                LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
-                LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];        
+            if strcmp(protocolParams.experimentName, 'experiment_1')
+                modulationData = [Mel400PulseModulationData; Mel200PulseModulationData; Mel100PulseModulationData; ...
+                    LMS400PulseModulationData; LMS200PulseModulationData; LMS100PulseModulationData; ...
+                    LightFlux400PulseModulationData; LightFlux200PulseModulationData; LightFlux100PulseModulationData];
+                
+            elseif strcmp(protocolParams.experimentName, 'experiment_2')
+                modulationData = [Mel1200PulseModulationData; Mel800PulseModulationData; Mel400PulseModulationData; ...
+                    LMS1200PulseModulationData; LMS800PulseModulationData; LMS400PulseModulationData; ...
+                    LightFlux1200PulseModulationData; LightFlux800PulseModulationData; LightFlux400PulseModulationData];
+            end
         end
         
         if ~exist('ol', 'var')

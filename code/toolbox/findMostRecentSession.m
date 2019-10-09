@@ -56,6 +56,13 @@ else
     sessionNumber = sessionDirContent(index).name;
 end
 
+if strcmp(protocolParams.protocol, 'Deuteranopes')
+   
+else
+    experimentName = [];
+    
+end
+
 % find most recent acquisition
 dataDir = fullfile(dataFilesDir, subjectID, todayDate, sessionNumber);
 dataDirContent = dir(fullfile(dataDir, '*.mat'));
