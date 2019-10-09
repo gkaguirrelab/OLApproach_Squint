@@ -1,3 +1,4 @@
+%% Pre-Experiment
 fprintf('\n<strong>***Pre-Experiment***</strong>\n');
 fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
 MelValidation = summarizeValidation(MaxMelDirection, 'plot', 'off');
@@ -20,6 +21,7 @@ fprintf('\tL Cone Contrast: %4.2f %%\n', median(LightFluxValidation.LConeContras
 fprintf('\tS Cone Contrast: %4.2f %%\n',  median(LightFluxValidation.SConeContrast(6:10))*100);
 fprintf('\tMelanopsin Contrast: %4.2f %%\n',  median(LightFluxValidation.MelanopsinContrast(6:10))*100);
 
+%% Post-Experiment
 fprintf('\n<strong>***Post-Experiment***</strong>\n');
 fprintf('\n<strong>For melanopsin stimuli:</strong>\n');
 MelValidation = summarizeValidation(MaxMelDirection, 'plot', 'off');
