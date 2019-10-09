@@ -81,6 +81,8 @@ end
 if strcmp(protocolParams.protocol, 'Deuteranopes')
     protocolParams.whichLCone = GetWithDefault('>> Enter which L cone variant:', 'left/right');
     protocolParams.experimentName = GetWithDefault('>> Enter experiment number:', 'experiment_1');
+else
+    protocolParams.experimentName = [];
 
 end
 

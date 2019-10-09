@@ -36,7 +36,7 @@ if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
     %% Where the data goes
     
     
-    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, [protocolParams.todayDate, '_',  protocolParams.sessionName]);
+    savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.experimentName, [protocolParams.todayDate, '_',  protocolParams.sessionName]);
     
     if ~exist(savePath,'dir')
         mkdir(savePath);
@@ -127,7 +127,7 @@ if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
         
         % Figure out where to save the data
         
-        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, [protocolParams.todayDate, '_', protocolParams.sessionName]);
+        savePath = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'),protocolParams.observerID, protocolParams.experimentName, [protocolParams.todayDate, '_', protocolParams.sessionName]);
         
         if ~exist(savePath,'dir')
             mkdir(savePath);
