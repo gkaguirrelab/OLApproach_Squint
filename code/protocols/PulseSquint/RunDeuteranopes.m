@@ -135,7 +135,7 @@ if (protocolParams.resume)
     % make sure the base has the information it needs to start the session
     if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         
-        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber, experimentName ] = findMostRecentSession(protocolParams);
         if ~isfield(protocolParams, 'observerID')
             protocolParams.observerID = observerID;
         end
@@ -191,7 +191,7 @@ if (protocolParams.resume)
     % session
     if any(cellfun(@(x) sum(strcmp(x,'satellite')),protocolParams.myRoles))
         
-        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber, experimentName ] = findMostRecentSession(protocolParams);
         
         % see if the acquisitionNumber is already in our protocolParams
         if ~isfield(protocolParams, 'acquisitionNumber')
