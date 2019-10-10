@@ -133,6 +133,7 @@ if any(strcmp('satellite',protocolParams.myRoles))
         % Place the information from the message into protocolParams
         protocolParams.acquisitionNumber = theMessageReceived.data.acquisitionNumber;
         protocolParams.sessionName = theMessageReceived.data.sessionName;
+        protocolParams.experimentName = theMessageReceived.data.experimentName;
         protocolParams.protocolOutputName = theMessageReceived.data.protocolOutputName;
         protocolParams.observerID = theMessageReceived.data.observerID;
         protocolParams.todayDate = theMessageReceived.data.todayDate;
