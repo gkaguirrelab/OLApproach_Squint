@@ -73,14 +73,16 @@ while ~calibrationDoneFlag
             if ~isfield(protocolParams, 'observerID') || ~isfield(protocolParams, 'sessionName')
                 % make the folder in which to save calibration
                 % make a good guess of the which subject we're working with
-                [ subjectID, sessionNumber ] = findMostRecentSession(protocolParams);
+                [ subjectID, sessionNumber, ~, experimentName ] = findMostRecentSession(protocolParams);
                 protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', subjectID);
                 protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', sessionNumber);
+                protocolParams.experimentName = GetWithDefault('>> Enter <strong>experiment number</strong>:', experimentName);
+
             end
             
             
             todayDate = datestr(now, 'yyyy-mm-dd');
-            outDir = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'), protocolParams.observerID, [todayDate, '_', protocolParams.sessionName], 'pupilCalibration');
+            outDir = fullfile(getpref(protocolParams.protocol, 'DataFilesBasePath'), protocolParams.observerID, protocolParams.experimentName, [todayDate, '_', protocolParams.sessionName], 'pupilCalibration');
             if ~exist(outDir)
                 mkdir(outDir);
             end
