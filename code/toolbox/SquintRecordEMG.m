@@ -38,11 +38,12 @@ else
         labjackOBJ.configureAnalogDataStream(p.Results.channelIDs, p.Results.frequencyInHz);
         
         % Aquire the data
+        elapsedTime = toc;
         labjackOBJ.startDataStreamingForSpecifiedDuration(p.Results.recordingDurationSecs);
         
         % Place the data in a response structure
         %% NEED TO DO SOME WORK HERE TO LINK THE UNITS OF TIME TO THE STANDARD MSECS OF OUR PACKETS
-        emgDataStruct.timebase = labjackOBJ.timeAxis;
+        emgDataStruct.timebase = labjackOBJ.timeAxis + elapsedTime;
         emgDataStruct.response = labjackOBJ.data;
         emgDataStruct.response = emgDataStruct.response'; 
         emgDataStruct.params = p.Results;
