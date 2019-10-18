@@ -1,4 +1,4 @@
-% RunSquintApproach
+% RunDeuteranopes
 %
 % Description:
 %   Define the parameters for the RunSquintApproach protocol of the
