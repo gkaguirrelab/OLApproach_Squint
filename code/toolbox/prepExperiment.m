@@ -539,21 +539,21 @@ if ~(protocolParams.simulate.radiometer)
                 fprintf('\tS Cone Contrast: %4.2f %%\n',  median(melanopsinValidation.SConeContrast(6:10))*100);
             end
             
-            if abs(mean([median(MelValidation.LConeContrast(6:10))*100, median(MelValidation.SConeContrast(6:10))*100])) > 20
+            if abs(mean([median(melanopsinValidation.LConeContrast(6:10))*100, median(melanopsinValidation.SConeContrast(6:10))*100])) > 20
                melanopsinFailStatus = 1;
-               fprintf('\t<strong>L+S Contrast: %4.2f %%</strong>\n',  mean([median(MelValidation.LConeContrast(6:10))*100, median(MelValidation.SConeContrast(6:10))*100]));
+               fprintf('\t<strong>L+S Contrast: %4.2f %%</strong>\n',  mean([median(melanopsinValidation.LConeContrast(6:10))*100, median(melanopsinValidation.SConeContrast(6:10))*100]));
 
             else
-                fprintf('\tL+S Contrast: %4.2f %%\n',  mean([median(MelValidation.LConeContrast(6:10))*100, median(MelValidation.SConeContrast(6:10))*100]));
+                fprintf('\tL+S Contrast: %4.2f %%\n',  mean([median(melanopsinValidation.LConeContrast(6:10))*100, median(melanopsinValidation.SConeContrast(6:10))*100]));
 
             end
             
-            if abs(median(MelValidation.SConeContrast(6:10))*100 - median(MelValidation.LConeContrast(6:10))*100) > 20
+            if abs(median(melanopsinValidation.SConeContrast(6:10))*100 - median(melanopsinValidation.LConeContrast(6:10))*100) > 20
                melanopsinFailStatus = 1;
-               fprintf('\t<strong>S-L Contrast: %4.2f %%</strong>\n',  median(MelValidation.SConeContrast(6:10))*100 - median(MelValidation.LConeContrast(6:10))*100);
+               fprintf('\t<strong>S-L Contrast: %4.2f %%</strong>\n',  median(melanopsinValidation.SConeContrast(6:10))*100 - median(melanopsinValidation.LConeContrast(6:10))*100);
 
             else
-                fprintf('\tS-L Contrast: %4.2f %%\n',  median(MelValidation.SConeContrast(6:10))*100 - median(MelValidation.LConeContrast(6:10))*100);
+                fprintf('\tS-L Contrast: %4.2f %%\n',  median(melanopsinValidation.SConeContrast(6:10))*100 - median(melanopsinValidation.LConeContrast(6:10))*100);
 
             end
             
@@ -695,21 +695,21 @@ if ~(protocolParams.simulate.radiometer)
                 fprintf('\tS Cone Contrast: %4.2f %%\n',  median(lightFluxValidation.SConeContrast(6:10))*100);
             end
             
-            if mean([median(LightFluxValidation.LConeContrast(6:10))*100, median(LightFluxValidation.SConeContrast(6:10))*100]) < .875 * targetContrast * 100
+            if mean([median(lightFluxValidation.LConeContrast(6:10))*100, median(lightFluxValidation.SConeContrast(6:10))*100]) < .875 * targetContrast * 100
                 lightFluxFailStatus = 1;
-                fprintf('\t<strong>L+S Contrast: %4.2f %%</strong>\n',  mean([median(LightFluxValidation.LConeContrast(6:10))*100, median(LightFluxValidation.SConeContrast(6:10))*100]));
+                fprintf('\t<strong>L+S Contrast: %4.2f %%</strong>\n',  mean([median(lightFluxValidation.LConeContrast(6:10))*100, median(lightFluxValidation.SConeContrast(6:10))*100]));
 
             else
-                fprintf('\tL+S Contrast: %4.2f %%\n',  mean([median(LightFluxValidation.LConeContrast(6:10))*100, median(LightFluxValidation.SConeContrast(6:10))*100]));
+                fprintf('\tL+S Contrast: %4.2f %%\n',  mean([median(lightFluxValidation.LConeContrast(6:10))*100, median(lightFluxValidation.SConeContrast(6:10))*100]));
 
             end
             
-            if abs(median(LightFluxValidation.SConeContrast(6:10))*100 - median(LightFluxValidation.LConeContrast(6:10))*100) > 20
+            if abs(median(lightFluxValidation.SConeContrast(6:10))*100 - median(lightFluxValidation.LConeContrast(6:10))*100) > 20
                 lightFluxFailStatus = 1;
-                fprintf('\t<strong>S-L Contrast: %4.2f %%</strong>\n',  median(LightFluxValidation.SConeContrast(6:10))*100 - median(LightFluxValidation.LConeContrast(6:10))*100);
+                fprintf('\t<strong>S-L Contrast: %4.2f %%</strong>\n',  median(lightFluxValidation.SConeContrast(6:10))*100 - median(lightFluxValidation.LConeContrast(6:10))*100);
 
             else
-                fprintf('\tS-L Contrast: %4.2f %%\n',  median(LightFluxValidation.SConeContrast(6:10))*100 - median(LightFluxValidation.LConeContrast(6:10))*100);
+                fprintf('\tS-L Contrast: %4.2f %%\n',  median(lightFluxValidation.SConeContrast(6:10))*100 - median(lightFluxValidation.LConeContrast(6:10))*100);
 
             end
             
