@@ -70,7 +70,7 @@ if (protocolParams.resume)
     % make sure the base has the information it needs to start the session
     if any(cellfun(@(x) sum(strcmp(x,'base')),protocolParams.myRoles))
         
-        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber ] = findMostRecentSession(protocolParams);
+        [ observerID, sessionName, mostRecentlyCompletedAcquisitionNumber, experimentName ] = findMostRecentSession(protocolParams);
         if ~isfield(protocolParams, 'observerID')
             protocolParams.observerID = observerID;
         end
@@ -83,12 +83,16 @@ if (protocolParams.resume)
         if ~isfield(protocolParams, 'acquisitionNumber')
             protocolParams.acquisitionNumber = mostRecentlyCompletedAcquisitionNumber+1;
         end
-        
+                if ~isfield(protocolParams, 'experimentName')
+            protocolParams.experimentName = experimentName;
+        end
         % Information we prompt for and related
         commandwindow;
         protocolParams.observerID = GetWithDefault('>> Enter <strong>observer name</strong>', protocolParams.observerID);
         %protocolParams.observerAgeInYrs = GetWithDefault('>> Enter <strong>observer age</strong>:', protocolParams.observerAgeInYrs);
         protocolParams.sessionName = GetWithDefault('>> Enter <strong>session number</strong>:', protocolParams.sessionName);
+               protocolParams.experimentName = GetWithDefault('>> Enter <strong>experiment number</strong>:', protocolParams.experimentName);
+
         protocolParams.acquisitionNumber = GetWithDefault('>> Enter <strong>acquisition number</strong>:', protocolParams.acquisitionNumber);
         protocolParams.todayDate = datestr(now, 'yyyy-mm-dd');
         
