@@ -65,9 +65,9 @@ LightFluxParams = OLDirectionParamsFromName('LightFlux_chrom_unipolar_275_60_400
     
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'alternateBackgroundDictionaryFunc', 'OLBackgroundParamsDictionary_Squint', 'observerAge',observerAge);
     LightFluxDirection.describe.observerAge = observerAge;
-    LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
-    LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
-OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',T_receptors, 'label', 'precorrection');
+    LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
+    LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
+OLValidateDirection(LightFluxDirection,LightFluxBackground,OneLight('simulate',true,'plotWhenSimulating',false),[],'receptors',LightFluxDirection.describe.directionParams.T_receptors, 'label', 'precorrection');
 figure; LightFluxValidation = summarizeValidation(LightFluxDirection)
 
 %{
