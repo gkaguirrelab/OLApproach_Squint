@@ -136,7 +136,7 @@ protocolParams = OLSessionLog(protocolParams,'OLSessionInit');
 % for the SquintToPusle protocol, we want Mel, LMS, and light flux
 % for screening, we just want light flux
 
-if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Screening')
+if strcmp(protocolParams.protocol, 'SquintToPulse') %|| strcmp(protocolParams.protocol, 'Screening')
     % make the Mel params for screening just so we have the T_receptors and
     % photoreceptorClasses subfields
     MaxMelParams = OLDirectionParamsFromName('MaxMel_chrom_unipolar_275_60_4000', 'alternateDictionaryFunc', protocolParams.directionsDictionary);
@@ -182,8 +182,8 @@ if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.pro
     
     [ LightFluxDirection, LightFluxBackground ] = OLDirectionNominalFromParams(LightFluxParams, calibration, 'observerAge',protocolParams.observerAgeInYrs, 'alternateBackgroundDictionaryFunc', protocolParams.backgroundsDictionary);
     LightFluxDirection.describe.observerAge = protocolParams.observerAgeInYrs;
-    LightFluxDirection.describe.photoreceptorClasses = MaxMelDirection.describe.directionParams.photoreceptorClasses;
-    LightFluxDirection.describe.T_receptors = MaxMelDirection.describe.directionParams.T_receptors;
+    LightFluxDirection.describe.photoreceptorClasses = LightFluxDirection.describe.directionParams.photoreceptorClasses;
+    LightFluxDirection.describe.T_receptors = LightFluxDirection.describe.directionParams.T_receptors;
 end
 
 if strcmp(protocolParams.protocol, 'Deuteranopes')
@@ -424,7 +424,7 @@ else
     radiometer = [];
 end
 %% Validate prior to direction correction
-T_receptors = MaxMelDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
+T_receptors = LightFluxDirection.describe.directionParams.T_receptors; % the T_receptors will be the same for each direction, so just grab one
 for ii = 1:protocolParams.nValidationsPerDirection
     
     if strcmp(protocolParams.protocol, 'SquintToPulse') || strcmp(protocolParams.protocol, 'Deuteranopes')
