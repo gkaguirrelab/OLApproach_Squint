@@ -78,6 +78,8 @@ for vv = validationIndices
         validation.LConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1);
         validation.SConeContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(2,1);
         validation.MelanopsinContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(3,1);
+        validation.LMinusSContrast(counter) = DirectionObject.describe.validation(vv).contrastActual(1,1) - DirectionObject.describe.validation(vv).contrastActual(2,1);
+        validation.LSContrast(counter) = mean([DirectionObject.describe.validation(vv).contrastActual(1,1), DirectionObject.describe.validation(vv).contrastActual(2,1)]);
     end
     %validation.backgroundLuminance(vv) = DirectionObject.describe.(potentialValidations{vv}).actualBackgroundLuminance;
     
